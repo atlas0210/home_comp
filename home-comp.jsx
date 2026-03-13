@@ -33,7 +33,7 @@ const CANDELABRA_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wB
 const DOM_ROLL_DATE_KEY = "homeComp.domRollDate.v1";
 
 // Raw weighting points (normalized into EFFECTIVE_W below).
-const RAW_WEIGHT_POINTS = { rating: 0.28, monthlyPayment: 0.18, safety: 0.14, sizeValue: 0.20, lot: 0.05, kitchen: 0.05, yard: 0.10, ageScore: 0.05 };
+const RAW_WEIGHT_POINTS = { rating: 0.28, monthlyPayment: 0.20, safety: 0.14, sizeValue: 0.20, lot: 0.05, kitchen: 0.05, yard: 0.10, ageScore: 0.05 };
 const EFFECTIVE_W = (() => {
   const entries = Object.entries(RAW_WEIGHT_POINTS).map(([key, weight]) => [key, (!SAFETY_SCORING_ENABLED && key === "safety") ? 0 : weight]);
   const total = entries.reduce((sum, [, weight]) => sum + weight, 0);
