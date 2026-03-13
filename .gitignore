@@ -1,0 +1,14 @@
+# Local/editor artifacts
+*.code-workspace
+
+# Local backups / helper scripts
+home-comp-backup-*.json
+overrides-from-backup.json
+make-default-csv*.ps1
+homes-raw-values-with-default-flags.csv
+
+# Large local media not needed for deploy
+Screenshot_*.jpeg
+
+# Build artifacts
+_site/
