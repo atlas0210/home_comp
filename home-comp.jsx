@@ -437,6 +437,16 @@ Days on OneHome: 1
 HOA Fee: $120 Monthly
 Annual Taxes: $3,133
 Subdivision: Meridian Ranch Filing No 4b
+
+11310 Scenic Brush Dr Peyton, CO 80831
+For Sale
+$472,299
+Size: 1,986 sqft
+Lot Size Area: 5,497.00 sqft
+Year Built: 2016
+Days on OneHome: 29
+Annual Taxes: $5,401
+Subdivision: Scenic View At Paint Brush Hills
 `;
 const APPLIED_UPDATES_BY_HOME_ID = {
   "imported-mls-1217348": {
@@ -740,6 +750,21 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "bre": 7.5,
     "greg": 7.5,
     "photo": "https://photos.zillowstatic.com/fp/a748b00d13b77dee1fe0f25e2ec3042c-cc_ft_768.webp"
+  },
+  "imported-addr-11908-eagle-crest-ct-peyton-co-80831": {
+    "lotSqft": 6486,
+    "greg": 7.5,
+    "bre": 8,
+    "kitchenSize": "Large",
+    "hoa": 2760
+  },
+  "imported-addr-11310-scenic-brush-dr-peyton-co-80831": {
+    "bre": 7,
+    "greg": 6,
+    "kitchenSize": "Large",
+    "yardCondition": "Fair",
+    "lotSqft": 5662.8,
+    "hoa": 1.2
   }
 };
 const DEFAULT_EDITABLE_KEYS = [
@@ -2108,14 +2133,14 @@ export default function App() {
           </div>
         </div>}
 
-        {tab === "data-entry" && <div style={{ display: "grid", gridTemplateColumns: "minmax(280px,340px) 1fr", gap: 12, alignItems: "start" }}>
-          <div style={{ background: "#1e293b", borderRadius: 12, padding: 12, maxHeight: "75vh", overflow: "auto" }}>
+        {tab === "data-entry" && <div style={{ display: "grid", gridTemplateColumns: "minmax(280px,340px) minmax(0,1fr)", gap: 12, alignItems: "start" }}>
+          <div style={{ background: "#1e293b", borderRadius: 12, padding: 12, overflowX: "hidden" }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", marginBottom: 8 }}>Import Data</div>
             <textarea
               value={importRawText}
               onChange={(e) => setImportRawText(e.target.value)}
               placeholder="Paste unformatted listing blocks here. Imports update live."
-              style={{ width: "100%", minHeight: 120, resize: "vertical", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "8px 9px", fontSize: 12, marginBottom: 8 }}
+              style={{ width: "100%", boxSizing: "border-box", minHeight: 120, resize: "vertical", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "8px 9px", fontSize: 12, marginBottom: 8, overflowX: "hidden" }}
             />
             <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
               <button onClick={downloadBackup} style={{ border: "1px solid #334155", background: "#111827", color: "#e2e8f0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Download Backup</button>
@@ -2137,14 +2162,14 @@ export default function App() {
               Active imports: {importSummary.importedCount} home(s) from {importSummary.blockCount} block(s)
             </div>
             <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", marginBottom: 8 }}>Homes</div>
-            <input value={editorQuery} onChange={(e) => setEditorQuery(e.target.value)} placeholder="Search address, status, or id" style={{ width: "100%", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "7px 8px", fontSize: 12, marginBottom: 10 }} />
-            <div style={{ display: "grid", gap: 8 }}>
+            <input value={editorQuery} onChange={(e) => setEditorQuery(e.target.value)} placeholder="Search address, status, or id" style={{ width: "100%", boxSizing: "border-box", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "7px 8px", fontSize: 12, marginBottom: 10 }} />
+            <div style={{ display: "grid", gap: 8, maxHeight: "42vh", overflowY: "auto", overflowX: "hidden", paddingRight: 4 }}>
               {filteredEditorHomes.map((h) => {
                 const active = h.homeId === selectedHome?.homeId;
                 const missing = getMissingFields(h).length;
                 return (
                   <button key={h.homeId} onClick={() => setSelectedHomeId(h.homeId)} style={{ textAlign: "left", padding: 10, borderRadius: 8, border: active ? "1px solid #818cf8" : "1px solid #334155", background: active ? "#0f172a" : "#111827", color: "#f1f5f9", cursor: "pointer" }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 2 }}>{h.name}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 2, overflowWrap: "anywhere" }}>{h.name}</div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#94a3b8" }}><span>{h.status}</span><span>{h.weightedTotal.toFixed(2)}</span></div>
                     <div style={{ fontSize: 11, color: missing ? "#fbbf24" : "#64748b", marginTop: 4 }}>{missing ? `${missing} blank field(s)` : "No blank fields"}</div>
                   </button>
@@ -2386,5 +2411,6 @@ export default function App() {
     </div>
   );
 }
+
 
 
