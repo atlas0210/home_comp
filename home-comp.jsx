@@ -4,11 +4,24 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, RadarChart, 
 const DP = 80000;
 const PI_FACTOR = 0.006321;
 const MERIDIAN_RANCH_HOA_ANNUAL = 230 * 12;
+const TAX_RATE_BY_ZIP = {
+  "80831": 0.0047,
+  "80908": 0.0047,
+  "80915": 0.0039,
+  "80918": 0.0033,
+  "80920": 0.0041,
+  "80922": 0.0038,
+  "80923": 0.0037,
+  "80924": 0.0059,
+  "80927": 0.0076,
+};
+const DEFAULT_TAX_RATE = 0.0047;
 const SAFETY_SCORING_ENABLED = false;
 const PLACEHOLDER_TAGS_ENABLED = false;
 const EMPTY = "__none__";
 const SHOWHORSE_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJYAlgDASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAAAAECAwQFBgf/xAA8EAACAQMBBQgDBwQDAAAAAAAAAQIDEQQSITEFQVEGEyJhcYGRMqGxI0JSYrHB0fAUI+HxM1OS/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAhEQEBAAICAgIDAQAAAAAAAAAAAQIRAyESMQQTQVFhIv/aAAwDAQACEQMRAD8A9vREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAERED5zb7V4j0+I/8Aj2+uU1l6Wl9W9Y+r2g9s3F7us6Qe6r0PtL8n0+8vL5q3r7f9v6W1pxp0m2v3F7gL8vwv3v28j+z7r9j9pqj9lV7q7n8M5g3lbH2H6V7fWf6uYv2fW3i8+71MZ6Yw6p3i3n4ebVtZxcm9m2n4Jq9X3o/ZoX6a9v2L5b0Vv7n6e9r8g4tSx6H6t3Lr7e2g7n2l1nCwz3Sx3+9Z9Tz6dTg+2J+R6f1X4O4sYt8mQH4i3m4h8U1dVdV3+R9n2b1V9Vx3Y2m7eV3Q1uV7t2n3nqR3K8a+1b4u1u3V6v1b2r4V3d7M2m3F8R4r9j3Y+K1uJ7cQ2X3t7P6rj9Xf3ZVw2m+R3g0QERAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQHk9vtXiPT4j/AONb65TWXpaX1b1j6vaD2zcXu6zpB7qvQ+0vyfT7y8vmrevt/2/pbWnGnSba/cXuAvy/C/e/byP7Puv2P2mqP2VXuru fwzmDeVsfYfpXt9Z/q5i/Z9beLz7vUxn pjDqneLefh5tW1nFyb2bafgmr1fej9mhfpr2/YvlvRW/ufp72vyDi1LHo fq3cuvt7aDufaXWcLDPdLHf71n1PPp1OD7Yn5Hp/Vfg7ixi3yZAfiLebiHxTV1V1Xf5H2fZvVX1XHdjabt5XdDW5Xu3afeepHcrxr7Vvi7W7dXq/VvavhXd3szabcXxHiv2Pdj4rW4ntxDZfe3s/quP1d/dlX Dab5HeDRAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQERH//Z";
 const CANDELABRA_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJiA4ADASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAAAAECAwQFBgf/xAA8EAACAQMBBQgDBwQDAAAAAAAAAQIDEQQSITEFQVEGEyJhcYGRMqGxI0JSYrHB0fAUI+HxM1OS/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAhEQEBAAICAgIDAQAAAAAAAAAAAQIRAyESMQQTQVFhIv/aAAwDAQACEQMRAD8A9vREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAERED5zb7V4j0+I/8Aj2+uU1l6Wl9W9Y+r2g9s3F7us6Qe6r0PtL8n0+8vL5q3r7f9v6W1pxp0m2v3F7gL8vwv3v28j+z7r9j9pqj9lV7q7n8M5g3lbH2H6V7fWf6uYv2fW3i8+71MZ6Yw6p3i3n4ebVtZxcm9m2n4Jq9X3o/ZoX6a9v2L5b0Vv7n6e9r8g4tSx6H6t3Lr7e2g7n2l1nCwz3Sx3+9Z9Tz6dTg+2J+R6f1X4O4sYt8mQH4i3m4h8U1dVdV3+R9n2b1V9Vx3Y2m7eV3Q1uV7t2n3nqR3K8a+1b4u1u3V6v1b2r4V3d7M2m3F8R4r9j3Y+K1uJ7cQ2X3t7P6rj9Xf3ZVw2m+R3g0QERAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQHk9vtXiPT4j/AONb65TWXpaX1b1j6vaD2zcXu6zpB7qvQ+0vyfT7y8vmrevt/2/pbWnGnSba/cXuAvy/C/e/byP7Puv2P2mqP2VXuru fwzmDeVsfYfpXt9Z/q5i/Z9beLz7vUxn pjDqneLefh5tW1nFyb2bafgmr1fej9mhfpr2/YvlvRW/ufp72vyDi1LHo fq3cuvt7aDufaXWcLDPdLHf71n1PPp1OD7Yn5Hp/Vfg7ixi3yZAfiLebiHxTV1V1Xf5H2fZvVX1XHdjabt5XdDW5Xu3afeepHcrxr7Vvi7W7dXq/VvavhXd3szabcXxHiv2Pdj4rW4ntxDZfe3s/quP1d/dlX Dab5HeDRAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQERH//Z";
+const DOM_ROLL_DATE_KEY = "homeComp.domRollDate.v1";
 
 const W = { rating: 0.28, monthlyPayment: 0.18, safety: 0.14, sizeValue: 0.20, lot: 0.05, kitchen: 0.05, yard: 0.10, ageScore: 0.05 };
 const EFFECTIVE_W = (() => {
@@ -338,6 +351,43 @@ Days on OneHome: --
 HOA Fee: $485 Annually
 Annual Taxes: $1,882.9
 Subdivision: Sierra Ridge
+
+4735 Seton Place Colorado Springs, CO 80918-5230
+MLS #1627467
+For Sale
+$550,000
+Price per Sq Ft.: $190
+Size: 2,892 sqft
+Lot Size Area: 8,322.00 sqft
+Year Built: 1996
+Days on OneHome: 7
+Annual Taxes: $1,992
+Subdivision: Sierra Ridge
+
+7662 Camille Court Colorado Springs, CO 80908-4715
+MLS #1196446
+For Sale
+$499,900
+Price per Sq Ft.: $158
+Size: 3,162 sqft
+Lot Size Area: 7,127.00 sqft
+Year Built: 2016
+Days on OneHome: --
+HOA Fee: $130 Quarterly
+Annual Taxes: $2,589.62
+Subdivision: Forest Meadows
+
+4255 Gracewood Drive Colorado Springs, CO 80920-6600
+MLS #6832828
+For Sale
+$545,000
+Price per Sq Ft.: $175
+Size: 3,119 sqft
+Lot Size Area: 4,950.00 sqft
+Year Built: 1998
+Days on OneHome: --
+Annual Taxes: $1,858.09
+Subdivision: Woodside At Briargate
 `;
 const APPLIED_UPDATES_BY_HOME_ID = {
   "imported-mls-1217348": {
@@ -363,7 +413,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "yardCondition": "Fair",
     "kitchenSize": "Small",
     "greg": 5.1,
-    "bre": 5.1
+    "bre": 5.1,
+    "hoa": 0.1
   },
   "imported-mls-9798133": {
     "photo": "https://m1.cbhomes.com/p/723/9798133/E633205A44524b2/pdl23tp.webp",
@@ -374,7 +425,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "greg": 7.5,
     "bre": 7,
     "lotSqft": 10005,
-    "kitchenSize": "Large"
+    "kitchenSize": "Large",
+    "hoa": 0.1
   },
   "imported-mls-3921720": {
     "photo": "https://photos.zillowstatic.com/fp/e50f9224bf21b296c8dd839bdaeec569-cc_ft_768.webp",
@@ -395,7 +447,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "bre": 8,
     "kitchenSize": "Large",
     "lotSqft": 6600,
-    "yardCondition": "Excellent"
+    "yardCondition": "Excellent",
+    "dom": 1
   },
   "imported-mls-6303123": {
     "photo": "https://photos.zillowstatic.com/fp/daf82f01b0b552aa9e427283e0a13975-cc_ft_768.webp",
@@ -419,7 +472,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "kitchenSize": "Gourmet",
     "yardCondition": "Poor",
     "bre": 8,
-    "lotSqft": 5500
+    "lotSqft": 5500,
+    "hoa": 0.1
   },
   "imported-mls-3822228": {
     "photo": "https://photos.zillowstatic.com/fp/a8901e94f5dc1f0d07b26369c9383b4e-cc_ft_768.webp",
@@ -430,7 +484,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "greg": 7,
     "bre": 8,
     "lotSqft": 26400,
-    "kitchenSize": "Gourmet"
+    "kitchenSize": "Gourmet",
+    "hoa": 0.1
   },
   "imported-mls-9617623": {
     "photo": "https://photos.zillowstatic.com/fp/650549673f773fb6eba4dd73bfd4bcd0-cc_ft_768.webp",
@@ -498,7 +553,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "lotSqft": 3200,
     "kitchenSize": "Large",
     "greg": 7,
-    "bre": 7.5
+    "bre": 7.5,
+    "hoa": 0.1
   },
   "imported-mls-1506020": {
     "photo": "https://photos.zillowstatic.com/fp/3f2b7a9d1615fe35ed59762feac28bf0-cc_ft_768.webp",
@@ -510,7 +566,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "greg": 6.5,
     "bre": 6,
     "kitchenSize": "Large",
-    "yardCondition": "Fair"
+    "yardCondition": "Fair",
+    "hoa": 0.1
   },
   "imported-mls-6172323": {
     "photo": "https://photos.zillowstatic.com/fp/bcb00ad016484524c4518a4d524b2c3a-cc_ft_768.webp",
@@ -522,7 +579,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "lotSqft": 6566,
     "greg": 8.5,
     "kitchenSize": "Large",
-    "bre": 8
+    "bre": 8,
+    "hoa": 0.1
   },
   "imported-mls-3917272": {
     "photo": "https://photos.zillowstatic.com/fp/ba30eb1e84d265737fd1969c37582516-cc_ft_768.webp",
@@ -581,10 +639,12 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "greg": 9,
     "bre": 8.5,
     "kitchenSize": "Large",
-    "yardCondition": "Excellent"
+    "yardCondition": "Excellent",
+    "dom": 1
   },
   "base-4": {
-    "bre": 9
+    "bre": 9,
+    "dom": 103
   },
   "base-8": {
     "bre": 6.5
@@ -594,7 +654,34 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "bre": 8.5,
     "greg": 7,
     "kitchenSize": "Large",
-    "yardCondition": "Excellent"
+    "yardCondition": "Excellent",
+    "photo": "https://photos.zillowstatic.com/fp/2f052ee2a9c8428b171c1de924612d53-cc_ft_768.webp"
+  },
+  "imported-mls-6832828": {
+    "lotSqft": 4950,
+    "dom": 1,
+    "hoa": 0.1,
+    "bre": 8,
+    "kitchenSize": "Large",
+    "yardCondition": "Poor",
+    "greg": 7.5,
+    "photo": "https://photos.zillowstatic.com/fp/adef1e965cdaec161c76af235c8c6cbe-cc_ft_768.webp"
+  },
+  "imported-mls-1196446": {
+    "lotSqft": 7127,
+    "bre": 8.75,
+    "kitchenSize": "Gourmet",
+    "dom": 1,
+    "greg": 8.5,
+    "photo": "https://photos.zillowstatic.com/fp/46b62c34617fd37782dbfbf641fe9d12-cc_ft_768.webp"
+  },
+  "imported-mls-1627467": {
+    "hoa": 0.1,
+    "lotSqft": 8322,
+    "yardCondition": "Fair",
+    "bre": 7.5,
+    "greg": 7.5,
+    "photo": "https://photos.zillowstatic.com/fp/a748b00d13b77dee1fe0f25e2ec3042c-cc_ft_768.webp"
   }
 };
 const DEFAULT_EDITABLE_KEYS = [
@@ -658,8 +745,15 @@ const PLACEHOLDER_FIELD_LABELS = {
   safetyVehicleTheftIndex: "Vehicle Theft Index",
 };
 const placeholderLabel = (fieldKey) => PLACEHOLDER_FIELD_LABELS[fieldKey] ?? fieldKey;
+const getMissingFields = (home) => {
+  if (home && Object.prototype.hasOwnProperty.call(home, "blankFields")) {
+    return Array.isArray(home.blankFields) ? home.blankFields : [];
+  }
+  const legacy = Array.isArray(home?.placeholderFields) ? home.placeholderFields : [];
+  return legacy;
+};
 const placeholderSummary = (home, limit = 3) => {
-  const fields = Array.isArray(home?.placeholderFields) ? home.placeholderFields : [];
+  const fields = getMissingFields(home);
   if (!fields.length) return "Complete";
   const labels = fields.slice(0, limit).map(placeholderLabel);
   const extra = fields.length - labels.length;
@@ -682,6 +776,37 @@ const parseLotSqft = (value) => {
   if (n == null) return null;
   if (/acre/i.test(raw)) return Math.round(n * 43560);
   return n;
+};
+const toDateKey = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+const parseDateKey = (value) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value ?? ""));
+  if (!m) return null;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return null;
+  return new Date(year, month - 1, day);
+};
+const dayDiff = (fromKey, toKey) => {
+  const from = parseDateKey(fromKey);
+  const to = parseDateKey(toKey);
+  if (!from || !to) return 0;
+  const fromUtc = Date.UTC(from.getFullYear(), from.getMonth(), from.getDate());
+  const toUtc = Date.UTC(to.getFullYear(), to.getMonth(), to.getDate());
+  return Math.max(0, Math.floor((toUtc - fromUtc) / 86400000));
+};
+const extractZip = (...values) => {
+  const combined = values.filter((v) => typeof v === "string" && v.trim()).join(" ");
+  if (!combined) return null;
+  const stateMatch = combined.match(/(?:\bCO\b|\bColorado\b)\s+(\d{5})(?:-\d{4})?\b/i);
+  if (stateMatch?.[1]) return stateMatch[1];
+  const matches = [...combined.matchAll(/\b(\d{5})(?:-\d{4})?\b/g)].map((m) => m[1]);
+  return matches.length ? matches[matches.length - 1] : null;
 };
 const pickText = (...vals) => vals.find((v) => typeof v === "string" && v.trim())?.trim() ?? "";
 const derivedShort = (name, fallbackIndex) => {
@@ -757,8 +882,15 @@ function normalizeHomeRecord(home, index) {
     placeholderFields.push("hoa");
   }
 
-  const tax = toNum(home.tax ?? home.annualTaxes ?? home.annual_taxes) ?? 3000;
-  if (toNum(home.tax ?? home.annualTaxes ?? home.annual_taxes) == null) placeholderFields.push("tax");
+  const zipCode = extractZip(
+    pickText(home.zip, home.zipCode, home.postalCode),
+    pickText(home.name, home.address, home.streetAddress)
+  );
+  const zipTaxRate = zipCode ? TAX_RATE_BY_ZIP[zipCode] : null;
+  const appliedTaxRate = Number.isFinite(zipTaxRate) ? zipTaxRate : DEFAULT_TAX_RATE;
+  const tax = Number.isFinite(parsedPrice)
+    ? +(parsedPrice * appliedTaxRate).toFixed(2)
+    : 3000;
 
   const parsedGreg = toNum(home.greg);
   const greg = parsedGreg ?? 5;
@@ -802,8 +934,8 @@ function normalizeHomeRecord(home, index) {
     (isImported && yardCondition === "Good" && !hasOverride("yardCondition"))
   ) placeholderFields.push("yardCondition");
   const tags = asTags(home.tags);
-
-  return {
+  const defaultedFields = [...new Set(placeholderFields)];
+  const normalized = {
     ...home,
     name: name || `Imported Home ${index + 1}`,
     short,
@@ -831,7 +963,33 @@ function normalizeHomeRecord(home, index) {
     tags,
     // Recompute placeholders from current values (including overrides) so they
     // disappear as soon as a field is filled in.
-    placeholderFields: PLACEHOLDER_TAGS_ENABLED ? [...new Set(placeholderFields)] : [],
+    placeholderFields: PLACEHOLDER_TAGS_ENABLED ? defaultedFields : [],
+    defaultedFields,
+  };
+  const blankTrackKeys = Object.keys(PLACEHOLDER_FIELD_LABELS);
+  const hasSeededBlankFields = Array.isArray(home?.blankFields);
+  const blankSet = new Set(hasSeededBlankFields ? home.blankFields : []);
+  for (const key of blankTrackKeys) {
+    if (!SAFETY_SCORING_ENABLED && key.startsWith("safety")) continue;
+    const rawValue = home?.[key];
+    const isBlank = rawValue == null || (typeof rawValue === "string" && rawValue.trim() === "");
+    const explicitOverride = hasOverride(key);
+    if (explicitOverride) {
+      if (isBlank) blankSet.add(key);
+      else blankSet.delete(key);
+      continue;
+    }
+    // First normalization pass (no seeded blanks): derive from raw source.
+    if (!hasSeededBlankFields) {
+      if (isBlank) blankSet.add(key);
+      else blankSet.delete(key);
+    }
+    // Subsequent passes keep seeded blank flags until user fills them.
+  }
+  const blankFields = [...blankSet];
+  return {
+    ...normalized,
+    blankFields,
   };
 }
 function parseUnformattedHomes(rawText) {
@@ -1152,6 +1310,12 @@ export default function App() {
       ],
     },
     {
+      title: "Costs",
+      fields: [
+        { key: "hoa", label: "HOA (Annual)", type: "number" },
+      ],
+    },
+    {
       title: "Ratings / Preferences",
       fields: [
         { key: "greg", label: "Greg (0-10)", type: "number" },
@@ -1258,6 +1422,51 @@ export default function App() {
     }
   }, [importRawText]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!sourceHomes.length) return;
+    try {
+      const todayKey = toDateKey(new Date());
+      const lastRollKey = window.localStorage.getItem(DOM_ROLL_DATE_KEY);
+      if (!lastRollKey) {
+        window.localStorage.setItem(DOM_ROLL_DATE_KEY, todayKey);
+        return;
+      }
+      const deltaDays = dayDiff(lastRollKey, todayKey);
+      if (deltaDays <= 0) return;
+
+      setOverridesByHomeId((prev) => {
+        let changed = false;
+        const next = { ...prev };
+        for (const home of sourceHomes) {
+          const current = next[home.homeId] ?? {};
+          const currentDom = toNum(
+            Object.prototype.hasOwnProperty.call(current, "dom") ? current.dom : home.dom
+          );
+          if (currentDom == null) continue;
+          const updatedDom = currentDom + deltaDays;
+          const sourceDom = toNum(home.dom);
+          const nextHome = { ...current, dom: updatedDom };
+          if (sourceDom != null && updatedDom === sourceDom) delete nextHome.dom;
+          const hasAny = Object.keys(nextHome).length > 0;
+          const hadAny = Object.keys(current).length > 0;
+          if (hasAny) {
+            if (!hadAny || nextHome.dom !== current.dom) changed = true;
+            next[home.homeId] = nextHome;
+          } else if (hadAny) {
+            changed = true;
+            delete next[home.homeId];
+          }
+        }
+        return changed ? next : prev;
+      });
+
+      window.localStorage.setItem(DOM_ROLL_DATE_KEY, todayKey);
+    } catch {
+      // Ignore storage failures; DOM auto-rollover is non-critical.
+    }
+  }, [sourceHomes]);
+
   const preparedHomes = useMemo(
     () => sourceHomes.map((h, i) => {
       const overrides = overridesByHomeId[h.homeId] ?? {};
@@ -1323,7 +1532,7 @@ export default function App() {
       blockCount: imported.blockCount,
       importedCount: imported.homes.length,
       unknownFieldCount: imported.unknownFieldCount,
-      placeholderFieldCount: importedPrepared.reduce((total, h) => total + (h.placeholderFields?.length ?? 0), 0),
+      placeholderFieldCount: importedPrepared.reduce((total, h) => total + getMissingFields(h).length, 0),
     };
   }, [imported, preparedHomes]);
 
@@ -1341,7 +1550,7 @@ export default function App() {
 
   const visibleEditGroups = useMemo(() => {
     if (!selectedHome || !showMissingOnly) return EDIT_GROUPS;
-    const missingSet = new Set(selectedHome.placeholderFields ?? []);
+    const missingSet = new Set(getMissingFields(selectedHome));
     return EDIT_GROUPS.map((group) => ({ ...group, fields: group.fields.filter((f) => f.key === "tags" || missingSet.has(f.key)) })).filter((group) => group.fields.length);
   }, [EDIT_GROUPS, selectedHome, showMissingOnly]);
 
@@ -1557,7 +1766,7 @@ export default function App() {
       <div style={{ maxWidth: 1280, margin: "0 auto" }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: "#f8fafc", marginBottom: 4 }}>🏠 Home Comparison Dashboard</h1>
         <p style={{ color: "#94a3b8", fontSize: 13, marginBottom: 16 }}>Monthly payment includes P&amp;I, tax, and HOA · Fountain-area homes are excluded for safety concerns · canvas computes all scores</p>
-        {importSummary.blockCount > 0 && <div style={{ background: "#111827", border: "1px solid #334155", borderRadius: 8, padding: "8px 10px", marginBottom: 12, fontSize: 12, color: "#cbd5e1" }}>Parsed {importSummary.importedCount} imported home(s) from {importSummary.blockCount} block(s) · flagged {importSummary.unknownFieldCount} unknown field(s) · filled {importSummary.placeholderFieldCount} placeholder field(s)</div>}
+        {importSummary.blockCount > 0 && <div style={{ background: "#111827", border: "1px solid #334155", borderRadius: 8, padding: "8px 10px", marginBottom: 12, fontSize: 12, color: "#cbd5e1" }}>Parsed {importSummary.importedCount} imported home(s) from {importSummary.blockCount} block(s) · flagged {importSummary.unknownFieldCount} unknown field(s) · flagged {importSummary.placeholderFieldCount} blank field(s)</div>}
         <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
           {["overview", "data-entry", "compare", "cards", "weights"].map((k) => {
             const label = k === "overview" ? "📊 Overview" : k === "data-entry" ? "🛠️ Data Entry" : k === "compare" ? "⚡ Compare" : k === "cards" ? "🏠 Cards" : "⚖️ Weights";
@@ -1575,7 +1784,7 @@ export default function App() {
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 16, marginBottom: 16 }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12, color: "#f1f5f9" }}>🏆 Rankings</h2>
             {homes.map((h, i) => {
-              const missingCount = h.placeholderFields?.length ?? 0;
+              const missingCount = getMissingFields(h).length;
               return (
                 <div key={h.homeId} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < homes.length - 1 ? "1px solid #334155" : "none" }}>
                   <span style={{ width: 24, fontSize: 13, color: "#64748b", fontWeight: 700 }}>#{i + 1}</span>
@@ -1634,12 +1843,12 @@ export default function App() {
             <div style={{ display: "grid", gap: 8 }}>
               {filteredEditorHomes.map((h) => {
                 const active = h.homeId === selectedHome?.homeId;
-                const missing = h.placeholderFields?.length ?? 0;
+                const missing = getMissingFields(h).length;
                 return (
                   <button key={h.homeId} onClick={() => setSelectedHomeId(h.homeId)} style={{ textAlign: "left", padding: 10, borderRadius: 8, border: active ? "1px solid #818cf8" : "1px solid #334155", background: active ? "#0f172a" : "#111827", color: "#f1f5f9", cursor: "pointer" }}>
                     <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 2 }}>{h.name}</div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#94a3b8" }}><span>{h.status}</span><span>{h.weightedTotal.toFixed(2)}</span></div>
-                    <div style={{ fontSize: 11, color: missing ? "#fbbf24" : "#64748b", marginTop: 4 }}>{missing ? `${missing} placeholder field(s)` : "No placeholders"}</div>
+                    <div style={{ fontSize: 11, color: missing ? "#fbbf24" : "#64748b", marginTop: 4 }}>{missing ? `${missing} blank field(s)` : "No blank fields"}</div>
                   </button>
                 );
               })}
@@ -1659,7 +1868,7 @@ export default function App() {
                     <button onClick={downloadBackup} style={{ border: "1px solid #334155", background: "#111827", color: "#e2e8f0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Save Backup</button>
                     <label style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 12, color: "#cbd5e1" }}>
                       <input type="checkbox" checked={showMissingOnly} onChange={(e) => setShowMissingOnly(e.target.checked)} />
-                      Show only missing/placeholder fields
+                      Show only blank/missing fields
                     </label>
                     {selectedHome.status === "Considering" && (
                       <button onClick={() => setSelectedStatus("Ruled Out")} style={{ border: "1px solid #7f1d1d", background: "#3f1d1d", color: "#fecaca", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Rule Out Home</button>
@@ -1672,7 +1881,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {visibleEditGroups.length === 0 && <div style={{ fontSize: 13, color: "#94a3b8" }}>No placeholder fields left on this home.</div>}
+                {visibleEditGroups.length === 0 && <div style={{ fontSize: 13, color: "#94a3b8" }}>No blank fields left on this home.</div>}
                 <div style={{ display: "grid", gap: 14 }}>
                   {visibleEditGroups.map((group) => (
                     <div key={group.title} style={{ border: "1px solid #334155", borderRadius: 10, padding: 12 }}>
@@ -1684,9 +1893,18 @@ export default function App() {
                           const sourceValue = selectedSource?.[key];
                           const overrideValue = selectedOverrides[key];
                           const hasOverride = Object.prototype.hasOwnProperty.call(selectedOverrides, key);
-                          const hasPlaceholder = (selectedHome.placeholderFields ?? []).includes(key);
+                          const hasPlaceholder = getMissingFields(selectedHome).includes(key);
                           const error = selectedErrors[key];
-                          const inputValue = field.type === "number" ? (selectedDrafts[key] ?? (currentValue == null ? "" : String(currentValue))) : (currentValue ?? "");
+                          const draftValue = selectedDrafts[key];
+                          let inputValue = "";
+                          if (field.type === "number") {
+                            if (draftValue != null) inputValue = draftValue;
+                            else if (hasOverride) inputValue = overrideValue == null ? "" : String(overrideValue);
+                            else inputValue = currentValue == null ? "" : String(currentValue);
+                          } else {
+                            if (hasOverride) inputValue = overrideValue == null ? "" : String(overrideValue);
+                            else inputValue = currentValue ?? "";
+                          }
 
                           if (field.type === "tags") {
                             const tags = Array.isArray(selectedHome.tags) ? selectedHome.tags : [];
@@ -1742,7 +1960,7 @@ export default function App() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12, marginBottom: 12 }}>
             {[["A", compareA, setCompareA, "#6366f1"], ["B", compareB, setCompareB, "#f59e0b"], ["C", compareC, setCompareC, "#22c55e"]].map(([label, val, setter, color]) => {
               const slotHome = pick(val, null);
-              const missingCount = slotHome?.placeholderFields?.length ?? 0;
+              const missingCount = slotHome ? getMissingFields(slotHome).length : 0;
               return (
                 <div key={label} style={{ background: "#1e293b", borderRadius: 12, padding: 12 }}>
                   <div style={{ fontSize: 12, color, fontWeight: 700, marginBottom: 6 }}>Home {label}</div>
@@ -1752,7 +1970,7 @@ export default function App() {
                   </select>
                   {slotHome && (
                     <div style={{ marginTop: 8, fontSize: 11, color: missingCount ? "#fbbf24" : "#64748b" }}>
-                      {missingCount ? `Missing ${missingCount}: ${placeholderSummary(slotHome)}` : "No placeholders"}
+                      {missingCount ? `Missing ${missingCount}: ${placeholderSummary(slotHome)}` : "No missing fields"}
                     </div>
                   )}
                 </div>
@@ -1766,7 +1984,7 @@ export default function App() {
         {tab === "cards" && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 12 }}>
             {homes.map((h, i) => {
-              const missingFields = Array.isArray(h.placeholderFields) ? h.placeholderFields : [];
+              const missingFields = getMissingFields(h);
               return (
                 <div key={h.homeId} style={{ background: "#1e293b", borderRadius: 16, padding: 16, boxShadow: "0 8px 20px rgba(0,0,0,.25)", border: `1px solid ${gradeColor(h.weightedTotal)}33` }}>
                   {h.photo ? <div style={IMG_WRAP_STYLE}><img src={h.photo} alt={h.name} style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }} onError={(e) => { e.currentTarget.style.display = "none"; const fallback = e.currentTarget.parentElement?.nextSibling; if (fallback && fallback.dataset.fallback === "true") fallback.style.display = "flex"; }} /></div> : null}
@@ -1808,3 +2026,4 @@ export default function App() {
     </div>
   );
 }
+
