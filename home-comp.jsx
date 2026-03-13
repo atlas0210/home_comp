@@ -426,6 +426,17 @@ Year Built: 1998
 Days on OneHome: --
 Annual Taxes: $1,858.09
 Subdivision: Woodside At Briargate
+
+11908 Eagle Crest Ct Peyton, CO 80831
+For Sale
+$281,000
+Size: 2,418 sqft
+Lot Size Area: 6,486.00 sqft
+Year Built: 2016
+Days on OneHome: 1
+HOA Fee: $120 Monthly
+Annual Taxes: $3,133
+Subdivision: Meridian Ranch Filing No 4b
 `;
 const APPLIED_UPDATES_BY_HOME_ID = {
   "imported-mls-1217348": {
@@ -486,7 +497,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "kitchenSize": "Large",
     "lotSqft": 6600,
     "yardCondition": "Excellent",
-    "dom": 1
+    "dom": 1,
+    "hoa": 5460
   },
   "imported-mls-6303123": {
     "photo": "https://photos.zillowstatic.com/fp/daf82f01b0b552aa9e427283e0a13975-cc_ft_768.webp",
@@ -498,7 +510,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "greg": 8,
     "kitchenSize": "Large",
     "lotSqft": 5653,
-    "yardCondition": "Excellent"
+    "yardCondition": "Excellent",
+    "hoa": 5844
   },
   "imported-mls-9020481": {
     "photo": "https://photos.zillowstatic.com/fp/3ea4319389898d77b2818302c3045f1e-cc_ft_768.webp",
@@ -535,7 +548,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "greg": 7.5,
     "safetyGrade": "A+",
     "bre": 7.5,
-    "lotSqft": 6969.6
+    "lotSqft": 6969.6,
+    "hoa": 720
   },
   "imported-mls-4539098": {
     "photo": "https://photos.zillowstatic.com/fp/0406ecef6e38fdf5e432c00ecea7f925-cc_ft_768.webp",
@@ -568,7 +582,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "bre": 7,
     "greg": 6,
     "kitchenSize": "Gourmet",
-    "yardCondition": "Fair"
+    "yardCondition": "Fair",
+    "hoa": 2820
   },
   "imported-mls-5994546": {
     "photo": "https://photos.zillowstatic.com/fp/d73dbd5febbfa14c16e5ee8c29d131ba-cc_ft_768.webp",
@@ -580,7 +595,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "lotSqft": 5567,
     "greg": 7.5,
     "yardCondition": "Fair",
-    "kitchenSize": "Large"
+    "kitchenSize": "Large",
+    "hoa": 3240
   },
   "imported-mls-7099195": {
     "photo": "https://photos.zillowstatic.com/fp/6e64b983593dc9d72d51df095798e29d-cc_ft_768.webp",
@@ -644,7 +660,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "greg": 8.5,
     "bre": 8.5,
     "kitchenSize": "Large",
-    "yardCondition": "Excellent"
+    "yardCondition": "Excellent",
+    "hoa": 1200
   },
   "imported-mls-8202865": {
     "photo": "https://photos.zillowstatic.com/fp/9a9a260e1c23dc6b907a3b7eb381e6cd-sc_1344_896.webp",
@@ -668,7 +685,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "bre": 8.5,
     "greg": 8,
     "kitchenSize": "Gourmet",
-    "yardCondition": "Excellent"
+    "yardCondition": "Excellent",
+    "hoa": 816
   },
   "imported-mls-5900154": {
     "photo": "https://photos.zillowstatic.com/fp/26ec4bdc0d474d53235ccdf1dc581340-cc_ft_1152.webp",
@@ -693,7 +711,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "greg": 7,
     "kitchenSize": "Large",
     "yardCondition": "Excellent",
-    "photo": "https://photos.zillowstatic.com/fp/2f052ee2a9c8428b171c1de924612d53-cc_ft_768.webp"
+    "photo": "https://photos.zillowstatic.com/fp/2f052ee2a9c8428b171c1de924612d53-cc_ft_768.webp",
+    "hoa": 2760
   },
   "imported-mls-6832828": {
     "lotSqft": 4950,
@@ -711,7 +730,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "kitchenSize": "Gourmet",
     "dom": 1,
     "greg": 8.5,
-    "photo": "https://photos.zillowstatic.com/fp/46b62c34617fd37782dbfbf641fe9d12-cc_ft_768.webp"
+    "photo": "https://photos.zillowstatic.com/fp/46b62c34617fd37782dbfbf641fe9d12-cc_ft_768.webp",
+    "hoa": 396
   },
   "imported-mls-1627467": {
     "hoa": 0.1,
@@ -771,7 +791,7 @@ const PLACEHOLDER_FIELD_LABELS = {
   lotSqft: "Lot Sqft",
   built: "Year Built",
   dom: "Days on Market",
-  hoa: "HOA (Annual)",
+  hoa: "HOA (Monthly Input)",
   tax: "Annual Taxes",
   greg: "Greg Rating",
   bre: "Bre Rating",
@@ -806,6 +826,16 @@ const toNum = (v) => {
   const cleaned = s.replace(/,/g, "").replace(/\$/g, "").replace(/%/g, "");
   const parsed = Number(cleaned);
   return Number.isFinite(parsed) ? parsed : null;
+};
+const hoaAnnualToMonthly = (annualValue) => {
+  const annual = toNum(annualValue);
+  if (!Number.isFinite(annual)) return null;
+  return +(annual / 12).toFixed(2);
+};
+const hoaMonthlyToAnnual = (monthlyValue) => {
+  const monthly = toNum(monthlyValue);
+  if (!Number.isFinite(monthly)) return null;
+  return +(monthly * 12).toFixed(2);
 };
 const parseLotSqft = (value) => {
   if (value == null) return null;
@@ -1350,7 +1380,7 @@ export default function App() {
     {
       title: "Costs",
       fields: [
-        { key: "hoa", label: "HOA (Annual)", type: "number" },
+        { key: "hoa", label: "HOA (Monthly, auto-converts)", type: "number" },
       ],
     },
     {
@@ -1384,6 +1414,11 @@ export default function App() {
     if (Array.isArray(v)) return v.length ? v.join(", ") : "—";
     if (v == null || v === "") return "—";
     return String(v);
+  };
+  const displayHoaFieldValue = (annualValue) => {
+    const annual = toNum(annualValue);
+    if (!Number.isFinite(annual)) return "—";
+    return `${fmtUsd(annual / 12, 2)}/mo (${fmtUsd(annual, 2)}/yr)`;
   };
 
   const [importRawText, setImportRawText] = useState(() => {
@@ -1660,6 +1695,10 @@ export default function App() {
       return;
     }
     setFieldError(homeId, field, null);
+    if (field === "hoa") {
+      updateOverrideField(homeId, field, hoaMonthlyToAnnual(parsed));
+      return;
+    }
     updateOverrideField(homeId, field, parsed);
   };
 
@@ -1813,7 +1852,7 @@ export default function App() {
     { key: "yardCondition", label: "Yard", align: "left" },
     { key: "built", label: "Built", align: "right" },
     { key: "dom", label: "DOM", align: "right" },
-    { key: "hoa", label: "HOA (Annual)", align: "right" },
+    { key: "hoa", label: "HOA (Mo)", align: "right" },
     { key: "tax", label: "Tax (Annual)", align: "right" },
     ...(SAFETY_SCORING_ENABLED ? [
       { key: "safetyAssaultIndex", label: "Assault Idx", align: "right" },
@@ -1849,7 +1888,7 @@ export default function App() {
       case "dom":
         return home.dom;
       case "hoa":
-        return home.hoa;
+        return Number.isFinite(home.hoa) ? home.hoa / 12 : null;
       case "tax":
         return home.tax;
       case "safetyAssaultIndex":
@@ -1935,7 +1974,9 @@ export default function App() {
       case "dom":
         return Number.isFinite(home.dom) ? String(home.dom) : "—";
       case "hoa":
-        return Number.isFinite(home.hoa) ? `$${Math.round(home.hoa).toLocaleString()}` : "—";
+        return Number.isFinite(home.hoa)
+          ? `$${(home.hoa / 12).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+          : "—";
       case "tax":
         return Number.isFinite(home.tax) ? `$${home.tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "—";
       case "safetyAssaultIndex":
@@ -2120,6 +2161,11 @@ export default function App() {
                   <div>
                     <div style={{ fontSize: 18, fontWeight: 800, color: "#f8fafc" }}>{selectedHome.name}</div>
                     <div style={{ fontSize: 12, color: "#94a3b8" }}>{selectedHome.homeId} · Weighted {selectedHome.weightedTotal.toFixed(2)} · {selectedHome.status}</div>
+                    {["Ruled Out", "Sold"].includes(selectedHome.status) && (
+                      <div style={{ fontSize: 11, color: "#fbbf24", marginTop: 4 }}>
+                        This home is hidden from Overview/Compare/Cards while status is {selectedHome.status}.
+                      </div>
+                    )}
                   </div>
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                     <button onClick={downloadBackup} style={{ border: "1px solid #334155", background: "#111827", color: "#e2e8f0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Save Backup</button>
@@ -2155,9 +2201,17 @@ export default function App() {
                           const draftValue = selectedDrafts[key];
                           let inputValue = "";
                           if (field.type === "number") {
-                            if (draftValue != null) inputValue = draftValue;
-                            else if (hasOverride) inputValue = overrideValue == null ? "" : String(overrideValue);
-                            else inputValue = currentValue == null ? "" : String(currentValue);
+                            if (draftValue != null) {
+                              inputValue = draftValue;
+                            } else if (key === "hoa") {
+                              const annualValue = hasOverride ? overrideValue : currentValue;
+                              const monthlyValue = hoaAnnualToMonthly(annualValue);
+                              inputValue = monthlyValue == null ? "" : String(monthlyValue);
+                            } else if (hasOverride) {
+                              inputValue = overrideValue == null ? "" : String(overrideValue);
+                            } else {
+                              inputValue = currentValue == null ? "" : String(currentValue);
+                            }
                           } else {
                             if (hasOverride) inputValue = overrideValue == null ? "" : String(overrideValue);
                             else inputValue = currentValue ?? "";
@@ -2199,8 +2253,12 @@ export default function App() {
                                 <input value={inputValue} onChange={(e) => onTextChange(selectedHome.homeId, key, e.target.value)} style={{ width: "100%", background: "#111827", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px", fontSize: 12 }} />
                               )}
                               {error && <div style={{ fontSize: 11, color: "#fca5a5", marginTop: 4 }}>{error}</div>}
-                              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>Base: {displayFieldValue(sourceValue)}</div>
-                              <div style={{ fontSize: 11, color: "#94a3b8" }}>Override: {hasOverride ? displayFieldValue(overrideValue) : "—"}</div>
+                              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>
+                                Base: {key === "hoa" ? displayHoaFieldValue(sourceValue) : displayFieldValue(sourceValue)}
+                              </div>
+                              <div style={{ fontSize: 11, color: "#94a3b8" }}>
+                                Override: {hasOverride ? (key === "hoa" ? displayHoaFieldValue(overrideValue) : displayFieldValue(overrideValue)) : "—"}
+                              </div>
                             </div>
                           );
                         })}
@@ -2328,4 +2386,5 @@ export default function App() {
     </div>
   );
 }
+
 
