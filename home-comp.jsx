@@ -1383,6 +1383,8 @@ function ScoreBar({ label, value }) {
 export default function App() {
   const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
   const LOCAL_IMPORT_STORAGE_KEY = "homeComp.importRaw.v2";
+  const [viewportWidth, setViewportWidth] = useState(() => (typeof window === "undefined" ? 1280 : window.innerWidth));
+  const isMobile = viewportWidth <= 640;
   const EDIT_GROUPS = [
     {
       title: "Identity",
@@ -1504,6 +1506,13 @@ export default function App() {
   const [backupNotice, setBackupNotice] = useState("");
   const restoreBackupInputRef = useRef(null);
   const compareSelectionMigratedRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -2050,7 +2059,7 @@ export default function App() {
   const selectStyle = { width: "100%", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px", fontSize: 13 };
 
   return (
-    <div style={{ fontFamily: "system-ui,sans-serif", background: "#0f172a", minHeight: "100vh", color: "#e2e8f0", padding: 16 }}>
+    <div style={{ fontFamily: "system-ui,sans-serif", background: "#0f172a", minHeight: "100vh", color: "#e2e8f0", padding: isMobile ? 10 : 16, WebkitTextSizeAdjust: "100%", textSizeAdjust: "100%" }}>
       <div style={{ maxWidth: 1280, margin: "0 auto" }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: "#f8fafc", marginBottom: 4 }}>🏠 Home Comparison Dashboard</h1>
         <p style={{ color: "#94a3b8", fontSize: 13, marginBottom: 16 }}>Monthly payment includes P&amp;I, tax, and HOA · Fountain-area homes are excluded for safety concerns · canvas computes all scores</p>
@@ -2072,15 +2081,15 @@ export default function App() {
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 16, marginBottom: 16 }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12, color: "#f1f5f9" }}>🏆 Rankings</h2>
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 1680 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: isMobile ? 10 : 12, minWidth: isMobile ? 1080 : 1680 }}>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "left", padding: "8px 6px", color: "#94a3b8", width: 42 }}>#</th>
+                    <th style={{ textAlign: "left", padding: isMobile ? "6px 5px" : "8px 6px", color: "#94a3b8", width: 42 }}>#</th>
                     {overviewColumns.map((col) => (
                       <th
                         key={col.key}
                         onClick={() => onOverviewSort(col.key)}
-                        style={{ textAlign: col.align, padding: "8px 6px", color: overviewSortKey === col.key ? "#e2e8f0" : "#94a3b8", cursor: "pointer", whiteSpace: "nowrap", userSelect: "none" }}
+                        style={{ textAlign: col.align, padding: isMobile ? "6px 5px" : "8px 6px", color: overviewSortKey === col.key ? "#e2e8f0" : "#94a3b8", cursor: "pointer", whiteSpace: "nowrap", userSelect: "none" }}
                         title="Click to sort"
                       >
                         {col.label}{overviewSortIndicator(col.key)}
@@ -2094,16 +2103,16 @@ export default function App() {
                     const lockedRank = rankByHomeId.get(h.homeId);
                     return (
                       <tr key={h.homeId}>
-                        <td style={{ padding: "10px 6px", color: "#64748b", borderTop: "1px solid #334155", fontWeight: 700, verticalAlign: "top" }}>
+                        <td style={{ padding: isMobile ? "8px 5px" : "10px 6px", color: "#64748b", borderTop: "1px solid #334155", fontWeight: 700, verticalAlign: "top", fontSize: isMobile ? 10 : 12 }}>
                           #{lockedRank ?? "—"}
                         </td>
                         {overviewColumns.map((col) => {
                           if (col.key === "address") {
                             return (
-                              <td key={col.key} style={{ padding: "10px 6px", borderTop: "1px solid #334155", verticalAlign: "top", minWidth: 320 }}>
-                                <div style={{ fontSize: 13, fontWeight: 600, color: "#f1f5f9" }}>{overviewAddress(h)}</div>
+                              <td key={col.key} style={{ padding: isMobile ? "8px 5px" : "10px 6px", borderTop: "1px solid #334155", verticalAlign: "top", minWidth: isMobile ? 220 : 320 }}>
+                                <div style={{ fontSize: isMobile ? 11 : 13, fontWeight: 600, color: "#f1f5f9", lineHeight: 1.3, overflowWrap: "anywhere" }}>{overviewAddress(h)}</div>
                                 {missingCount > 0 && (
-                                  <div style={{ marginTop: 2, fontSize: 11, color: "#fbbf24" }}>
+                                  <div style={{ marginTop: 2, fontSize: isMobile ? 10 : 11, color: "#fbbf24" }}>
                                     Missing {missingCount}: {placeholderSummary(h)}
                                   </div>
                                 )}
@@ -2116,12 +2125,13 @@ export default function App() {
                             <td
                               key={col.key}
                               style={{
-                                padding: "10px 6px",
+                                padding: isMobile ? "8px 5px" : "10px 6px",
                                 textAlign: col.align,
                                 borderTop: "1px solid #334155",
                                 color: isWeightedTotal ? gradeColor(h.weightedTotal) : "#e2e8f0",
                                 fontWeight: isWeightedTotal ? 800 : 500,
                                 whiteSpace: "nowrap",
+                                fontSize: isMobile ? 11 : 12,
                               }}
                             >
                               {value}
