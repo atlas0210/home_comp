@@ -41,32 +41,60 @@ const EFFECTIVE_W = (() => {
   return Object.fromEntries(entries.map(([key, weight]) => [key, weight / total]));
 })();
 const WEIGHTS = [
-  ["rating","Combined Rating",EFFECTIVE_W.rating],["monthlyPayment","Monthly Payment",EFFECTIVE_W.monthlyPayment],["safety",SAFETY_SCORING_ENABLED ? "Safety" : "Safety (Disabled)",EFFECTIVE_W.safety],["sizeValue","Size + PPSF",EFFECTIVE_W.sizeValue],
+  ["rating","Combined Rating",EFFECTIVE_W.rating],["monthlyPayment","Monthly Payment",EFFECTIVE_W.monthlyPayment],["safety",SAFETY_SCORING_ENABLED ? "Safety" : "Safety (Disabled)",EFFECTIVE_W.safety],["sizeValue","Size",EFFECTIVE_W.sizeValue],
   ["lot","Lot",EFFECTIVE_W.lot],["kitchen","Kitchen",EFFECTIVE_W.kitchen],["yard","Yard",EFFECTIVE_W.yard],
   ["ageScore","Age",EFFECTIVE_W.ageScore],
 ];
-const RADAR = [["rating","Rating"],["monthlyPayment","Mo Pmt"],["sizeValue","Size/Value"],["lot","Lot"],["kitchen","Kitchen"],["yard","Yard"],["ageScore","Age"], ...(!SAFETY_SCORING_ENABLED ? [] : [["safety","Safety"]])];
-const CARD_FIELDS = h => [
-  ["Monthly", fmt(h.totalMo)],["P&I", fmt(h.piMo)],
-  ["Greg", `${h.greg}/10`],["Bre", `${h.bre}/10`],["Combined", h.rating.toFixed(1)],["$/Sqft", h.pricePerSqft == null ? "—" : `$${Math.round(h.pricePerSqft)}`],
-  ["Sqft", h.sqft.toLocaleString()],["Age Score", h.ageScore.toFixed(1)],["Safety", SAFETY_SCORING_ENABLED ? h.safety.toFixed(1) : "N/A"],["Crime Grade", SAFETY_SCORING_ENABLED ? (h.safetyGrade ?? "—") : "N/A"],["Safety Area", SAFETY_SCORING_ENABLED ? (h.safetyNeighborhood ?? "—") : "N/A"],
-];
+const RADAR = [["rating","Rating"],["monthlyPayment","Mo Pmt"],["sizeValue","Sqft"],["lot","Lot"],["kitchen","Kitchen"],["yard","Yard"],["ageScore","Age"], ...(!SAFETY_SCORING_ENABLED ? [] : [["safety","Safety"]])];
+const fmtUsd = (n, digits = 0) => Number.isFinite(n)
+  ? `$${n.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })}`
+  : null;
+const CARD_FIELDS = (h) => {
+  const ageYears = Number.isFinite(h?.built) ? Math.max(0, CURRENT_YEAR - h.built) : null;
+  const rows = [
+    // Raw values used by weighted scoring factors.
+    ["Price", fmtUsd(h?.price, 0)],
+    ["Sqft", Number.isFinite(h?.sqft) ? h.sqft.toLocaleString() : null],
+    ["Lot Sqft", Number.isFinite(h?.lotSqft) ? h.lotSqft.toLocaleString() : null],
+    ["Kitchen", h?.kitchenSize ?? null],
+    ["Yard", h?.yardCondition ?? null],
+    ["Greg", Number.isFinite(h?.greg) ? `${h.greg}/10` : null],
+    ["Bre", Number.isFinite(h?.bre) ? `${h.bre}/10` : null],
+    ["Year Built", Number.isFinite(h?.built) ? String(h.built) : null],
+    ["Home Age", Number.isFinite(ageYears) ? `${ageYears} yrs` : null],
+    ["HOA (Annual)", fmtUsd(h?.hoa, 0)],
+    ["Tax (Annual)", fmtUsd(h?.tax, 2)],
+    // Monthly payment calculation components.
+    ["P&I", fmtUsd(h?.piMo, 0)],
+    ["Tax/Mo", fmtUsd(h?.taxMo, 0)],
+    ["HOA/Mo", fmtUsd(h?.hoaMo, 0)],
+    ["Monthly Total", fmtUsd(h?.totalMo, 0)],
+  ];
+  if (SAFETY_SCORING_ENABLED) {
+    rows.push(
+      ["Assault Index", Number.isFinite(h?.safetyAssaultIndex) ? String(h.safetyAssaultIndex) : null],
+      ["Burglary Index", Number.isFinite(h?.safetyBurglaryIndex) ? String(h.safetyBurglaryIndex) : null],
+      ["Larceny/Theft Index", Number.isFinite(h?.safetyLarcenyTheftIndex) ? String(h.safetyLarcenyTheftIndex) : null],
+      ["Vehicle Theft Index", Number.isFinite(h?.safetyVehicleTheftIndex) ? String(h.safetyVehicleTheftIndex) : null]
+    );
+  }
+  return rows.filter(([, value]) => value != null && value !== "" && value !== "N/A" && value !== "—");
+};
 const COMPARE_ROWS = [
   ["Weighted Score","weightedTotal"],
   ["Combined Rating Score","rating"],
   ["Monthly Payment Score","monthlyPayment"],
   ...(!SAFETY_SCORING_ENABLED ? [] : [["Safety Score","safety"]]),
-  ["Size + PPSF Score","sizeValue"],
+  ["Size Score","sizeValue"],
   ["Lot Score","lot"],
   ["Kitchen Score","kitchen"],
   ["Yard Score","yard"],
   ["Age Score","ageScore"],
   ["Monthly $","totalMo"],
-  ["$/Sqft","pricePerSqft"],
   ["Greg","greg"],
   ["Bre","bre"],
 ];
-const BAR_ROWS = [["Rating","rating"],["Monthly","monthlyPayment"],["Size+PPSF","sizeValue"],["Lot","lot"],["Kitchen","kitchen"],["Yard","yard"],["Age","ageScore"], ...(!SAFETY_SCORING_ENABLED ? [] : [["Safety","safety"]])];
+const BAR_ROWS = [["Rating","rating"],["Monthly","monthlyPayment"],["Size","sizeValue"],["Lot","lot"],["Kitchen","kitchen"],["Yard","yard"],["Age","ageScore"], ...(!SAFETY_SCORING_ENABLED ? [] : [["Safety","safety"]])];
 const COLORS = ["#22c55e","#22c55e","#3b82f6","#3b82f6","#3b82f6","#f59e0b","#f59e0b","#f59e0b","#f97316","#ef4444","#8b5cf6","#14b8a6"];
 const NO_PHOTO_STYLE = { margin: "-16px -16px 12px -16px", borderTopLeftRadius: 16, borderTopRightRadius: 16, background: "linear-gradient(135deg,#1e293b,#0f172a)", height: 180, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", fontWeight: 700, letterSpacing: 1 };
 const IMG_WRAP_STYLE = { margin: "-16px -16px 12px -16px", borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: "hidden", background: "#0f172a" };
@@ -1149,7 +1177,6 @@ const interp = (v, pts) => {
   }
   return a[a.length - 1].score;
 };
-const scorePPSFLegacy = (p, s) => interp(p / s, [{ value: 100, score: 100 }, { value: 150, score: 85 }, { value: 200, score: 70 }, { value: 250, score: 55 }, { value: 300, score: 40 }, { value: 400, score: 25 }, { value: 500, score: 10 }]);
 const quantile = (sorted, q) => {
   if (!Array.isArray(sorted) || !sorted.length) return null;
   const pos = (sorted.length - 1) * q;
@@ -1184,10 +1211,6 @@ const scoreFromContext = (value, ctx, opts = {}) => {
   if (lowerBetter) t = 1 - t;
   const eased = Math.pow(t, gamma);
   return +(minScore + eased * (maxScore - minScore)).toFixed(1);
-};
-const scorePPSF = (p, s, ctx) => {
-  const ppsf = Number.isFinite(p) && Number.isFinite(s) && s > 0 ? p / s : null;
-  return scoreFromContext(ppsf, ctx, { lowerBetter: true, minScore: 20, maxScore: 100, gamma: 0.86 }) ?? scorePPSFLegacy(p, s);
 };
 const scoreSqftLegacy = (s) => interp(s, [{ value: 1200, score: 30 }, { value: 1500, score: 50 }, { value: 2000, score: 70 }, { value: 2500, score: 85 }, { value: 3000, score: 100 }]);
 const scoreSqft = (s, ctx) => scoreFromContext(s, ctx, { lowerBetter: false, minScore: 30, maxScore: 100, gamma: 0.88 }) ?? scoreSqftLegacy(s);
@@ -1265,15 +1288,12 @@ const calc = (h, opts = {}) => {
   const hoaMo = Math.round((h.hoa ?? 0) / 12);
   const taxMo = Math.round((h.tax ?? 0) / 12);
   const totalMo = Math.round(piMo + hoaMo + taxMo);
-  const ppsqft = scorePPSF(h.price, h.sqft, scoreContexts?.ppsf);
   const sqftScore = scoreSqft(h.sqft, scoreContexts?.sqft);
   const vals = {
     rating: scoreCombinedRating(h.greg, h.bre, scoreContexts?.rating),
     monthlyPayment: scoreMonthlyPayment(totalMo, scoreContexts?.monthly),
-    // Single consolidated value factor: preserves prior relative influence
-    // between sqft (60%) and ppsf (40%) while using one weight.
-    sizeValue: +((sqftScore * 0.6) + (ppsqft * 0.4)).toFixed(1),
-    ppsqft,
+    // Size factor now uses total sqft only (PPSF excluded).
+    sizeValue: sqftScore,
     sqftScore,
     lot: scoreLot(h.lotSqft, scoreContexts?.lot),
     // Keep backward compatibility with legacy manual condition overrides.
@@ -1406,6 +1426,8 @@ export default function App() {
   const [editorQuery, setEditorQuery] = useState("");
   const [showHidden, setShowHidden] = useState(false);
   const [showMissingOnly, setShowMissingOnly] = useState(false);
+  const [overviewSortKey, setOverviewSortKey] = useState(null);
+  const [overviewSortDir, setOverviewSortDir] = useState(null);
   const [tagDraft, setTagDraft] = useState("");
   const [editorDraftsByHomeId, setEditorDraftsByHomeId] = useState({});
   const [fieldErrorsByHomeId, setFieldErrorsByHomeId] = useState({});
@@ -1502,11 +1524,6 @@ export default function App() {
         return ((g + b) / 20) * 100;
       }), { minSpread: 6 }),
       monthly: buildRangeContext(scope.map((h) => estimateMonthlyTotal(h)), { minSpread: 120 }),
-      ppsf: buildRangeContext(scope.map((h) => {
-        const p = toNum(h?.price);
-        const s = toNum(h?.sqft);
-        return Number.isFinite(p) && Number.isFinite(s) && s > 0 ? p / s : null;
-      }), { minSpread: 20 }),
       sqft: buildRangeContext(scope.map((h) => h?.sqft), { minSpread: 200 }),
       lot: buildRangeContext(scope.map((h) => h?.lotSqft), { minSpread: 500 }),
       age: buildRangeContext(scope.map((h) => {
@@ -1779,6 +1796,151 @@ export default function App() {
     // Baseline rows store street only; show full address format in Overview.
     return `${raw}, Colorado Springs, CO`;
   };
+  const overviewColumns = [
+    { key: "address", label: "Address", align: "left" },
+    { key: "totalMo", label: "Monthly $", align: "right" },
+    { key: "weightedTotal", label: "Weighted Total", align: "right" },
+    { key: "price", label: "Price", align: "right" },
+    { key: "sqft", label: "Sqft", align: "right" },
+    { key: "lotSqft", label: "Lot Sqft", align: "right" },
+    { key: "greg", label: "Greg", align: "right" },
+    { key: "bre", label: "Bre", align: "right" },
+    { key: "kitchenSize", label: "Kitchen", align: "left" },
+    { key: "yardCondition", label: "Yard", align: "left" },
+    { key: "built", label: "Built", align: "right" },
+    { key: "dom", label: "DOM", align: "right" },
+    { key: "hoa", label: "HOA (Annual)", align: "right" },
+    { key: "tax", label: "Tax (Annual)", align: "right" },
+    ...(SAFETY_SCORING_ENABLED ? [
+      { key: "safetyAssaultIndex", label: "Assault Idx", align: "right" },
+      { key: "safetyBurglaryIndex", label: "Burglary Idx", align: "right" },
+      { key: "safetyLarcenyTheftIndex", label: "Larceny/Theft Idx", align: "right" },
+      { key: "safetyVehicleTheftIndex", label: "Vehicle Theft Idx", align: "right" },
+    ] : []),
+  ];
+  const getOverviewSortValue = (home, key) => {
+    switch (key) {
+      case "address":
+        return overviewAddress(home).toLowerCase();
+      case "totalMo":
+        return home.totalMo;
+      case "weightedTotal":
+        return home.weightedTotal;
+      case "price":
+        return home.price;
+      case "sqft":
+        return home.sqft;
+      case "lotSqft":
+        return home.lotSqft;
+      case "greg":
+        return home.greg;
+      case "bre":
+        return home.bre;
+      case "kitchenSize":
+        return home.kitchenSize;
+      case "yardCondition":
+        return home.yardCondition;
+      case "built":
+        return home.built;
+      case "dom":
+        return home.dom;
+      case "hoa":
+        return home.hoa;
+      case "tax":
+        return home.tax;
+      case "safetyAssaultIndex":
+        return home.safetyAssaultIndex;
+      case "safetyBurglaryIndex":
+        return home.safetyBurglaryIndex;
+      case "safetyLarcenyTheftIndex":
+        return home.safetyLarcenyTheftIndex;
+      case "safetyVehicleTheftIndex":
+        return home.safetyVehicleTheftIndex;
+      default:
+        return null;
+    }
+  };
+  const overviewRows = useMemo(() => {
+    const rows = [...homes];
+    if (!overviewSortKey || !overviewSortDir) return rows;
+    rows.sort((a, b) => {
+      const va = getOverviewSortValue(a, overviewSortKey);
+      const vb = getOverviewSortValue(b, overviewSortKey);
+      if (va == null && vb == null) return 0;
+      if (va == null) return 1;
+      if (vb == null) return -1;
+      const isNumA = typeof va === "number" && Number.isFinite(va);
+      const isNumB = typeof vb === "number" && Number.isFinite(vb);
+      if (isNumA && isNumB) {
+        const diff = va - vb;
+        return overviewSortDir === "asc" ? diff : -diff;
+      }
+      const cmp = String(va).localeCompare(String(vb), undefined, { numeric: true, sensitivity: "base" });
+      return overviewSortDir === "asc" ? cmp : -cmp;
+    });
+    return rows;
+  }, [homes, overviewSortKey, overviewSortDir]);
+  const onOverviewSort = (key) => {
+    if (overviewSortKey !== key) {
+      setOverviewSortKey(key);
+      setOverviewSortDir("desc");
+      return;
+    }
+    if (overviewSortDir === "desc") {
+      setOverviewSortDir("asc");
+      return;
+    }
+    if (overviewSortDir === "asc") {
+      setOverviewSortKey(null);
+      setOverviewSortDir(null);
+      return;
+    }
+    setOverviewSortDir("desc");
+  };
+  const overviewSortIndicator = (key) => {
+    if (overviewSortKey !== key || !overviewSortDir) return "";
+    return overviewSortDir === "desc" ? " ▼" : " ▲";
+  };
+  const renderOverviewMetric = (home, key) => {
+    switch (key) {
+      case "totalMo":
+        return fmt(home.totalMo);
+      case "weightedTotal":
+        return home.weightedTotal?.toFixed(2) ?? "—";
+      case "price":
+        return fmt(home.price);
+      case "sqft":
+        return Number.isFinite(home.sqft) ? home.sqft.toLocaleString() : "—";
+      case "lotSqft":
+        return Number.isFinite(home.lotSqft) ? home.lotSqft.toLocaleString() : "—";
+      case "greg":
+        return Number.isFinite(home.greg) ? home.greg.toFixed(1) : "—";
+      case "bre":
+        return Number.isFinite(home.bre) ? home.bre.toFixed(1) : "—";
+      case "kitchenSize":
+        return home.kitchenSize ?? "—";
+      case "yardCondition":
+        return home.yardCondition ?? "—";
+      case "built":
+        return Number.isFinite(home.built) ? String(home.built) : "—";
+      case "dom":
+        return Number.isFinite(home.dom) ? String(home.dom) : "—";
+      case "hoa":
+        return Number.isFinite(home.hoa) ? `$${Math.round(home.hoa).toLocaleString()}` : "—";
+      case "tax":
+        return Number.isFinite(home.tax) ? `$${home.tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "—";
+      case "safetyAssaultIndex":
+        return Number.isFinite(home.safetyAssaultIndex) ? String(home.safetyAssaultIndex) : "—";
+      case "safetyBurglaryIndex":
+        return Number.isFinite(home.safetyBurglaryIndex) ? String(home.safetyBurglaryIndex) : "—";
+      case "safetyLarcenyTheftIndex":
+        return Number.isFinite(home.safetyLarcenyTheftIndex) ? String(home.safetyLarcenyTheftIndex) : "—";
+      case "safetyVehicleTheftIndex":
+        return Number.isFinite(home.safetyVehicleTheftIndex) ? String(home.safetyVehicleTheftIndex) : "—";
+      default:
+        return "—";
+    }
+  };
 
   const a = pick(compareA, homes[0] ?? null);
   const b = pick(compareB, homes[Math.min(1, Math.max(homes.length - 1, 0))] ?? null);
@@ -1797,11 +1959,11 @@ export default function App() {
   }));
   const renderVal = (key, v) => {
     if (!SAFETY_SCORING_ENABLED && key === "safety") return "N/A";
-    return v == null ? "—" : key === "totalMo" ? fmt(Math.round(v)) : key === "pricePerSqft" ? `$${Math.round(v)}` : typeof v === "number" ? v.toFixed(key === "weightedTotal" ? 2 : 1) : v;
+    return v == null ? "—" : key === "totalMo" ? fmt(Math.round(v)) : typeof v === "number" ? v.toFixed(key === "weightedTotal" ? 2 : 1) : v;
   };
   const weightsSubtitle = SAFETY_SCORING_ENABLED
-    ? "Weights are configured as raw points, then normalized to 100%. Sqft and PPSF are combined into one Size+PPSF factor. Monthly Payment includes P&I, tax, and HOA. Safety uses DoorProfit crime indexes only."
-    : "Weights are configured as raw points, then normalized to 100%. Sqft and PPSF are combined into one Size+PPSF factor. Safety and crime scoring is temporarily disabled, so remaining factors are re-normalized.";
+    ? "Weights are configured as raw points, then normalized to 100%. Size factor uses total sqft only. Monthly Payment includes P&I, tax, and HOA. Safety uses DoorProfit crime indexes only."
+    : "Weights are configured as raw points, then normalized to 100%. Size factor uses total sqft only. Safety and crime scoring is temporarily disabled, so remaining factors are re-normalized.";
   const selectStyle = { width: "100%", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px", fontSize: 13 };
 
   return (
@@ -1826,30 +1988,70 @@ export default function App() {
         {tab === "overview" && <div>
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 16, marginBottom: 16 }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12, color: "#f1f5f9" }}>🏆 Rankings</h2>
-            {homes.map((h, i) => {
-              const missingCount = getMissingFields(h).length;
-              return (
-                <div key={h.homeId} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < homes.length - 1 ? "1px solid #334155" : "none" }}>
-                  <span style={{ width: 24, fontSize: 13, color: "#64748b", fontWeight: 700 }}>#{i + 1}</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "#f1f5f9" }}>{overviewAddress(h)}</div>
-                    {missingCount > 0 && (
-                      <div style={{ marginTop: 2, fontSize: 11, color: "#fbbf24" }}>
-                        Missing {missingCount}: {placeholderSummary(h)}
-                      </div>
-                    )}
-                  </div>
-                  <span style={{ fontSize: 12, color: "#94a3b8" }}>{h.grade}</span>
-                  <span style={{ fontSize: 12, color: "#94a3b8" }}>{fmt(h.totalMo)}</span>
-                  <span style={{ fontSize: 14, fontWeight: 800, color: gradeColor(h.weightedTotal), width: 50, textAlign: "right" }}>{h.weightedTotal.toFixed(2)}</span>
-                  <div style={{ width: 110, background: "#0f172a", borderRadius: 4, height: 8 }}><div style={{ width: `${h.weightedTotal}%`, background: gradeColor(h.weightedTotal), borderRadius: 4, height: 8 }} /></div>
-                </div>
-              );
-            })}
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 1680 }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: "left", padding: "8px 6px", color: "#94a3b8", width: 42 }}>#</th>
+                    {overviewColumns.map((col) => (
+                      <th
+                        key={col.key}
+                        onClick={() => onOverviewSort(col.key)}
+                        style={{ textAlign: col.align, padding: "8px 6px", color: overviewSortKey === col.key ? "#e2e8f0" : "#94a3b8", cursor: "pointer", whiteSpace: "nowrap", userSelect: "none" }}
+                        title="Click to sort"
+                      >
+                        {col.label}{overviewSortIndicator(col.key)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {overviewRows.map((h, i) => {
+                    const missingCount = getMissingFields(h).length;
+                    return (
+                      <tr key={h.homeId}>
+                        <td style={{ padding: "10px 6px", color: "#64748b", borderTop: "1px solid #334155", fontWeight: 700, verticalAlign: "top" }}>#{i + 1}</td>
+                        {overviewColumns.map((col) => {
+                          if (col.key === "address") {
+                            return (
+                              <td key={col.key} style={{ padding: "10px 6px", borderTop: "1px solid #334155", verticalAlign: "top", minWidth: 320 }}>
+                                <div style={{ fontSize: 13, fontWeight: 600, color: "#f1f5f9" }}>{overviewAddress(h)}</div>
+                                {missingCount > 0 && (
+                                  <div style={{ marginTop: 2, fontSize: 11, color: "#fbbf24" }}>
+                                    Missing {missingCount}: {placeholderSummary(h)}
+                                  </div>
+                                )}
+                              </td>
+                            );
+                          }
+                          const value = renderOverviewMetric(h, col.key);
+                          const isWeightedTotal = col.key === "weightedTotal";
+                          return (
+                            <td
+                              key={col.key}
+                              style={{
+                                padding: "10px 6px",
+                                textAlign: col.align,
+                                borderTop: "1px solid #334155",
+                                color: isWeightedTotal ? gradeColor(h.weightedTotal) : "#e2e8f0",
+                                fontWeight: isWeightedTotal ? 800 : 500,
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {value}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12, color: "#f1f5f9" }}>Weighted Score</h2>
-            <ResponsiveContainer width="100%" height={260}><BarChart data={homes} margin={{ top: 0, right: 0, bottom: 50, left: 0 }}><XAxis dataKey="short" tick={{ fill: "#94a3b8", fontSize: 11 }} angle={-35} textAnchor="end" interval={0} height={60} /><YAxis domain={[0, 100]} tick={{ fill: "#64748b", fontSize: 11 }} /><Tooltip contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }} labelStyle={{ color: "#f1f5f9" }} formatter={(v, n) => [n === "weightedTotal" ? Number(v).toFixed(2) : v, n]} /><Bar dataKey="weightedTotal" radius={[4, 4, 0, 0]}>{homes.map((h, i) => <Cell key={h.homeId} fill={COLORS[i % COLORS.length]} />)}</Bar></BarChart></ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={260}><BarChart data={overviewRows} margin={{ top: 0, right: 0, bottom: 50, left: 0 }}><XAxis dataKey="short" tick={{ fill: "#94a3b8", fontSize: 11 }} angle={-35} textAnchor="end" interval={0} height={60} /><YAxis domain={[0, 100]} tick={{ fill: "#64748b", fontSize: 11 }} /><Tooltip contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }} labelStyle={{ color: "#f1f5f9" }} formatter={(v, n) => [n === "weightedTotal" ? Number(v).toFixed(2) : v, n]} /><Bar dataKey="weightedTotal" radius={[4, 4, 0, 0]}>{overviewRows.map((h, i) => <Cell key={h.homeId} fill={COLORS[i % COLORS.length]} />)}</Bar></BarChart></ResponsiveContainer>
           </div>
         </div>}
 
