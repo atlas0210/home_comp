@@ -1187,13 +1187,15 @@ const quantile = (sorted, q) => {
   return sorted[lo] * (1 - t) + sorted[hi] * t;
 };
 const buildRangeContext = (values, opts = {}) => {
-  const { minSpread = 1 } = opts;
+  const { minSpread = 1, lowQuantile = 0.1, highQuantile = 0.9 } = opts;
   const nums = (values || []).map((v) => toNum(v)).filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
   if (!nums.length) return null;
-  const p10 = quantile(nums, 0.1);
-  const p90 = quantile(nums, 0.9);
-  let low = Number.isFinite(p10) ? p10 : nums[0];
-  let high = Number.isFinite(p90) ? p90 : nums[nums.length - 1];
+  const qLow = Math.max(0, Math.min(1, toNum(lowQuantile) ?? 0.1));
+  const qHigh = Math.max(qLow, Math.min(1, toNum(highQuantile) ?? 0.9));
+  const pLow = quantile(nums, qLow);
+  const pHigh = quantile(nums, qHigh);
+  let low = Number.isFinite(pLow) ? pLow : nums[0];
+  let high = Number.isFinite(pHigh) ? pHigh : nums[nums.length - 1];
   if (high - low < minSpread) {
     low = nums[0];
     high = nums[nums.length - 1];
@@ -1523,7 +1525,9 @@ export default function App() {
         if (!Number.isFinite(g) || !Number.isFinite(b)) return null;
         return ((g + b) / 20) * 100;
       }), { minSpread: 6 }),
-      monthly: buildRangeContext(scope.map((h) => estimateMonthlyTotal(h)), { minSpread: 120 }),
+      // Use full observed range for monthly payments so near-cheapest homes
+      // don't all collapse to the same top score.
+      monthly: buildRangeContext(scope.map((h) => estimateMonthlyTotal(h)), { minSpread: 120, lowQuantile: 0, highQuantile: 1 }),
       sqft: buildRangeContext(scope.map((h) => h?.sqft), { minSpread: 200 }),
       lot: buildRangeContext(scope.map((h) => h?.lotSqft), { minSpread: 500 }),
       age: buildRangeContext(scope.map((h) => {
@@ -1860,6 +1864,11 @@ export default function App() {
         return null;
     }
   };
+  const rankByHomeId = useMemo(() => {
+    const ranks = new Map();
+    homes.forEach((home, idx) => ranks.set(home.homeId, idx + 1));
+    return ranks;
+  }, [homes]);
   const overviewRows = useMemo(() => {
     const rows = [...homes];
     if (!overviewSortKey || !overviewSortDir) return rows;
@@ -2006,11 +2015,14 @@ export default function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  {overviewRows.map((h, i) => {
+                  {overviewRows.map((h) => {
                     const missingCount = getMissingFields(h).length;
+                    const lockedRank = rankByHomeId.get(h.homeId);
                     return (
                       <tr key={h.homeId}>
-                        <td style={{ padding: "10px 6px", color: "#64748b", borderTop: "1px solid #334155", fontWeight: 700, verticalAlign: "top" }}>#{i + 1}</td>
+                        <td style={{ padding: "10px 6px", color: "#64748b", borderTop: "1px solid #334155", fontWeight: 700, verticalAlign: "top" }}>
+                          #{lockedRank ?? "—"}
+                        </td>
                         {overviewColumns.map((col) => {
                           if (col.key === "address") {
                             return (
