@@ -360,7 +360,10 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "safetyLarcenyTheftIndex": 69,
     "safetyVehicleTheftIndex": 45,
     "lotSqft": 9583.2,
-    "yardCondition": "Fair"
+    "yardCondition": "Fair",
+    "kitchenSize": "Small",
+    "greg": 5.1,
+    "bre": 5.1
   },
   "imported-mls-9798133": {
     "photo": "https://m1.cbhomes.com/p/723/9798133/E633205A44524b2/pdl23tp.webp",
@@ -369,7 +372,9 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "safetyLarcenyTheftIndex": 73,
     "safetyVehicleTheftIndex": 65,
     "greg": 7.5,
-    "bre": 7
+    "bre": 7,
+    "lotSqft": 10005,
+    "kitchenSize": "Large"
   },
   "imported-mls-3921720": {
     "photo": "https://photos.zillowstatic.com/fp/e50f9224bf21b296c8dd839bdaeec569-cc_ft_768.webp",
@@ -389,14 +394,20 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "greg": 8.5,
     "bre": 8,
     "kitchenSize": "Large",
-    "lotSqft": 6600
+    "lotSqft": 6600,
+    "yardCondition": "Excellent"
   },
   "imported-mls-6303123": {
     "photo": "https://photos.zillowstatic.com/fp/daf82f01b0b552aa9e427283e0a13975-cc_ft_768.webp",
     "safetyAssaultIndex": 81,
     "safetyBurglaryIndex": 93,
     "safetyLarcenyTheftIndex": 95,
-    "safetyVehicleTheftIndex": 103
+    "safetyVehicleTheftIndex": 103,
+    "bre": 8,
+    "greg": 8,
+    "kitchenSize": "Large",
+    "lotSqft": 5653,
+    "yardCondition": "Excellent"
   },
   "imported-mls-9020481": {
     "photo": "https://photos.zillowstatic.com/fp/3ea4319389898d77b2818302c3045f1e-cc_ft_768.webp",
@@ -407,7 +418,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "greg": 7,
     "kitchenSize": "Gourmet",
     "yardCondition": "Poor",
-    "bre": 8
+    "bre": 8,
+    "lotSqft": 5500
   },
   "imported-mls-3822228": {
     "photo": "https://photos.zillowstatic.com/fp/a8901e94f5dc1f0d07b26369c9383b4e-cc_ft_768.webp",
@@ -415,7 +427,10 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "safetyBurglaryIndex": 93,
     "safetyLarcenyTheftIndex": 6,
     "safetyVehicleTheftIndex": 27,
-    "greg": 7
+    "greg": 7,
+    "bre": 8,
+    "lotSqft": 26400,
+    "kitchenSize": "Gourmet"
   },
   "imported-mls-9617623": {
     "photo": "https://photos.zillowstatic.com/fp/650549673f773fb6eba4dd73bfd4bcd0-cc_ft_768.webp",
@@ -424,8 +439,10 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "safetyLarcenyTheftIndex": 6,
     "safetyVehicleTheftIndex": 16,
     "kitchenSize": "Large",
-    "greg": 8,
-    "safetyGrade": "A+"
+    "greg": 7.5,
+    "safetyGrade": "A+",
+    "bre": 7.5,
+    "lotSqft": 6969.6
   },
   "imported-mls-4539098": {
     "photo": "https://photos.zillowstatic.com/fp/0406ecef6e38fdf5e432c00ecea7f925-cc_ft_768.webp",
@@ -436,21 +453,29 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "kitchenSize": "Gourmet",
     "yardCondition": "Poor",
     "greg": 6.5,
-    "bre": 7
+    "bre": 7,
+    "lotSqft": 6903
   },
   "imported-mls-5252348": {
     "photo": "https://photos.zillowstatic.com/fp/e5b3fa77e284e6e146a1bda01e9af36d-cc_ft_768.webp",
     "safetyAssaultIndex": 119,
     "safetyBurglaryIndex": 58,
     "safetyLarcenyTheftIndex": 31,
-    "safetyVehicleTheftIndex": 143
+    "safetyVehicleTheftIndex": 143,
+    "yardCondition": "Poor",
+    "status": "Ruled Out"
   },
   "imported-mls-8141032": {
     "photo": "https://photos.zillowstatic.com/fp/57f78ba0a74446b85d75f2e200d0ab02-cc_ft_768.webp",
     "safetyAssaultIndex": 39,
     "safetyBurglaryIndex": 93,
     "safetyLarcenyTheftIndex": 6,
-    "safetyVehicleTheftIndex": 27
+    "safetyVehicleTheftIndex": 27,
+    "lotSqft": 7726,
+    "bre": 7,
+    "greg": 6,
+    "kitchenSize": "Gourmet",
+    "yardCondition": "Fair"
   },
   "imported-mls-5994546": {
     "photo": "https://photos.zillowstatic.com/fp/d73dbd5febbfa14c16e5ee8c29d131ba-cc_ft_768.webp",
@@ -458,23 +483,34 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "safetyBurglaryIndex": 39,
     "safetyLarcenyTheftIndex": 6,
     "safetyVehicleTheftIndex": 16,
-    "bre": 7.5,
+    "bre": 8,
     "lotSqft": 5567,
-    "greg": 7
+    "greg": 7.5,
+    "yardCondition": "Fair",
+    "kitchenSize": "Large"
   },
   "imported-mls-7099195": {
     "photo": "https://photos.zillowstatic.com/fp/6e64b983593dc9d72d51df095798e29d-cc_ft_768.webp",
     "safetyAssaultIndex": 119,
     "safetyBurglaryIndex": 58,
     "safetyLarcenyTheftIndex": 31,
-    "safetyVehicleTheftIndex": 143
+    "safetyVehicleTheftIndex": 143,
+    "lotSqft": 3200,
+    "kitchenSize": "Large",
+    "greg": 7,
+    "bre": 7.5
   },
   "imported-mls-1506020": {
     "photo": "https://photos.zillowstatic.com/fp/3f2b7a9d1615fe35ed59762feac28bf0-cc_ft_768.webp",
     "safetyAssaultIndex": 119,
     "safetyBurglaryIndex": 58,
     "safetyLarcenyTheftIndex": 31,
-    "safetyVehicleTheftIndex": 143
+    "safetyVehicleTheftIndex": 143,
+    "lotSqft": 4500,
+    "greg": 6.5,
+    "bre": 6,
+    "kitchenSize": "Large",
+    "yardCondition": "Fair"
   },
   "imported-mls-6172323": {
     "photo": "https://photos.zillowstatic.com/fp/bcb00ad016484524c4518a4d524b2c3a-cc_ft_768.webp",
@@ -482,7 +518,11 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "safetyAssaultIndex": 34,
     "safetyBurglaryIndex": 38,
     "safetyLarcenyTheftIndex": 81,
-    "safetyVehicleTheftIndex": 62
+    "safetyVehicleTheftIndex": 62,
+    "lotSqft": 6566,
+    "greg": 8.5,
+    "kitchenSize": "Large",
+    "bre": 8
   },
   "imported-mls-3917272": {
     "photo": "https://photos.zillowstatic.com/fp/ba30eb1e84d265737fd1969c37582516-cc_ft_768.webp",
@@ -490,7 +530,12 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "safetyAssaultIndex": 17,
     "safetyBurglaryIndex": 43,
     "safetyLarcenyTheftIndex": 69,
-    "safetyVehicleTheftIndex": 45
+    "safetyVehicleTheftIndex": 45,
+    "lotSqft": 6541,
+    "yardCondition": "Excellent",
+    "greg": 6.5,
+    "kitchenSize": "Large",
+    "bre": 7.5
   },
   "imported-mls-4495204": {
     "photo": "https://photos.zillowstatic.com/fp/998a67e0f3e799aaf40b57faeaa26d2f-cc_ft_768.webp",
@@ -498,7 +543,12 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "safetyAssaultIndex": 39,
     "safetyBurglaryIndex": 93,
     "safetyLarcenyTheftIndex": 6,
-    "safetyVehicleTheftIndex": 27
+    "safetyVehicleTheftIndex": 27,
+    "lotSqft": 6768,
+    "greg": 8.5,
+    "bre": 8.5,
+    "kitchenSize": "Large",
+    "yardCondition": "Excellent"
   },
   "imported-mls-8202865": {
     "photo": "https://photos.zillowstatic.com/fp/9a9a260e1c23dc6b907a3b7eb381e6cd-sc_1344_896.webp",
@@ -506,7 +556,10 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "safetyAssaultIndex": 17,
     "safetyBurglaryIndex": 23,
     "safetyLarcenyTheftIndex": 18,
-    "safetyVehicleTheftIndex": 24
+    "safetyVehicleTheftIndex": 24,
+    "lotSqft": 7037,
+    "greg": 6.5,
+    "bre": 6
   },
   "imported-mls-1957788": {
     "photo": "https://photos.zillowstatic.com/fp/fbb76144febf1fd6548a22dc5104c950-cc_ft_768.webp",
@@ -514,11 +567,34 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "safetyAssaultIndex": 39,
     "safetyBurglaryIndex": 93,
     "safetyLarcenyTheftIndex": 6,
-    "safetyVehicleTheftIndex": 27
+    "safetyVehicleTheftIndex": 27,
+    "lotSqft": 7026,
+    "bre": 8.5,
+    "greg": 8,
+    "kitchenSize": "Gourmet",
+    "yardCondition": "Excellent"
   },
   "imported-mls-5900154": {
     "photo": "https://photos.zillowstatic.com/fp/26ec4bdc0d474d53235ccdf1dc581340-cc_ft_1152.webp",
-    "hoa": 5220
+    "hoa": 5820,
+    "lotSqft": 7425,
+    "greg": 9,
+    "bre": 8.5,
+    "kitchenSize": "Large",
+    "yardCondition": "Excellent"
+  },
+  "base-4": {
+    "bre": 9
+  },
+  "base-8": {
+    "bre": 6.5
+  },
+  "imported-mls-9271246": {
+    "lotSqft": 6949,
+    "bre": 8.5,
+    "greg": 7,
+    "kitchenSize": "Large",
+    "yardCondition": "Excellent"
   }
 };
 const DEFAULT_EDITABLE_KEYS = [
