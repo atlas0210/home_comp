@@ -2,8 +2,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, RadarChart, Radar, PolarGrid, PolarAngleAxis, Legend, Cell } from "recharts";
 
 const DP = 80000;
-const PI_FACTOR = 0.006321;
+const MORTGAGE_RATE_ANNUAL = 0.065;
+const MORTGAGE_TERM_MONTHS = 360;
+const PI_FACTOR = (() => {
+  const monthlyRate = MORTGAGE_RATE_ANNUAL / 12;
+  const growth = Math.pow(1 + monthlyRate, MORTGAGE_TERM_MONTHS);
+  return (monthlyRate * growth) / (growth - 1);
+})();
 const MERIDIAN_RANCH_HOA_ANNUAL = 230 * 12;
+const CURRENT_YEAR = new Date().getFullYear();
+const ADDRESS_BLOCK_REGEX = /(?:^|\n)\s*(\d{3,6}\s+[^\n]+?(?:CO|Colorado)\s+\d{5}(?:-\d{4})?)/g;
 const TAX_RATE_BY_ZIP = {
   "80831": 0.0047,
   "80908": 0.0047,
@@ -17,15 +25,17 @@ const TAX_RATE_BY_ZIP = {
 };
 const DEFAULT_TAX_RATE = 0.0047;
 const SAFETY_SCORING_ENABLED = false;
+const SAFETY_INDEX_MAX = 200;
 const PLACEHOLDER_TAGS_ENABLED = false;
 const EMPTY = "__none__";
 const SHOWHORSE_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJYAlgDASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAAAAECAwQFBgf/xAA8EAACAQMBBQgDBwQDAAAAAAAAAQIDEQQSITEFQVEGEyJhcYGRMqGxI0JSYrHB0fAUI+HxM1OS/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAhEQEBAAICAgIDAQAAAAAAAAAAAQIRAyESMQQTQVFhIv/aAAwDAQACEQMRAD8A9vREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAERED5zb7V4j0+I/8Aj2+uU1l6Wl9W9Y+r2g9s3F7us6Qe6r0PtL8n0+8vL5q3r7f9v6W1pxp0m2v3F7gL8vwv3v28j+z7r9j9pqj9lV7q7n8M5g3lbH2H6V7fWf6uYv2fW3i8+71MZ6Yw6p3i3n4ebVtZxcm9m2n4Jq9X3o/ZoX6a9v2L5b0Vv7n6e9r8g4tSx6H6t3Lr7e2g7n2l1nCwz3Sx3+9Z9Tz6dTg+2J+R6f1X4O4sYt8mQH4i3m4h8U1dVdV3+R9n2b1V9Vx3Y2m7eV3Q1uV7t2n3nqR3K8a+1b4u1u3V6v1b2r4V3d7M2m3F8R4r9j3Y+K1uJ7cQ2X3t7P6rj9Xf3ZVw2m+R3g0QERAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQHk9vtXiPT4j/AONb65TWXpaX1b1j6vaD2zcXu6zpB7qvQ+0vyfT7y8vmrevt/2/pbWnGnSba/cXuAvy/C/e/byP7Puv2P2mqP2VXuru fwzmDeVsfYfpXt9Z/q5i/Z9beLz7vUxn pjDqneLefh5tW1nFyb2bafgmr1fej9mhfpr2/YvlvRW/ufp72vyDi1LHo fq3cuvt7aDufaXWcLDPdLHf71n1PPp1OD7Yn5Hp/Vfg7ixi3yZAfiLebiHxTV1V1Xf5H2fZvVX1XHdjabt5XdDW5Xu3afeepHcrxr7Vvi7W7dXq/VvavhXd3szabcXxHiv2Pdj4rW4ntxDZfe3s/quP1d/dlX Dab5HeDRAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQERH//Z";
 const CANDELABRA_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJiA4ADASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAAAAECAwQFBgf/xAA8EAACAQMBBQgDBwQDAAAAAAAAAQIDEQQSITEFQVEGEyJhcYGRMqGxI0JSYrHB0fAUI+HxM1OS/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAhEQEBAAICAgIDAQAAAAAAAAAAAQIRAyESMQQTQVFhIv/aAAwDAQACEQMRAD8A9vREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAERED5zb7V4j0+I/8Aj2+uU1l6Wl9W9Y+r2g9s3F7us6Qe6r0PtL8n0+8vL5q3r7f9v6W1pxp0m2v3F7gL8vwv3v28j+z7r9j9pqj9lV7q7n8M5g3lbH2H6V7fWf6uYv2fW3i8+71MZ6Yw6p3i3n4ebVtZxcm9m2n4Jq9X3o/ZoX6a9v2L5b0Vv7n6e9r8g4tSx6H6t3Lr7e2g7n2l1nCwz3Sx3+9Z9Tz6dTg+2J+R6f1X4O4sYt8mQH4i3m4h8U1dVdV3+R9n2b1V9Vx3Y2m7eV3Q1uV7t2n3nqR3K8a+1b4u1u3V6v1b2r4V3d7M2m3F8R4r9j3Y+K1uJ7cQ2X3t7P6rj9Xf3ZVw2m+R3g0QERAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQHk9vtXiPT4j/AONb65TWXpaX1b1j6vaD2zcXu6zpB7qvQ+0vyfT7y8vmrevt/2/pbWnGnSba/cXuAvy/C/e/byP7Puv2P2mqP2VXuru fwzmDeVsfYfpXt9Z/q5i/Z9beLz7vUxn pjDqneLefh5tW1nFyb2bafgmr1fej9mhfpr2/YvlvRW/ufp72vyDi1LHo fq3cuvt7aDufaXWcLDPdLHf71n1PPp1OD7Yn5Hp/Vfg7ixi3yZAfiLebiHxTV1V1Xf5H2fZvVX1XHdjabt5XdDW5Xu3afeepHcrxr7Vvi7W7dXq/VvavhXd3szabcXxHiv2Pdj4rW4ntxDZfe3s/quP1d/dlX Dab5HeDRAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQERH//Z";
 const DOM_ROLL_DATE_KEY = "homeComp.domRollDate.v1";
 
-const W = { rating: 0.28, monthlyPayment: 0.18, safety: 0.14, sizeValue: 0.20, lot: 0.05, kitchen: 0.05, yard: 0.10, ageScore: 0.05 };
+// Raw weighting points (normalized into EFFECTIVE_W below).
+const RAW_WEIGHT_POINTS = { rating: 0.28, monthlyPayment: 0.18, safety: 0.14, sizeValue: 0.20, lot: 0.05, kitchen: 0.05, yard: 0.10, ageScore: 0.05 };
 const EFFECTIVE_W = (() => {
-  const entries = Object.entries(W).map(([key, weight]) => [key, (!SAFETY_SCORING_ENABLED && key === "safety") ? 0 : weight]);
+  const entries = Object.entries(RAW_WEIGHT_POINTS).map(([key, weight]) => [key, (!SAFETY_SCORING_ENABLED && key === "safety") ? 0 : weight]);
   const total = entries.reduce((sum, [, weight]) => sum + weight, 0);
   if (total <= 0) return Object.fromEntries(entries.map(([key]) => [key, 0]));
   return Object.fromEntries(entries.map(([key, weight]) => [key, weight / total]));
@@ -38,7 +48,7 @@ const WEIGHTS = [
 const RADAR = [["rating","Rating"],["monthlyPayment","Mo Pmt"],["sizeValue","Size/Value"],["lot","Lot"],["kitchen","Kitchen"],["yard","Yard"],["ageScore","Age"], ...(!SAFETY_SCORING_ENABLED ? [] : [["safety","Safety"]])];
 const CARD_FIELDS = h => [
   ["Monthly", fmt(h.totalMo)],["P&I", fmt(h.piMo)],
-  ["Greg", `${h.greg}/10`],["Bre", `${h.bre}/10`],["Combined", h.rating.toFixed(1)],["$/Sqft", `$${Math.round(h.pricePerSqft)}`],
+  ["Greg", `${h.greg}/10`],["Bre", `${h.bre}/10`],["Combined", h.rating.toFixed(1)],["$/Sqft", h.pricePerSqft == null ? "—" : `$${Math.round(h.pricePerSqft)}`],
   ["Sqft", h.sqft.toLocaleString()],["Age Score", h.ageScore.toFixed(1)],["Safety", SAFETY_SCORING_ENABLED ? h.safety.toFixed(1) : "N/A"],["Crime Grade", SAFETY_SCORING_ENABLED ? (h.safetyGrade ?? "—") : "N/A"],["Safety Area", SAFETY_SCORING_ENABLED ? (h.safetyNeighborhood ?? "—") : "N/A"],
 ];
 const COMPARE_ROWS = [
@@ -876,7 +886,7 @@ function normalizeHomeRecord(home, index) {
   ].join(" ");
   const isMeridianRanch = /meridian ranch/i.test(meridianSignal);
   let hoa = parsedHoa ?? 0;
-  if (isMeridianRanch && (parsedHoa == null || parsedHoa < 2000)) {
+  if (isMeridianRanch && parsedHoa == null) {
     // Realtor-confirmed rule: Meridian Ranch HOA is ~ $230/month.
     hoa = MERIDIAN_RANCH_HOA_ANNUAL;
     placeholderFields.push("hoa");
@@ -888,9 +898,12 @@ function normalizeHomeRecord(home, index) {
   );
   const zipTaxRate = zipCode ? TAX_RATE_BY_ZIP[zipCode] : null;
   const appliedTaxRate = Number.isFinite(zipTaxRate) ? zipTaxRate : DEFAULT_TAX_RATE;
-  const tax = Number.isFinite(parsedPrice)
-    ? +(parsedPrice * appliedTaxRate).toFixed(2)
-    : 3000;
+  const parsedTax = toNum(home.tax ?? home.annualTax ?? home.annual_taxes);
+  const tax = Number.isFinite(parsedTax)
+    ? parsedTax
+    : Number.isFinite(parsedPrice)
+      ? +(parsedPrice * appliedTaxRate).toFixed(2)
+      : 3000;
 
   const parsedGreg = toNum(home.greg);
   const greg = parsedGreg ?? 5;
@@ -996,8 +1009,8 @@ function parseUnformattedHomes(rawText) {
   const raw = typeof rawText === "string" ? rawText.trim() : "";
   if (!raw) return { blockCount: 0, homes: [], unknownFieldCount: 0 };
 
-  const addressRe = /(?:^|\n)\s*(\d{3,6}\s+[^\n]+?(?:CO|Colorado)\s+\d{5}(?:-\d{4})?)/g;
-  const matches = [...raw.matchAll(addressRe)];
+  ADDRESS_BLOCK_REGEX.lastIndex = 0;
+  const matches = [...raw.matchAll(ADDRESS_BLOCK_REGEX)];
   if (!matches.length) return { blockCount: 0, homes: [], unknownFieldCount: 0 };
 
   const blocks = matches.map((m, i) => {
@@ -1090,8 +1103,8 @@ function parseUnformattedHomes(rawText) {
 function splitImportBlocks(rawText) {
   const raw = typeof rawText === "string" ? rawText.trim() : "";
   if (!raw) return [];
-  const addressRe = /(?:^|\n)\s*(\d{3,6}\s+[^\n]+?(?:CO|Colorado)\s+\d{5}(?:-\d{4})?)/g;
-  const matches = [...raw.matchAll(addressRe)];
+  ADDRESS_BLOCK_REGEX.lastIndex = 0;
+  const matches = [...raw.matchAll(ADDRESS_BLOCK_REGEX)];
   if (!matches.length) return [];
   return matches.map((m, i) => {
     const start = m.index + m[0].length - m[1].length;
@@ -1180,13 +1193,12 @@ const scoreSqftLegacy = (s) => interp(s, [{ value: 1200, score: 30 }, { value: 1
 const scoreSqft = (s, ctx) => scoreFromContext(s, ctx, { lowerBetter: false, minScore: 30, maxScore: 100, gamma: 0.88 }) ?? scoreSqftLegacy(s);
 const scoreLotLegacy = (s) => interp(s, [{ value: 3000, score: 45 }, { value: 5000, score: 65 }, { value: 7500, score: 85 }, { value: 10000, score: 100 }]);
 const scoreLot = (s, ctx) => scoreFromContext(s, ctx, { lowerBetter: false, minScore: 30, maxScore: 100, gamma: 0.9 }) ?? scoreLotLegacy(s);
-const scoreKitchen = (k) => k === "Gourmet" ? 100 : k === "Large" ? 80 : k === "Medium" ? 55 : 20;
-const scoreYard = (y) => y === "Excellent" ? 100 : y === "Good" ? 75 : y === "Fair" ? 45 : 15;
+const scoreKitchen = (k) => k === "Gourmet" ? 100 : k === "Large" ? 73 : k === "Medium" ? 47 : 20;
+const scoreYard = (y) => y === "Excellent" ? 100 : y === "Good" ? 71 : y === "Fair" ? 43 : 15;
 const scoreAgeLegacy = (yearBuilt) => {
   const built = Number.isFinite(yearBuilt) ? yearBuilt : null;
   if (built == null) return 50;
-  const currentYear = new Date().getFullYear();
-  const age = Math.max(0, currentYear - built);
+  const age = Math.max(0, CURRENT_YEAR - built);
   return interp(age, [
     { value: 0, score: 100 },
     { value: 5, score: 95 },
@@ -1200,8 +1212,7 @@ const scoreAgeLegacy = (yearBuilt) => {
 const scoreAge = (yearBuilt, ctx) => {
   const built = Number.isFinite(yearBuilt) ? yearBuilt : null;
   if (built == null) return 50;
-  const currentYear = new Date().getFullYear();
-  const ageYears = Math.max(0, currentYear - built);
+  const ageYears = Math.max(0, CURRENT_YEAR - built);
   return scoreFromContext(ageYears, ctx, { lowerBetter: true, minScore: 20, maxScore: 100, gamma: 1 }) ?? scoreAgeLegacy(yearBuilt);
 };
 const scoreCombinedRating = (greg, bre, ctx) => {
@@ -1228,7 +1239,11 @@ const estimateMonthlyTotal = (h) => {
   const taxMo = Math.round(tax / 12);
   return Math.round(piMo + hoaMo + taxMo);
 };
-const safePct = (v) => Number.isFinite(v) ? Math.max(0, Math.min(100, 100 - v)) : null;
+const safePct = (v) => {
+  if (!Number.isFinite(v)) return null;
+  const normalized = 100 * (1 - (v / SAFETY_INDEX_MAX));
+  return +Math.max(0, Math.min(100, normalized)).toFixed(1);
+};
 const scoreSafety = (h) => {
   if (!SAFETY_SCORING_ENABLED) return null;
   const parts = [
@@ -1269,7 +1284,8 @@ const calc = (h, opts = {}) => {
   };
   const contributions = Object.fromEntries(Object.entries(EFFECTIVE_W).map(([k, w]) => [k, +((vals[k] ?? 0) * w).toFixed(2)]));
   const weightedTotal = +Object.values(contributions).reduce((a, b) => a + b, 0).toFixed(2);
-  return { ...h, ...vals, piMo, hoaMo, taxMo, totalMo, pricePerSqft: h.price / h.sqft, contributions, weightedTotal, grade: gradeLabel(weightedTotal) };
+  const pricePerSqft = Number.isFinite(h.price) && Number.isFinite(h.sqft) && h.sqft > 0 ? h.price / h.sqft : null;
+  return { ...h, ...vals, piMo, hoaMo, taxMo, totalMo, pricePerSqft, contributions, weightedTotal, grade: gradeLabel(weightedTotal) };
 };
 
 function CardMetric({ label, value }) {
@@ -1395,6 +1411,7 @@ export default function App() {
   const [fieldErrorsByHomeId, setFieldErrorsByHomeId] = useState({});
   const [backupNotice, setBackupNotice] = useState("");
   const restoreBackupInputRef = useRef(null);
+  const compareSelectionMigratedRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1477,7 +1494,6 @@ export default function App() {
   const scoreContexts = useMemo(() => {
     const active = preparedHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status));
     const scope = active.length ? active : preparedHomes;
-    const currentYear = new Date().getFullYear();
     return {
       rating: buildRangeContext(scope.map((h) => {
         const g = toNum(h?.greg);
@@ -1495,7 +1511,7 @@ export default function App() {
       lot: buildRangeContext(scope.map((h) => h?.lotSqft), { minSpread: 500 }),
       age: buildRangeContext(scope.map((h) => {
         const built = toNum(h?.built);
-        return Number.isFinite(built) ? Math.max(0, currentYear - built) : null;
+        return Number.isFinite(built) ? Math.max(0, CURRENT_YEAR - built) : null;
       }), { minSpread: 3 }),
     };
   }, [preparedHomes]);
@@ -1508,6 +1524,23 @@ export default function App() {
     () => (showHidden ? allHomes : allHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status))),
     [allHomes, showHidden]
   );
+
+  useEffect(() => {
+    if (compareSelectionMigratedRef.current) return;
+    if (!homes.length) return;
+    const mapLegacySelection = (value, fallbackIndex = null) => {
+      if (value === EMPTY) return EMPTY;
+      if (homes.some((h) => h.homeId === value)) return value;
+      const idx = Number(value);
+      if (Number.isInteger(idx) && idx >= 0 && idx < homes.length) return homes[idx].homeId;
+      if (Number.isInteger(fallbackIndex) && fallbackIndex >= 0 && fallbackIndex < homes.length) return homes[fallbackIndex].homeId;
+      return EMPTY;
+    };
+    setCompareA((prev) => mapLegacySelection(prev, 0));
+    setCompareB((prev) => mapLegacySelection(prev, homes.length > 1 ? 1 : 0));
+    setCompareC((prev) => mapLegacySelection(prev, null));
+    compareSelectionMigratedRef.current = true;
+  }, [homes]);
 
   useEffect(() => {
     if (!allHomes.length) {
@@ -1736,8 +1769,7 @@ export default function App() {
 
   const pick = (value, fallback) => {
     if (value === EMPTY) return null;
-    const i = Number(value);
-    return Number.isInteger(i) && i >= 0 && i < homes.length ? homes[i] : fallback;
+    return homes.find((h) => h.homeId === value) ?? fallback;
   };
   const overviewAddress = (home) => {
     const raw = String(home?.name ?? "").trim();
@@ -1751,14 +1783,25 @@ export default function App() {
   const a = pick(compareA, homes[0] ?? null);
   const b = pick(compareB, homes[Math.min(1, Math.max(homes.length - 1, 0))] ?? null);
   const c = pick(compareC, null);
-  const radarData = RADAR.map(([key, label]) => ({ subject: label, a: a?.[key] ?? null, b: b?.[key] ?? null, c: c?.[key] ?? null }));
+  const rawRadarData = RADAR.map(([key, label]) => ({
+    subject: label,
+    a: a?.[key] ?? null,
+    b: b?.[key] ?? null,
+    c: c?.[key] ?? null,
+  }));
+  const weightedRadarData = RADAR.map(([key, label]) => ({
+    subject: `${label} (${((EFFECTIVE_W[key] ?? 0) * 100).toFixed(1)}%)`,
+    a: a?.contributions?.[key] ?? null,
+    b: b?.contributions?.[key] ?? null,
+    c: c?.contributions?.[key] ?? null,
+  }));
   const renderVal = (key, v) => {
     if (!SAFETY_SCORING_ENABLED && key === "safety") return "N/A";
     return v == null ? "—" : key === "totalMo" ? fmt(Math.round(v)) : key === "pricePerSqft" ? `$${Math.round(v)}` : typeof v === "number" ? v.toFixed(key === "weightedTotal" ? 2 : 1) : v;
   };
   const weightsSubtitle = SAFETY_SCORING_ENABLED
-    ? "Sqft and PPSF are combined into one Size+PPSF factor. Monthly Payment includes P&I, tax, and HOA. Safety uses DoorProfit crime indexes only."
-    : "Sqft and PPSF are combined into one Size+PPSF factor. Safety and crime scoring is temporarily disabled. Remaining factors are re-normalized to 100%.";
+    ? "Weights are configured as raw points, then normalized to 100%. Sqft and PPSF are combined into one Size+PPSF factor. Monthly Payment includes P&I, tax, and HOA. Safety uses DoorProfit crime indexes only."
+    : "Weights are configured as raw points, then normalized to 100%. Sqft and PPSF are combined into one Size+PPSF factor. Safety and crime scoring is temporarily disabled, so remaining factors are re-normalized.";
   const selectStyle = { width: "100%", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px", fontSize: 13 };
 
   return (
@@ -1966,7 +2009,7 @@ export default function App() {
                   <div style={{ fontSize: 12, color, fontWeight: 700, marginBottom: 6 }}>Home {label}</div>
                   <select value={val} onChange={(e) => setter(e.target.value)} style={selectStyle}>
                     <option value={EMPTY}>Blank</option>
-                    {homes.map((h, i) => <option key={h.homeId} value={String(i)}>{h.name}</option>)}
+                    {homes.map((h) => <option key={h.homeId} value={h.homeId}>{h.name}</option>)}
                   </select>
                   {slotHome && (
                     <div style={{ marginTop: 8, fontSize: 11, color: missingCount ? "#fbbf24" : "#64748b" }}>
@@ -1977,7 +2020,52 @@ export default function App() {
               );
             })}
           </div>
-          <div style={{ background: "#1e293b", borderRadius: 12, padding: 16, marginBottom: 12 }}><ResponsiveContainer width="100%" height={340}><RadarChart data={radarData}><PolarGrid stroke="#334155" /><PolarAngleAxis dataKey="subject" tick={{ fill: "#94a3b8", fontSize: 11 }} />{a && <Radar name={a.short} dataKey="a" stroke="#6366f1" fill="#6366f1" fillOpacity={0.16} />}{b && <Radar name={b.short} dataKey="b" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.14} />}{c && <Radar name={c.short} dataKey="c" stroke="#22c55e" fill="#22c55e" fillOpacity={0.12} />}<Legend wrapperStyle={{ color: "#94a3b8", fontSize: 12 }} /></RadarChart></ResponsiveContainer></div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))", gap: 12, marginBottom: 12 }}>
+            <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
+              <div style={{ fontSize: 13, color: "#f1f5f9", fontWeight: 700, marginBottom: 4 }}>Raw Score Radar</div>
+              <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 6 }}>Each axis uses the raw factor score (0-100).</div>
+              <ResponsiveContainer width="100%" height={340}>
+                <RadarChart data={rawRadarData}>
+                  <PolarGrid stroke="#334155" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: "#94a3b8", fontSize: 11 }} />
+                  <Tooltip
+                    formatter={(v) => {
+                      const n = typeof v === "number" ? v : Number(v);
+                      return [Number.isFinite(n) ? n.toFixed(2) : "—", "Raw Score"];
+                    }}
+                    contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }}
+                    labelStyle={{ color: "#f1f5f9" }}
+                  />
+                  {a && <Radar name={a.short} dataKey="a" stroke="#6366f1" fill="#6366f1" fillOpacity={0.16} />}
+                  {b && <Radar name={b.short} dataKey="b" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.14} />}
+                  {c && <Radar name={c.short} dataKey="c" stroke="#22c55e" fill="#22c55e" fillOpacity={0.12} />}
+                  <Legend wrapperStyle={{ color: "#94a3b8", fontSize: 12 }} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+            <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
+              <div style={{ fontSize: 13, color: "#f1f5f9", fontWeight: 700, marginBottom: 4 }}>Weighted Impact Radar</div>
+              <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 6 }}>Each axis uses weighted contribution points (score x effective weight).</div>
+              <ResponsiveContainer width="100%" height={340}>
+                <RadarChart data={weightedRadarData}>
+                  <PolarGrid stroke="#334155" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: "#94a3b8", fontSize: 11 }} />
+                  <Tooltip
+                    formatter={(v) => {
+                      const n = typeof v === "number" ? v : Number(v);
+                      return [Number.isFinite(n) ? `${n.toFixed(2)} pts` : "—", "Weighted Impact"];
+                    }}
+                    contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }}
+                    labelStyle={{ color: "#f1f5f9" }}
+                  />
+                  {a && <Radar name={`${a.short} (pts)`} dataKey="a" stroke="#6366f1" fill="#6366f1" fillOpacity={0.16} />}
+                  {b && <Radar name={`${b.short} (pts)`} dataKey="b" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.14} />}
+                  {c && <Radar name={`${c.short} (pts)`} dataKey="c" stroke="#22c55e" fill="#22c55e" fillOpacity={0.12} />}
+                  <Legend wrapperStyle={{ color: "#94a3b8", fontSize: 12 }} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 16, overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}><thead><tr><th style={{ textAlign: "left", padding: "8px 6px", color: "#94a3b8" }}>Metric</th><th style={{ textAlign: "right", padding: "8px 6px", color: "#818cf8" }}>{a?.short ?? "Blank"}</th><th style={{ textAlign: "right", padding: "8px 6px", color: "#fbbf24" }}>{b?.short ?? "Blank"}</th><th style={{ textAlign: "right", padding: "8px 6px", color: "#86efac" }}>{c?.short ?? "Blank"}</th></tr></thead><tbody>{COMPARE_ROWS.map(([label, key]) => { const vals = [a?.[key], b?.[key], c?.[key]]; const nums = vals.filter((v) => typeof v === "number"); const lower = ["totalMo", "pricePerSqft"].includes(key); const best = nums.length ? (lower ? Math.min(...nums) : Math.max(...nums)) : null; return <tr key={label}><td style={{ padding: "8px 6px", color: "#cbd5e1", borderTop: "1px solid #334155" }}>{label}</td>{vals.map((v, i) => { const active = v != null && best != null && v === best; const color = i === 0 ? "#818cf8" : i === 1 ? "#fbbf24" : "#86efac"; return <td key={i} style={{ padding: "8px 6px", textAlign: "right", borderTop: "1px solid #334155", color: active ? color : "#f1f5f9", fontWeight: active ? 700 : 500 }}>{renderVal(key, v)}</td>; })}</tr>; })}</tbody></table></div>
         </div>}
 
