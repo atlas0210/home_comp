@@ -35,7 +35,7 @@ const WEIGHTS = [
   ["lot","Lot",EFFECTIVE_W.lot],["kitchen","Kitchen",EFFECTIVE_W.kitchen],["yard","Yard",EFFECTIVE_W.yard],
   ["ageScore","Age",EFFECTIVE_W.ageScore],
 ];
-const RADAR = [["rating","Rating"],["monthlyPayment","Mo Pmt"],["sizeValue","Size/Value"],["lot","Lot"],["kitchen","Kitchen"],["yard","Yard"], ...(!SAFETY_SCORING_ENABLED ? [] : [["safety","Safety"]])];
+const RADAR = [["rating","Rating"],["monthlyPayment","Mo Pmt"],["sizeValue","Size/Value"],["lot","Lot"],["kitchen","Kitchen"],["yard","Yard"],["ageScore","Age"], ...(!SAFETY_SCORING_ENABLED ? [] : [["safety","Safety"]])];
 const CARD_FIELDS = h => [
   ["Monthly", fmt(h.totalMo)],["P&I", fmt(h.piMo)],
   ["Greg", `${h.greg}/10`],["Bre", `${h.bre}/10`],["Combined", h.rating.toFixed(1)],["$/Sqft", `$${Math.round(h.pricePerSqft)}`],
