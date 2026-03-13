@@ -1052,8 +1052,8 @@ function ScoreBar({ label, value }) {
 }
 
 export default function App() {
-  const LOCAL_STORAGE_KEY = "homeComp.overrides.v2";
-  const LOCAL_IMPORT_STORAGE_KEY = "homeComp.importRaw.v1";
+  const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
+  const LOCAL_IMPORT_STORAGE_KEY = "homeComp.importRaw.v2";
   const EDIT_GROUPS = [
     {
       title: "Identity",
