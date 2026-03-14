@@ -33,7 +33,7 @@ const CANDELABRA_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wB
 const DOM_ROLL_DATE_KEY = "homeComp.domRollDate.v1";
 
 // Raw weighting points (normalized into EFFECTIVE_W below).
-const RAW_WEIGHT_POINTS = { rating: 0.28, monthlyPayment: 0.20, safety: 0.14, sizeValue: 0.20, lot: 0.05, kitchen: 0.05, yard: 0.10, ageScore: 0.05 };
+const RAW_WEIGHT_POINTS = { rating: 0.28, monthlyPayment: 0.20, safety: 0.14, sizeValue: 0.20, lot: 0.05, kitchen: 0.05, yard: 0.10, ageScore: 0.05, masterBed: 0.04 };
 const EFFECTIVE_W = (() => {
   const entries = Object.entries(RAW_WEIGHT_POINTS).map(([key, weight]) => [key, (!SAFETY_SCORING_ENABLED && key === "safety") ? 0 : weight]);
   const total = entries.reduce((sum, [, weight]) => sum + weight, 0);
@@ -44,6 +44,7 @@ const WEIGHTS = [
   ["rating","Combined Rating",EFFECTIVE_W.rating],["monthlyPayment","Monthly Payment",EFFECTIVE_W.monthlyPayment],["safety",SAFETY_SCORING_ENABLED ? "Safety" : "Safety (Disabled)",EFFECTIVE_W.safety],["sizeValue","Size",EFFECTIVE_W.sizeValue],
   ["lot","Lot",EFFECTIVE_W.lot],["kitchen","Kitchen",EFFECTIVE_W.kitchen],["yard","Yard",EFFECTIVE_W.yard],
   ["ageScore","Age",EFFECTIVE_W.ageScore],
+  ["masterBed","Master Bed",EFFECTIVE_W.masterBed],
 ];
 const RADAR = [["rating","Rating"],["monthlyPayment","Mo Pmt"],["sizeValue","Sqft"],["lot","Lot"],["kitchen","Kitchen"],["yard","Yard"],["ageScore","Age"], ...(!SAFETY_SCORING_ENABLED ? [] : [["safety","Safety"]])];
 const fmtUsd = (n, digits = 0) => Number.isFinite(n)
@@ -90,11 +91,12 @@ const COMPARE_ROWS = [
   ["Kitchen Score","kitchen"],
   ["Yard Score","yard"],
   ["Age Score","ageScore"],
+  ["Master Bed Score","masterBed"],
   ["Monthly $","totalMo"],
   ["Greg","greg"],
   ["Bre","bre"],
 ];
-const BAR_ROWS = [["Rating","rating"],["Monthly","monthlyPayment"],["Size","sizeValue"],["Lot","lot"],["Kitchen","kitchen"],["Yard","yard"],["Age","ageScore"], ...(!SAFETY_SCORING_ENABLED ? [] : [["Safety","safety"]])];
+const BAR_ROWS = [["Rating","rating"],["Monthly","monthlyPayment"],["Size","sizeValue"],["Lot","lot"],["Kitchen","kitchen"],["Yard","yard"],["Age","ageScore"],["Master Bed","masterBed"], ...(!SAFETY_SCORING_ENABLED ? [] : [["Safety","safety"]])];
 const COLORS = ["#22c55e","#22c55e","#3b82f6","#3b82f6","#3b82f6","#f59e0b","#f59e0b","#f59e0b","#f97316","#ef4444","#8b5cf6","#14b8a6"];
 const NO_PHOTO_STYLE = { margin: "-16px -16px 12px -16px", borderTopLeftRadius: 16, borderTopRightRadius: 16, background: "linear-gradient(135deg,#1e293b,#0f172a)", height: 180, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", fontWeight: 700, letterSpacing: 1 };
 const IMG_WRAP_STYLE = { margin: "-16px -16px 12px -16px", borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: "hidden", background: "#0f172a" };
@@ -452,6 +454,7 @@ const APPLIED_UPDATES_BY_HOME_ID = {
 "imported-mls-1217348": {
       "photo": "https://photos.zillowstatic.com/fp/4f7e5d5681bb4c5eb423702cc9817763-cc_ft_768.webp",
       "lotSqft": 7133,
+      "masterBedSqft": 195,
       "hoa": 1,
       "safetyAssaultIndex": 29,
       "safetyBurglaryIndex": 43,
@@ -460,7 +463,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "kitchenSize": "Large",
       "yardCondition": "Poor",
       "greg": 6,
-      "bre": 5.5
+      "bre": 5.5,
+      "dom": 170
     },
     "imported-mls-5703873": {
       "photo": "https://photos.zillowstatic.com/fp/d384490c138682b7d2cf5f009a39a793-cc_ft_768.webp",
@@ -469,11 +473,13 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "safetyLarcenyTheftIndex": 69,
       "safetyVehicleTheftIndex": 45,
       "lotSqft": 9583.2,
+      "masterBedSqft": 216,
       "yardCondition": "Fair",
       "kitchenSize": "Small",
       "greg": 5.1,
       "bre": 5.1,
-      "hoa": 0.1
+      "hoa": 0.1,
+      "dom": 57
     },
     "imported-mls-9798133": {
       "photo": "https://m1.cbhomes.com/p/723/9798133/E633205A44524b2/pdl23tp.webp",
@@ -484,8 +490,10 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "greg": 7.5,
       "bre": 7,
       "lotSqft": 10005,
+      "masterBedSqft": 270,
       "kitchenSize": "Large",
-      "hoa": 0.1
+      "hoa": 0.1,
+      "dom": 4
     },
     "imported-mls-3921720": {
       "photo": "https://photos.zillowstatic.com/fp/e50f9224bf21b296c8dd839bdaeec569-cc_ft_768.webp",
@@ -493,8 +501,10 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "safetyBurglaryIndex": 16,
       "safetyLarcenyTheftIndex": 7,
       "safetyVehicleTheftIndex": 28,
+      "masterBedSqft": 234,
       "yardCondition": "Poor",
-      "status": "Ruled Out"
+      "status": "Ruled Out",
+      "dom": 10
     },
     "imported-mls-6334289": {
       "photo": "https://photos.zillowstatic.com/fp/988e32754c3777ea63d0ad90115f2427-cc_ft_768.webp",
@@ -506,8 +516,9 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "bre": 8,
       "kitchenSize": "Large",
       "lotSqft": 6600,
+      "masterBedSqft": 221,
       "yardCondition": "Excellent",
-      "dom": 1,
+      "dom": 2,
       "hoa": 5460
     },
     "imported-mls-6303123": {
@@ -521,7 +532,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "kitchenSize": "Large",
       "lotSqft": 5653,
       "yardCondition": "Excellent",
-      "hoa": 5844
+      "hoa": 5844,
+      "dom": 2
     },
     "imported-mls-9020481": {
       "photo": "https://photos.zillowstatic.com/fp/3ea4319389898d77b2818302c3045f1e-cc_ft_768.webp",
@@ -534,7 +546,9 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "yardCondition": "Poor",
       "bre": 8,
       "lotSqft": 5500,
-      "hoa": 0.1
+      "hoa": 0.1,
+      "dom": 28,
+      "masterBedSqft": 210
     },
     "imported-mls-3822228": {
       "photo": "https://photos.zillowstatic.com/fp/a8901e94f5dc1f0d07b26369c9383b4e-cc_ft_768.webp",
@@ -546,7 +560,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "bre": 8,
       "lotSqft": 26400,
       "kitchenSize": "Gourmet",
-      "hoa": 0.1
+      "hoa": 0.1,
+      "dom": 135
     },
     "imported-mls-9617623": {
       "photo": "https://photos.zillowstatic.com/fp/650549673f773fb6eba4dd73bfd4bcd0-cc_ft_768.webp",
@@ -559,7 +574,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "safetyGrade": "A+",
       "bre": 7.5,
       "lotSqft": 6969.6,
-      "hoa": 720
+      "hoa": 720,
+      "dom": 56
     },
     "imported-mls-4539098": {
       "photo": "https://photos.zillowstatic.com/fp/0406ecef6e38fdf5e432c00ecea7f925-cc_ft_768.webp",
@@ -571,7 +587,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "yardCondition": "Poor",
       "greg": 6.5,
       "bre": 7,
-      "lotSqft": 6903
+      "lotSqft": 6903,
+      "dom": 38
     },
     "imported-mls-5252348": {
       "photo": "https://photos.zillowstatic.com/fp/e5b3fa77e284e6e146a1bda01e9af36d-cc_ft_768.webp",
@@ -580,7 +597,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "safetyLarcenyTheftIndex": 31,
       "safetyVehicleTheftIndex": 143,
       "yardCondition": "Poor",
-      "status": "Ruled Out"
+      "status": "Ruled Out",
+      "dom": 30
     },
     "imported-mls-8141032": {
       "photo": "https://photos.zillowstatic.com/fp/57f78ba0a74446b85d75f2e200d0ab02-cc_ft_768.webp",
@@ -593,7 +611,9 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "greg": 6,
       "kitchenSize": "Gourmet",
       "yardCondition": "Fair",
-      "hoa": 2820
+      "hoa": 2820,
+      "dom": 35,
+      "masterBedSqft": 210
     },
     "imported-mls-5994546": {
       "photo": "https://photos.zillowstatic.com/fp/d73dbd5febbfa14c16e5ee8c29d131ba-cc_ft_768.webp",
@@ -606,7 +626,9 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "greg": 7.5,
       "yardCondition": "Fair",
       "kitchenSize": "Large",
-      "hoa": 3240
+      "hoa": 3240,
+      "dom": 35,
+      "masterBedSqft": 210
     },
     "imported-mls-7099195": {
       "photo": "https://photos.zillowstatic.com/fp/6e64b983593dc9d72d51df095798e29d-cc_ft_768.webp",
@@ -615,10 +637,12 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "safetyLarcenyTheftIndex": 31,
       "safetyVehicleTheftIndex": 143,
       "lotSqft": 3200,
+      "masterBedSqft": 221,
       "kitchenSize": "Large",
       "greg": 7,
       "bre": 7.5,
-      "hoa": 0.1
+      "hoa": 0.1,
+      "dom": 7
     },
     "imported-mls-1506020": {
       "photo": "https://photos.zillowstatic.com/fp/3f2b7a9d1615fe35ed59762feac28bf0-cc_ft_768.webp",
@@ -631,7 +655,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "bre": 6,
       "kitchenSize": "Large",
       "yardCondition": "Fair",
-      "hoa": 0.1
+      "hoa": 0.1,
+      "dom": 22
     },
     "imported-mls-6172323": {
       "photo": "https://photos.zillowstatic.com/fp/bcb00ad016484524c4518a4d524b2c3a-cc_ft_768.webp",
@@ -644,7 +669,9 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "greg": 8.5,
       "kitchenSize": "Large",
       "bre": 8,
-      "hoa": 0.1
+      "hoa": 0.1,
+      "dom": 39,
+      "status": "Ruled Out"
     },
     "imported-mls-3917272": {
       "photo": "https://photos.zillowstatic.com/fp/ba30eb1e84d265737fd1969c37582516-cc_ft_768.webp",
@@ -657,7 +684,9 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "yardCondition": "Excellent",
       "greg": 6.5,
       "kitchenSize": "Large",
-      "bre": 7.5
+      "bre": 7.5,
+      "dom": 17,
+      "masterBedSqft": 210
     },
     "imported-mls-4495204": {
       "photo": "https://photos.zillowstatic.com/fp/998a67e0f3e799aaf40b57faeaa26d2f-cc_ft_768.webp",
@@ -667,11 +696,13 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "safetyLarcenyTheftIndex": 6,
       "safetyVehicleTheftIndex": 27,
       "lotSqft": 6768,
+      "masterBedSqft": 169,
       "greg": 8.5,
       "bre": 8.5,
       "kitchenSize": "Large",
       "yardCondition": "Excellent",
-      "hoa": 1200
+      "hoa": 1200,
+      "dom": 95
     },
     "imported-mls-8202865": {
       "photo": "https://photos.zillowstatic.com/fp/9a9a260e1c23dc6b907a3b7eb381e6cd-sc_1344_896.webp",
@@ -682,7 +713,9 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "safetyVehicleTheftIndex": 24,
       "lotSqft": 7037,
       "greg": 6.5,
-      "bre": 6
+      "bre": 6,
+      "dom": 93,
+      "masterBedSqft": 304
     },
     "imported-mls-1957788": {
       "photo": "https://photos.zillowstatic.com/fp/fbb76144febf1fd6548a22dc5104c950-cc_ft_768.webp",
@@ -696,7 +729,9 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "greg": 8,
       "kitchenSize": "Gourmet",
       "yardCondition": "Excellent",
-      "hoa": 816
+      "hoa": 816,
+      "dom": 85,
+      "masterBedSqft": 182
     },
     "imported-mls-5900154": {
       "photo": "https://photos.zillowstatic.com/fp/26ec4bdc0d474d53235ccdf1dc581340-cc_ft_1152.webp",
@@ -706,27 +741,32 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "bre": 8.5,
       "kitchenSize": "Large",
       "yardCondition": "Excellent",
-      "dom": 1
+      "dom": 2
     },
     "base-4": {
       "bre": 9,
-      "dom": 103
+      "dom": 104,
+      "masterBedSqft": 234
     },
     "base-8": {
-      "bre": 6.5
+      "bre": 6.5,
+      "dom": 10,
+      "masterBedSqft": 198
     },
     "imported-mls-9271246": {
       "lotSqft": 6949,
+      "masterBedSqft": 169,
       "bre": 8.5,
       "greg": 7,
       "kitchenSize": "Large",
       "yardCondition": "Excellent",
       "photo": "https://photos.zillowstatic.com/fp/2f052ee2a9c8428b171c1de924612d53-cc_ft_768.webp",
-      "hoa": 2760
+      "hoa": 2760,
+      "dom": 6
     },
     "imported-mls-6832828": {
       "lotSqft": 4950,
-      "dom": 1,
+      "dom": 2,
       "hoa": 0.1,
       "bre": 8,
       "kitchenSize": "Large",
@@ -736,9 +776,10 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     },
     "imported-mls-1196446": {
       "lotSqft": 7127,
+      "masterBedSqft": 210,
       "bre": 8.75,
       "kitchenSize": "Gourmet",
-      "dom": 1,
+      "dom": 2,
       "greg": 8.5,
       "photo": "https://photos.zillowstatic.com/fp/46b62c34617fd37782dbfbf641fe9d12-cc_ft_768.webp",
       "hoa": 396
@@ -746,17 +787,21 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "imported-mls-1627467": {
       "hoa": 0.1,
       "lotSqft": 8322,
+      "masterBedSqft": 204,
       "yardCondition": "Fair",
       "bre": 7.5,
       "greg": 7.5,
-      "photo": "https://photos.zillowstatic.com/fp/a748b00d13b77dee1fe0f25e2ec3042c-cc_ft_768.webp"
+      "photo": "https://photos.zillowstatic.com/fp/a748b00d13b77dee1fe0f25e2ec3042c-cc_ft_768.webp",
+      "dom": 8
     },
     "imported-addr-11908-eagle-crest-ct-peyton-co-80831": {
       "lotSqft": 6486,
       "greg": 7.5,
       "bre": 8,
       "kitchenSize": "Large",
-      "hoa": 2760
+      "hoa": 2760,
+      "dom": 2,
+      "masterBedSqft": 182
     },
     "imported-addr-11310-scenic-brush-dr-peyton-co-80831": {
       "bre": 7,
@@ -764,7 +809,41 @@ const APPLIED_UPDATES_BY_HOME_ID = {
       "kitchenSize": "Large",
       "yardCondition": "Fair",
       "lotSqft": 5662.8,
-      "hoa": 1.2
+      "hoa": 1.2,
+      "dom": 30,
+      "masterBedSqft": 195
+    },
+    "base-0": {
+      "dom": 45,
+      "masterBedSqft": 195
+    },
+    "base-1": {
+      "dom": 35
+    },
+    "base-2": {
+      "dom": 87
+    },
+    "base-3": {
+      "dom": 13,
+      "masterBedSqft": 224
+    },
+    "base-5": {
+      "dom": 37
+    },
+    "base-6": {
+      "dom": 20,
+      "masterBedSqft": 180
+    },
+    "base-7": {
+      "dom": 47,
+      "masterBedSqft": 208
+    },
+    "base-9": {
+      "dom": 48,
+      "masterBedSqft": 266
+    },
+    "base-10": {
+      "dom": 6
     }
 };
 const DEFAULT_EDITABLE_KEYS = [
@@ -775,6 +854,7 @@ const DEFAULT_EDITABLE_KEYS = [
   "price",
   "pricePerSqft",
   "sqft",
+  "masterBedSqft",
   "lotSqft",
   "built",
   "dom",
@@ -813,6 +893,7 @@ const mergeOverrides = (seed, incoming) => {
 const PLACEHOLDER_FIELD_LABELS = {
   price: "Price",
   sqft: "Sqft",
+  masterBedSqft: "Master Bed Sqft",
   lotSqft: "Lot Sqft",
   built: "Year Built",
   dom: "Days on Market",
@@ -1275,6 +1356,8 @@ const scoreSqftLegacy = (s) => interp(s, [{ value: 1200, score: 30 }, { value: 1
 const scoreSqft = (s, ctx) => scoreFromContext(s, ctx, { lowerBetter: false, minScore: 30, maxScore: 100, gamma: 0.88 }) ?? scoreSqftLegacy(s);
 const scoreLotLegacy = (s) => interp(s, [{ value: 3000, score: 45 }, { value: 5000, score: 65 }, { value: 7500, score: 85 }, { value: 10000, score: 100 }]);
 const scoreLot = (s, ctx) => scoreFromContext(s, ctx, { lowerBetter: false, minScore: 30, maxScore: 100, gamma: 0.9 }) ?? scoreLotLegacy(s);
+const scoreMasterBedLegacy = (s) => interp(s, [{ value: 100, score: 20 }, { value: 150, score: 50 }, { value: 200, score: 75 }, { value: 250, score: 90 }, { value: 300, score: 100 }]);
+const scoreMasterBed = (s, ctx) => scoreFromContext(s, ctx, { lowerBetter: false, minScore: 20, maxScore: 100, gamma: 0.9 }) ?? scoreMasterBedLegacy(s);
 const scoreKitchen = (k) => k === "Gourmet" ? 100 : k === "Large" ? 73 : k === "Medium" ? 47 : 20;
 const scoreYard = (y) => y === "Excellent" ? 100 : y === "Good" ? 71 : y === "Fair" ? 43 : 15;
 const scoreAgeLegacy = (yearBuilt) => {
@@ -1341,7 +1424,10 @@ const scoreSafety = (h) => {
 };
 
 const calc = (h, opts = {}) => {
-  const { scoreContexts } = opts;
+  const { scoreContexts, masterBedSqftFallback } = opts;
+  const masterBedSqft = Number.isFinite(toNum(h.masterBedSqft))
+    ? toNum(h.masterBedSqft)
+    : (Number.isFinite(masterBedSqftFallback) ? masterBedSqftFallback : null);
   const loan = Math.max(h.price - DP, 0);
   const piMo = Math.round(loan * PI_FACTOR);
   const hoaMo = Math.round((h.hoa ?? 0) / 12);
@@ -1360,11 +1446,12 @@ const calc = (h, opts = {}) => {
     yard: scoreYard(h.yardCondition),
     ageScore: scoreAge(h.built, scoreContexts?.age),
     safety: scoreSafety(h) ?? 0,
+    masterBed: scoreMasterBed(masterBedSqft, scoreContexts?.masterBed),
   };
   const contributions = Object.fromEntries(Object.entries(EFFECTIVE_W).map(([k, w]) => [k, +((vals[k] ?? 0) * w).toFixed(2)]));
   const weightedTotal = +Object.values(contributions).reduce((a, b) => a + b, 0).toFixed(2);
   const pricePerSqft = Number.isFinite(h.price) && Number.isFinite(h.sqft) && h.sqft > 0 ? h.price / h.sqft : null;
-  return { ...h, ...vals, piMo, hoaMo, taxMo, totalMo, pricePerSqft, contributions, weightedTotal, grade: gradeLabel(weightedTotal) };
+  return { ...h, masterBedSqft, ...vals, piMo, hoaMo, taxMo, totalMo, pricePerSqft, contributions, weightedTotal, grade: gradeLabel(weightedTotal) };
 };
 
 function CardMetric({ label, value }) {
@@ -1402,6 +1489,7 @@ export default function App() {
         { key: "pricePerSqft", label: "PPSF", type: "number" },
         { key: "sqft", label: "Sqft", type: "number" },
         { key: "lotSqft", label: "Lot Sqft", type: "number" },
+        { key: "masterBedSqft", label: "Master Bed Sqft", type: "number" },
         { key: "built", label: "Year Built", type: "number" },
         { key: "dom", label: "Days On Market", type: "number" },
       ],
@@ -1607,15 +1695,24 @@ export default function App() {
       monthly: buildRangeContext(scope.map((h) => estimateMonthlyTotal(h)), { minSpread: 120, lowQuantile: 0, highQuantile: 1 }),
       sqft: buildRangeContext(scope.map((h) => h?.sqft), { minSpread: 200 }),
       lot: buildRangeContext(scope.map((h) => h?.lotSqft), { minSpread: 500 }),
+      masterBed: buildRangeContext(scope.map((h) => h?.masterBedSqft), { minSpread: 50 }),
       age: buildRangeContext(scope.map((h) => {
         const built = toNum(h?.built);
         return Number.isFinite(built) ? Math.max(0, CURRENT_YEAR - built) : null;
       }), { minSpread: 3 }),
     };
   }, [preparedHomes]);
+  const masterBedSqftFallback = useMemo(() => {
+    const vals = preparedHomes
+      .map((h) => toNum(h?.masterBedSqft))
+      .filter((v) => Number.isFinite(v));
+    if (!vals.length) return null;
+    const avg = vals.reduce((sum, v) => sum + v, 0) / vals.length;
+    return Math.round(avg);
+  }, [preparedHomes]);
   const allHomes = useMemo(
-    () => preparedHomes.map((h) => calc(h, { scoreContexts })).sort((a, b) => b.weightedTotal - a.weightedTotal),
-    [preparedHomes, scoreContexts]
+    () => preparedHomes.map((h) => calc(h, { scoreContexts, masterBedSqftFallback })).sort((a, b) => b.weightedTotal - a.weightedTotal),
+    [preparedHomes, scoreContexts, masterBedSqftFallback]
   );
   const homes = useMemo(() => allHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status)), [allHomes]);
   const dataEntryVisibleHomes = useMemo(
@@ -2429,6 +2526,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
