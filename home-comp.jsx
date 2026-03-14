@@ -92,6 +92,7 @@ const COMPARE_ROWS = [
   ["Yard Score","yard"],
   ["Age Score","ageScore"],
   ["Master Bed Score","masterBed"],
+  ["Master Bed Sqft","masterBedSqft"],
   ["Monthly $","totalMo"],
   ["Greg","greg"],
   ["Bre","bre"],
@@ -1984,6 +1985,7 @@ export default function App() {
     { key: "weightedTotal", label: "Weighted Total", align: "right" },
     { key: "price", label: "Price", align: "right" },
     { key: "sqft", label: "Sqft", align: "right" },
+    { key: "masterBedSqft", label: "Master Bed Sqft", align: "right" },
     { key: "lotSqft", label: "Lot Sqft", align: "right" },
     { key: "greg", label: "Greg", align: "right" },
     { key: "bre", label: "Bre", align: "right" },
@@ -2012,6 +2014,8 @@ export default function App() {
         return home.price;
       case "sqft":
         return home.sqft;
+      case "masterBedSqft":
+        return home.masterBedSqft;
       case "lotSqft":
         return home.lotSqft;
       case "greg":
@@ -2098,6 +2102,8 @@ export default function App() {
         return fmt(home.price);
       case "sqft":
         return Number.isFinite(home.sqft) ? home.sqft.toLocaleString() : "—";
+      case "masterBedSqft":
+        return Number.isFinite(home.masterBedSqft) ? home.masterBedSqft.toLocaleString() : "—";
       case "lotSqft":
         return Number.isFinite(home.lotSqft) ? home.lotSqft.toLocaleString() : "—";
       case "greg":
@@ -2148,7 +2154,10 @@ export default function App() {
   }));
   const renderVal = (key, v) => {
     if (!SAFETY_SCORING_ENABLED && key === "safety") return "N/A";
-    return v == null ? "—" : key === "totalMo" ? fmt(Math.round(v)) : typeof v === "number" ? v.toFixed(key === "weightedTotal" ? 2 : 1) : v;
+    if (v == null) return "—";
+    if (key === "totalMo") return fmt(Math.round(v));
+    if (key === "masterBedSqft") return Number.isFinite(v) ? Math.round(v).toLocaleString() : "—";
+    return typeof v === "number" ? v.toFixed(key === "weightedTotal" ? 2 : 1) : v;
   };
   const weightsSubtitle = SAFETY_SCORING_ENABLED
     ? "Weights are configured as raw points, then normalized to 100%. Size factor uses total sqft only. Monthly Payment includes P&I, tax, and HOA. Safety uses DoorProfit crime indexes only."
