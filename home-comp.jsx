@@ -32,20 +32,56 @@ const SHOWHORSE_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBD
 const CANDELABRA_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJiA4ADASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAAAAECAwQFBgf/xAA8EAACAQMBBQgDBwQDAAAAAAAAAQIDEQQSITEFQVEGEyJhcYGRMqGxI0JSYrHB0fAUI+HxM1OS/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAhEQEBAAICAgIDAQAAAAAAAAAAAQIRAyESMQQTQVFhIv/aAAwDAQACEQMRAD8A9vREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAERED5zb7V4j0+I/8Aj2+uU1l6Wl9W9Y+r2g9s3F7us6Qe6r0PtL8n0+8vL5q3r7f9v6W1pxp0m2v3F7gL8vwv3v28j+z7r9j9pqj9lV7q7n8M5g3lbH2H6V7fWf6uYv2fW3i8+71MZ6Yw6p3i3n4ebVtZxcm9m2n4Jq9X3o/ZoX6a9v2L5b0Vv7n6e9r8g4tSx6H6t3Lr7e2g7n2l1nCwz3Sx3+9Z9Tz6dTg+2J+R6f1X4O4sYt8mQH4i3m4h8U1dVdV3+R9n2b1V9Vx3Y2m7eV3Q1uV7t2n3nqR3K8a+1b4u1u3V6v1b2r4V3d7M2m3F8R4r9j3Y+K1uJ7cQ2X3t7P6rj9Xf3ZVw2m+R3g0QERAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQHk9vtXiPT4j/AONb65TWXpaX1b1j6vaD2zcXu6zpB7qvQ+0vyfT7y8vmrevt/2/pbWnGnSba/cXuAvy/C/e/byP7Puv2P2mqP2VXuru fwzmDeVsfYfpXt9Z/q5i/Z9beLz7vUxn pjDqneLefh5tW1nFyb2bafgmr1fej9mhfpr2/YvlvRW/ufp72vyDi1LHo fq3cuvt7aDufaXWcLDPdLHf71n1PPp1OD7Yn5Hp/Vfg7ixi3yZAfiLebiHxTV1V1Xf5H2fZvVX1XHdjabt5XdDW5Xu3afeepHcrxr7Vvi7W7dXq/VvavhXd3szabcXxHiv2Pdj4rW4ntxDZfe3s/quP1d/dlX Dab5HeDRAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQERH//Z";
 const DOM_ROLL_DATE_KEY = "homeComp.domRollDate.v1";
 
-// Raw weighting points (normalized into EFFECTIVE_W below).
-const RAW_WEIGHT_POINTS = { rating: 0.28, monthlyPayment: 0.20, safety: 0.14, sizeValue: 0.20, lot: 0.05, kitchen: 0.05, yard: 0.10, ageScore: 0.05, masterBed: 0.04 };
-const EFFECTIVE_W = (() => {
-  const entries = Object.entries(RAW_WEIGHT_POINTS).map(([key, weight]) => [key, (!SAFETY_SCORING_ENABLED && key === "safety") ? 0 : weight]);
-  const total = entries.reduce((sum, [, weight]) => sum + weight, 0);
-  if (total <= 0) return Object.fromEntries(entries.map(([key]) => [key, 0]));
-  return Object.fromEntries(entries.map(([key, weight]) => [key, weight / total]));
-})();
-const WEIGHTS = [
-  ["rating","Combined Rating",EFFECTIVE_W.rating],["monthlyPayment","Monthly Payment",EFFECTIVE_W.monthlyPayment],["safety",SAFETY_SCORING_ENABLED ? "Safety" : "Safety (Disabled)",EFFECTIVE_W.safety],["sizeValue","Size",EFFECTIVE_W.sizeValue],
-  ["lot","Lot",EFFECTIVE_W.lot],["kitchen","Kitchen",EFFECTIVE_W.kitchen],["yard","Yard",EFFECTIVE_W.yard],
-  ["ageScore","Age",EFFECTIVE_W.ageScore],
-  ["masterBed","Master Bed",EFFECTIVE_W.masterBed],
-];
+const WEIGHT_KEYS = ["rating", "monthlyPayment", "safety", "sizeValue", "lot", "kitchen", "yard", "ageScore", "masterBed"];
+const WEIGHT_LABELS = {
+  rating: "Personal Appeal",
+  monthlyPayment: "Monthly Payment",
+  safety: "Safety",
+  sizeValue: "Living Space",
+  lot: "Lot",
+  kitchen: "Kitchen",
+  yard: "Yard",
+  ageScore: "Home Age",
+  masterBed: "Master Suite",
+};
+const DEFAULT_RAW_WEIGHT_POINTS = { rating: 0.22, monthlyPayment: 0.20, safety: 0.14, sizeValue: 0.20, lot: 0.09, kitchen: 0.05, yard: 0.07, ageScore: 0.08, masterBed: 0.05 };
+const MIN_RAW_WEIGHT = 0;
+const MAX_RAW_WEIGHT = 0.4;
+const clampRawWeight = (value) => Math.max(MIN_RAW_WEIGHT, Math.min(MAX_RAW_WEIGHT, Number.isFinite(value) ? value : 0));
+const parseMaybeNumber = (value) => {
+  if (value == null) return null;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  const cleaned = String(value).trim().replace(/,/g, "").replace(/\$/g, "").replace(/%/g, "");
+  if (!cleaned) return null;
+  const parsed = Number(cleaned);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+const sanitizeRawWeights = (candidate) =>
+  Object.fromEntries(
+    WEIGHT_KEYS.map((key) => {
+      const fallback = DEFAULT_RAW_WEIGHT_POINTS[key] ?? 0;
+      const raw = candidate && typeof candidate === "object" ? parseMaybeNumber(candidate[key]) : null;
+      return [key, clampRawWeight(raw == null ? fallback : raw)];
+    })
+  );
+const normalizeEffectiveWeights = (rawWeights) => {
+  const safeRaw = sanitizeRawWeights(rawWeights);
+  const enabledEntries = WEIGHT_KEYS.map((key) => [key, (!SAFETY_SCORING_ENABLED && key === "safety") ? 0 : safeRaw[key]]);
+  const total = enabledEntries.reduce((sum, [, value]) => sum + value, 0);
+  if (total <= 0) {
+    const fallback = WEIGHT_KEYS.map((key) => [key, (!SAFETY_SCORING_ENABLED && key === "safety") ? 0 : (DEFAULT_RAW_WEIGHT_POINTS[key] ?? 0)]);
+    const fallbackTotal = fallback.reduce((sum, [, value]) => sum + value, 0);
+    if (fallbackTotal <= 0) return Object.fromEntries(WEIGHT_KEYS.map((key) => [key, 0]));
+    return Object.fromEntries(fallback.map(([key, value]) => [key, value / fallbackTotal]));
+  }
+  return Object.fromEntries(enabledEntries.map(([key, value]) => [key, value / total]));
+};
+const isDefaultRawWeights = (rawWeights) =>
+  WEIGHT_KEYS.every((key) => {
+    const current = Number(rawWeights?.[key] ?? 0);
+    const baseline = Number(DEFAULT_RAW_WEIGHT_POINTS[key] ?? 0);
+    return Math.abs(current - baseline) < 1e-9;
+  });
 const RADAR = [["rating","Rating"],["monthlyPayment","Mo Pmt"],["sizeValue","Sqft"],["lot","Lot"],["kitchen","Kitchen"],["yard","Yard"],["ageScore","Age"], ...(!SAFETY_SCORING_ENABLED ? [] : [["safety","Safety"]])];
 const fmtUsd = (n, digits = 0) => Number.isFinite(n)
   ? `$${n.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })}`
@@ -1425,7 +1461,10 @@ const scoreSafety = (h) => {
 };
 
 const calc = (h, opts = {}) => {
-  const { scoreContexts, masterBedSqftFallback } = opts;
+  const { scoreContexts, masterBedSqftFallback, effectiveWeights } = opts;
+  const weights = effectiveWeights && typeof effectiveWeights === "object"
+    ? effectiveWeights
+    : normalizeEffectiveWeights(DEFAULT_RAW_WEIGHT_POINTS);
   const masterBedSqft = Number.isFinite(toNum(h.masterBedSqft))
     ? toNum(h.masterBedSqft)
     : (Number.isFinite(masterBedSqftFallback) ? masterBedSqftFallback : null);
@@ -1449,7 +1488,7 @@ const calc = (h, opts = {}) => {
     safety: scoreSafety(h) ?? 0,
     masterBed: scoreMasterBed(masterBedSqft, scoreContexts?.masterBed),
   };
-  const contributions = Object.fromEntries(Object.entries(EFFECTIVE_W).map(([k, w]) => [k, +((vals[k] ?? 0) * w).toFixed(2)]));
+  const contributions = Object.fromEntries(Object.entries(weights).map(([k, w]) => [k, +((vals[k] ?? 0) * w).toFixed(2)]));
   const weightedTotal = +Object.values(contributions).reduce((a, b) => a + b, 0).toFixed(2);
   const pricePerSqft = Number.isFinite(h.price) && Number.isFinite(h.sqft) && h.sqft > 0 ? h.price / h.sqft : null;
   return { ...h, masterBedSqft, ...vals, piMo, hoaMo, taxMo, totalMo, pricePerSqft, contributions, weightedTotal, grade: gradeLabel(weightedTotal) };
@@ -1471,6 +1510,7 @@ function ScoreBar({ label, value }) {
 export default function App() {
   const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
   const LOCAL_IMPORT_STORAGE_KEY = "homeComp.importRaw.v2";
+  const LOCAL_WEIGHT_STORAGE_KEY = "homeComp.weights.v1";
   const [viewportWidth, setViewportWidth] = useState(() => (typeof window === "undefined" ? 1280 : window.innerWidth));
   const isMobile = viewportWidth <= 640;
   const EDIT_GROUPS = [
@@ -1595,6 +1635,26 @@ export default function App() {
   const [backupNotice, setBackupNotice] = useState("");
   const restoreBackupInputRef = useRef(null);
   const compareSelectionMigratedRef = useRef(false);
+  const [rawWeightPoints, setRawWeightPoints] = useState(() => {
+    if (typeof window === "undefined") return sanitizeRawWeights(DEFAULT_RAW_WEIGHT_POINTS);
+    try {
+      const raw = window.localStorage.getItem(LOCAL_WEIGHT_STORAGE_KEY);
+      if (!raw) return sanitizeRawWeights(DEFAULT_RAW_WEIGHT_POINTS);
+      const parsed = JSON.parse(raw);
+      return sanitizeRawWeights(parsed);
+    } catch {
+      return sanitizeRawWeights(DEFAULT_RAW_WEIGHT_POINTS);
+    }
+  });
+  const effectiveWeights = useMemo(() => normalizeEffectiveWeights(rawWeightPoints), [rawWeightPoints]);
+  const activeWeightKeys = useMemo(
+    () => WEIGHT_KEYS.filter((key) => SAFETY_SCORING_ENABLED || key !== "safety"),
+    []
+  );
+  const weightRows = useMemo(
+    () => activeWeightKeys.map((key) => ({ key, label: WEIGHT_LABELS[key], raw: rawWeightPoints[key] ?? 0, effective: effectiveWeights[key] ?? 0 })),
+    [activeWeightKeys, rawWeightPoints, effectiveWeights]
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1628,6 +1688,19 @@ export default function App() {
       // Ignore storage write failures (quota/privacy mode) so UI keeps rendering.
     }
   }, [importRawText]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      if (isDefaultRawWeights(rawWeightPoints)) {
+        window.localStorage.removeItem(LOCAL_WEIGHT_STORAGE_KEY);
+        return;
+      }
+      window.localStorage.setItem(LOCAL_WEIGHT_STORAGE_KEY, JSON.stringify(rawWeightPoints));
+    } catch {
+      // Ignore storage failures so UI remains usable.
+    }
+  }, [rawWeightPoints]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1712,8 +1785,8 @@ export default function App() {
     return Math.round(avg);
   }, [preparedHomes]);
   const allHomes = useMemo(
-    () => preparedHomes.map((h) => calc(h, { scoreContexts, masterBedSqftFallback })).sort((a, b) => b.weightedTotal - a.weightedTotal),
-    [preparedHomes, scoreContexts, masterBedSqftFallback]
+    () => preparedHomes.map((h) => calc(h, { scoreContexts, masterBedSqftFallback, effectiveWeights })).sort((a, b) => b.weightedTotal - a.weightedTotal),
+    [preparedHomes, scoreContexts, masterBedSqftFallback, effectiveWeights]
   );
   const homes = useMemo(() => allHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status)), [allHomes]);
   const dataEntryVisibleHomes = useMemo(
@@ -2147,7 +2220,7 @@ export default function App() {
     c: c?.[key] ?? null,
   }));
   const weightedRadarData = RADAR.map(([key, label]) => ({
-    subject: `${label} (${((EFFECTIVE_W[key] ?? 0) * 100).toFixed(1)}%)`,
+    subject: `${label} (${((effectiveWeights[key] ?? 0) * 100).toFixed(1)}%)`,
     a: a?.contributions?.[key] ?? null,
     b: b?.contributions?.[key] ?? null,
     c: c?.contributions?.[key] ?? null,
@@ -2159,9 +2232,21 @@ export default function App() {
     if (key === "masterBedSqft") return Number.isFinite(v) ? Math.round(v).toLocaleString() : "—";
     return typeof v === "number" ? v.toFixed(key === "weightedTotal" ? 2 : 1) : v;
   };
+  const onWeightSliderChange = (key, percentValue) => {
+    const parsedPercent = parseMaybeNumber(percentValue);
+    const raw = clampRawWeight((parsedPercent ?? 0) / 100);
+    setRawWeightPoints((prev) => {
+      const next = sanitizeRawWeights({ ...prev, [key]: raw });
+      const activeTotal = activeWeightKeys.reduce((sum, activeKey) => sum + (next[activeKey] ?? 0), 0);
+      return activeTotal <= 0 ? sanitizeRawWeights(DEFAULT_RAW_WEIGHT_POINTS) : next;
+    });
+  };
+  const resetWeightsToDefault = () => {
+    setRawWeightPoints(sanitizeRawWeights(DEFAULT_RAW_WEIGHT_POINTS));
+  };
   const weightsSubtitle = SAFETY_SCORING_ENABLED
-    ? "Weights are configured as raw points, then normalized to 100%. Size factor uses total sqft only. Monthly Payment includes P&I, tax, and HOA. Safety uses DoorProfit crime indexes only."
-    : "Weights are configured as raw points, then normalized to 100%. Size factor uses total sqft only. Safety and crime scoring is temporarily disabled, so remaining factors are re-normalized.";
+    ? "Adjust raw slider values independently. The app normalizes them to 100% effective scoring weight live."
+    : "Adjust raw slider values independently. Safety is disabled, so visible sliders are re-normalized to 100% effective weight.";
   const selectStyle = { width: "100%", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px", fontSize: 13 };
 
   return (
@@ -2530,7 +2615,46 @@ export default function App() {
           </div>
         )}
 
-        {tab === "weights" && <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}><h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12, color: "#f1f5f9" }}>Scoring Weight Distribution</h2><div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 10 }}>{weightsSubtitle}</div><ResponsiveContainer width="100%" height={340}><BarChart data={WEIGHTS.map(([key, label, weight]) => ({ key, label, percent: +(weight * 100).toFixed(1) }))} layout="vertical" margin={{ top: 0, right: 20, bottom: 0, left: 80 }}><XAxis type="number" domain={[0, 35]} tick={{ fill: "#64748b", fontSize: 11 }} /><YAxis type="category" dataKey="label" tick={{ fill: "#94a3b8", fontSize: 11 }} width={120} /><Tooltip formatter={(v) => [`${v}%`, "Weight"]} contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }} labelStyle={{ color: "#f1f5f9" }} /><Bar dataKey="percent" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer></div>}
+        {tab === "weights" && (
+          <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+              <h2 style={{ fontSize: 15, fontWeight: 700, color: "#f1f5f9", margin: 0 }}>Interactive Weights</h2>
+              <button
+                onClick={resetWeightsToDefault}
+                style={{ border: "1px solid #334155", background: "#111827", color: "#e2e8f0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}
+              >
+                Reset Weights
+              </button>
+            </div>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 12 }}>{weightsSubtitle}</div>
+            <div style={{ display: "grid", gap: 10 }}>
+              {weightRows.map((row) => {
+                const rawPercent = +((row.raw ?? 0) * 100).toFixed(1);
+                const effectivePercent = +((row.effective ?? 0) * 100).toFixed(1);
+                return (
+                  <div key={row.key} style={{ border: "1px solid #334155", borderRadius: 10, background: "#0f172a", padding: 10 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, gap: 8, flexWrap: "wrap" }}>
+                      <div style={{ color: "#e2e8f0", fontWeight: 700, fontSize: 13 }}>{row.label}</div>
+                      <div style={{ display: "flex", gap: 10, fontSize: 12, color: "#94a3b8" }}>
+                        <span>Raw: {rawPercent.toFixed(1)}%</span>
+                        <span style={{ color: "#cbd5e1" }}>Effective: {effectivePercent.toFixed(1)}%</span>
+                      </div>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={40}
+                      step={0.5}
+                      value={rawPercent}
+                      onChange={(e) => onWeightSliderChange(row.key, e.target.value)}
+                      style={{ width: "100%", accentColor: "#6366f1" }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
