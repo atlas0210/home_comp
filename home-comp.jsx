@@ -1328,6 +1328,63 @@ const asTags = (v) => {
   if (typeof v === "string") return v.split(",").map((x) => x.trim()).filter(Boolean);
   return [];
 };
+const AVERAGE_BENCHMARK_HOME_ID = "benchmark-average-visible";
+const KITCHEN_ORDER = ["Small", "Medium", "Large", "Gourmet"];
+const YARD_ORDER = ["Poor", "Fair", "Good", "Excellent"];
+const averageFiniteNumbers = (values, digits = 2) => {
+  const nums = (values || []).map((value) => toNum(value)).filter((value) => Number.isFinite(value));
+  if (!nums.length) return null;
+  const avg = nums.reduce((sum, value) => sum + value, 0) / nums.length;
+  if (!Number.isFinite(avg)) return null;
+  return digits == null ? avg : +avg.toFixed(digits);
+};
+const averageOrdinalValue = (values, order) => {
+  const numericValues = (values || [])
+    .map((value) => order.indexOf(pickText(value)))
+    .filter((value) => value >= 0);
+  if (!numericValues.length) return order[Math.max(0, Math.floor((order.length - 1) / 2))] ?? null;
+  const avgIndex = Math.round(numericValues.reduce((sum, value) => sum + value, 0) / numericValues.length);
+  return order[Math.max(0, Math.min(order.length - 1, avgIndex))] ?? null;
+};
+const buildAverageBenchmarkHome = (homes) => {
+  if (!Array.isArray(homes) || !homes.length) return null;
+  return {
+    homeId: AVERAGE_BENCHMARK_HOME_ID,
+    sourceType: "benchmark",
+    isSyntheticBenchmark: true,
+    name: "Average Home",
+    short: "Average",
+    status: "Benchmark",
+    photo: null,
+    price: averageFiniteNumbers(homes.map((home) => home?.price), 2),
+    sqft: averageFiniteNumbers(homes.map((home) => home?.sqft), 2),
+    lotSqft: averageFiniteNumbers(homes.map((home) => home?.lotSqft), 2),
+    built: (() => {
+      const avgBuilt = averageFiniteNumbers(homes.map((home) => home?.built), null);
+      return Number.isFinite(avgBuilt) ? Math.round(avgBuilt) : null;
+    })(),
+    hoa: averageFiniteNumbers(homes.map((home) => home?.hoa), 2),
+    tax: averageFiniteNumbers(homes.map((home) => home?.tax), 2),
+    dom: averageFiniteNumbers(homes.map((home) => home?.dom), 0),
+    greg: averageFiniteNumbers(homes.map((home) => home?.greg), 2),
+    bre: averageFiniteNumbers(homes.map((home) => home?.bre), 2),
+    neighborhood: averageFiniteNumbers(homes.map((home) => home?.neighborhood), 2),
+    aestheticsRating: averageFiniteNumbers(homes.map((home) => home?.aestheticsRating), 2),
+    kitchenSize: averageOrdinalValue(homes.map((home) => home?.kitchenSize), KITCHEN_ORDER) ?? "Medium",
+    yardCondition: averageOrdinalValue(homes.map((home) => home?.yardCondition), YARD_ORDER) ?? "Good",
+    masterBedSqft: averageFiniteNumbers(homes.map((home) => home?.masterBedSqft), 2),
+    safetyAssaultIndex: averageFiniteNumbers(homes.map((home) => home?.safetyAssaultIndex), 2),
+    safetyBurglaryIndex: averageFiniteNumbers(homes.map((home) => home?.safetyBurglaryIndex), 2),
+    safetyLarcenyTheftIndex: averageFiniteNumbers(homes.map((home) => home?.safetyLarcenyTheftIndex), 2),
+    safetyVehicleTheftIndex: averageFiniteNumbers(homes.map((home) => home?.safetyVehicleTheftIndex), 2),
+    safetyNeighborhood: "Average of visible homes",
+    safetyGrade: null,
+    tags: [],
+    placeholderFields: [],
+    defaultedFields: [],
+    blankFields: [],
+  };
+};
 const slugify = (value) => String(value ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const fromAnnual = (value, cadence) => {
   const n = toNum(value);
@@ -2187,6 +2244,25 @@ export default function App() {
     [firstPassAllHomes, impactAudit.stretchByKey, effectiveWeights]
   );
   const homes = useMemo(() => allHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status)), [allHomes]);
+  const averageBenchmarkSource = useMemo(
+    () => buildAverageBenchmarkHome(firstPassVisibleHomes),
+    [firstPassVisibleHomes]
+  );
+  const averageBenchmark = useMemo(() => {
+    if (!averageBenchmarkSource) return null;
+    const scored = calc(averageBenchmarkSource, { scoreContexts, masterBedSqftFallback, effectiveWeights });
+    return applyImpactStretch(scored, impactAudit.stretchByKey, effectiveWeights);
+  }, [averageBenchmarkSource, scoreContexts, masterBedSqftFallback, impactAudit.stretchByKey, effectiveWeights]);
+  const compareHomesPool = useMemo(
+    () => averageBenchmark ? [...homes, averageBenchmark] : homes,
+    [homes, averageBenchmark]
+  );
+  const overviewHomes = useMemo(
+    () => averageBenchmark
+      ? [...homes, averageBenchmark].sort((a, b) => b.weightedTotal - a.weightedTotal)
+      : homes,
+    [homes, averageBenchmark]
+  );
   const markImageFailed = (home) => {
     const key = getImageKey(home);
     setFailedImageKeys((prev) => {
@@ -2216,20 +2292,20 @@ export default function App() {
   }, [allHomes]);
 
   useEffect(() => {
-    if (lockedOverviewHomeId && !homes.some((h) => h.homeId === lockedOverviewHomeId)) {
+    if (lockedOverviewHomeId && !overviewHomes.some((h) => h.homeId === lockedOverviewHomeId)) {
       setLockedOverviewHomeId(null);
     }
-    if (hoveredOverviewHomeId && !homes.some((h) => h.homeId === hoveredOverviewHomeId)) {
+    if (hoveredOverviewHomeId && !overviewHomes.some((h) => h.homeId === hoveredOverviewHomeId)) {
       setHoveredOverviewHomeId(null);
     }
-  }, [homes, lockedOverviewHomeId, hoveredOverviewHomeId]);
+  }, [overviewHomes, lockedOverviewHomeId, hoveredOverviewHomeId]);
 
   useEffect(() => {
     if (compareSelectionMigratedRef.current) return;
-    if (!homes.length) return;
+    if (!compareHomesPool.length) return;
     const mapLegacySelection = (value, fallbackIndex = null) => {
       if (value === EMPTY) return EMPTY;
-      if (homes.some((h) => h.homeId === value)) return value;
+      if (compareHomesPool.some((h) => h.homeId === value)) return value;
       const idx = Number(value);
       if (Number.isInteger(idx) && idx >= 0 && idx < homes.length) return homes[idx].homeId;
       if (Number.isInteger(fallbackIndex) && fallbackIndex >= 0 && fallbackIndex < homes.length) return homes[fallbackIndex].homeId;
@@ -2239,7 +2315,21 @@ export default function App() {
     setCompareB((prev) => mapLegacySelection(prev, homes.length > 1 ? 1 : 0));
     setCompareC((prev) => mapLegacySelection(prev, null));
     compareSelectionMigratedRef.current = true;
-  }, [homes]);
+  }, [compareHomesPool, homes]);
+
+  useEffect(() => {
+    const ensureValidSelection = (value, fallbackIndex = null) => {
+      if (value === EMPTY) return EMPTY;
+      if (compareHomesPool.some((home) => home.homeId === value)) return value;
+      if (Number.isInteger(fallbackIndex) && fallbackIndex >= 0 && fallbackIndex < homes.length) {
+        return homes[fallbackIndex].homeId;
+      }
+      return EMPTY;
+    };
+    setCompareA((prev) => ensureValidSelection(prev, homes.length ? 0 : null));
+    setCompareB((prev) => ensureValidSelection(prev, homes.length > 1 ? 1 : (homes.length ? 0 : null)));
+    setCompareC((prev) => ensureValidSelection(prev, null));
+  }, [compareHomesPool, homes]);
 
   useEffect(() => {
     if (!allHomes.length) {
@@ -2503,9 +2593,10 @@ export default function App() {
 
   const pick = (value, fallback) => {
     if (value === EMPTY) return null;
-    return homes.find((h) => h.homeId === value) ?? fallback;
+    return compareHomesPool.find((h) => h.homeId === value) ?? fallback;
   };
   const overviewAddress = (home) => {
+    if (home?.sourceType === "benchmark" || home?.isSyntheticBenchmark) return "Average Home";
     const raw = String(home?.name ?? "").trim();
     if (!raw) return "Unknown Address";
     // Imported rows already include full city/state/zip in most cases.
@@ -2660,11 +2751,11 @@ export default function App() {
   };
   const rankByHomeId = useMemo(() => {
     const ranks = new Map();
-    homes.forEach((home, idx) => ranks.set(home.homeId, idx + 1));
+    overviewHomes.forEach((home, idx) => ranks.set(home.homeId, idx + 1));
     return ranks;
-  }, [homes]);
+  }, [overviewHomes]);
   const overviewRows = useMemo(() => {
-    const rows = [...homes];
+    const rows = [...overviewHomes];
     if (!overviewSortKey || !overviewSortDir) return rows;
     rows.sort((a, b) => {
       const va = getOverviewSortValue(a, overviewSortKey);
@@ -2682,7 +2773,7 @@ export default function App() {
       return overviewSortDir === "asc" ? cmp : -cmp;
     });
     return rows;
-  }, [homes, overviewSortKey, overviewSortDir]);
+  }, [overviewHomes, overviewSortKey, overviewSortDir]);
   const onOverviewSort = (key) => {
     if (overviewSortKey !== key) {
       setOverviewSortKey(key);
@@ -2704,8 +2795,8 @@ export default function App() {
     if (overviewSortKey !== key || !overviewSortDir) return "";
     return overviewSortDir === "desc" ? " ▼" : " ▲";
   };
-  const a = pick(compareA, homes[0] ?? null);
-  const b = pick(compareB, homes[Math.min(1, Math.max(homes.length - 1, 0))] ?? null);
+  const a = pick(compareA, homes[0] ?? compareHomesPool[0] ?? null);
+  const b = pick(compareB, homes[Math.min(1, Math.max(homes.length - 1, 0))] ?? homes[0] ?? compareHomesPool[0] ?? null);
   const c = pick(compareC, null);
   const compareHomes = [a, b, c];
   const compareHeaderColors = ["#818cf8", "#fbbf24", "#86efac"];
@@ -3120,7 +3211,7 @@ export default function App() {
                   <div style={{ ...labelTextStyle, color, marginBottom: 6 }}>Home {label}</div>
                   <select value={val} onChange={(e) => setter(e.target.value)} style={selectStyle}>
                     <option value={EMPTY}>Blank</option>
-                    {homes.map((h) => <option key={h.homeId} value={h.homeId}>{h.name}</option>)}
+                    {compareHomesPool.map((h) => <option key={h.homeId} value={h.homeId}>{h.name}</option>)}
                   </select>
                   {slotHome && (
                     <div style={{ ...TEXT_STYLES.caption, marginTop: 8, color: missingCount ? "#fbbf24" : "#64748b" }}>
