@@ -246,7 +246,22 @@ const SCORED_FACTOR_BASE = [
   { key: "safety", label: "Safety", minWidth: 130, mobileMinWidth: 116 },
 ];
 const COLORS = ["#22c55e","#22c55e","#3b82f6","#3b82f6","#3b82f6","#f59e0b","#f59e0b","#f59e0b","#f97316","#ef4444","#8b5cf6","#14b8a6"];
-const NO_PHOTO_STYLE = { margin: "-16px -16px 12px -16px", borderTopLeftRadius: 16, borderTopRightRadius: 16, background: "linear-gradient(135deg,#1e293b,#0f172a)", height: 180, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", fontWeight: 700, letterSpacing: 1 };
+const FONT_STACKS = {
+  sans: "system-ui, sans-serif",
+};
+const TEXT_STYLES = {
+  heroTitle: { fontFamily: FONT_STACKS.sans, fontSize: 20, fontWeight: 700, lineHeight: 1.1 },
+  sectionTitle: { fontFamily: FONT_STACKS.sans, fontSize: 15, fontWeight: 700, lineHeight: 1.2 },
+  cardTitle: { fontFamily: FONT_STACKS.sans, fontSize: 13, fontWeight: 700, lineHeight: 1.25 },
+  body: { fontFamily: FONT_STACKS.sans, fontSize: 13, fontWeight: 500, lineHeight: 1.4 },
+  bodyStrong: { fontFamily: FONT_STACKS.sans, fontSize: 13, fontWeight: 700, lineHeight: 1.35 },
+  label: { fontFamily: FONT_STACKS.sans, fontSize: 12, fontWeight: 700, lineHeight: 1.3 },
+  caption: { fontFamily: FONT_STACKS.sans, fontSize: 11, fontWeight: 500, lineHeight: 1.35 },
+  captionStrong: { fontFamily: FONT_STACKS.sans, fontSize: 11, fontWeight: 700, lineHeight: 1.3 },
+  eyebrow: { fontFamily: FONT_STACKS.sans, fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", lineHeight: 1.3 },
+  metric: { fontFamily: FONT_STACKS.sans, fontSize: 20, fontWeight: 900, lineHeight: 1 },
+};
+const NO_PHOTO_STYLE = { ...TEXT_STYLES.eyebrow, margin: "-16px -16px 12px -16px", borderTopLeftRadius: 16, borderTopRightRadius: 16, background: "linear-gradient(135deg,#1e293b,#0f172a)", height: 180, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" };
 const IMG_WRAP_STYLE = { margin: "-16px -16px 12px -16px", borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: "hidden", background: "#0f172a" };
 
 const homesRaw = [
@@ -1627,7 +1642,12 @@ const applyImpactStretch = (home, stretchByKey, weights) => {
 };
 
 function CardMetric({ label, value }) {
-  return <div style={{ background: "#0f172a", borderRadius: 10, padding: "8px 10px" }}><div style={{ fontSize: 10, color: "#64748b", textTransform: "uppercase" }}>{label}</div><div style={{ fontSize: 13, color: "#f1f5f9", fontWeight: 700 }}>{value}</div></div>;
+  return (
+    <div style={{ background: "#0f172a", borderRadius: 10, padding: "8px 10px" }}>
+      <div style={{ ...TEXT_STYLES.eyebrow, color: "#64748b" }}>{label}</div>
+      <div style={{ ...TEXT_STYLES.bodyStrong, color: "#f1f5f9" }}>{value}</div>
+    </div>
+  );
 }
 
 function ScoreBar({ value }) {
@@ -2494,30 +2514,51 @@ export default function App() {
     if (status === "Weak") return { color: "#fbbf24", border: "1px solid #7c2d12", background: "#3f2a12" };
     return { color: "#cbd5e1", border: "1px solid #334155", background: "#0f172a" };
   };
-  const selectStyle = { width: "100%", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px", fontSize: 13 };
+  const sectionTitleStyle = { ...TEXT_STYLES.sectionTitle, color: "#f1f5f9" };
+  const cardTitleStyle = { ...TEXT_STYLES.cardTitle, color: "#f1f5f9" };
+  const bodyMutedTextStyle = { ...TEXT_STYLES.body, color: "#94a3b8" };
+  const bodyStrongTextStyle = { ...TEXT_STYLES.bodyStrong, color: "#f1f5f9" };
+  const labelTextStyle = { ...TEXT_STYLES.label, color: "#cbd5e1" };
+  const captionTextStyle = { ...TEXT_STYLES.caption, color: "#94a3b8" };
+  const captionStrongTextStyle = { ...TEXT_STYLES.captionStrong, color: "#cbd5e1" };
+  const eyebrowTextStyle = { ...TEXT_STYLES.eyebrow, color: "#64748b" };
+  const metricTextStyle = { ...TEXT_STYLES.metric, color: "#f8fafc" };
+  const buttonTextStyle = { ...TEXT_STYLES.label, color: "#e2e8f0" };
+  const inputTextStyle = { ...TEXT_STYLES.body, fontSize: 12 };
+  const chartXAxisTickStyle = { ...TEXT_STYLES.caption, fontSize: 11, fill: "#94a3b8" };
+  const chartYAxisTickStyle = { ...TEXT_STYLES.caption, fontSize: 11, fill: "#64748b" };
+  const chartLegendStyle = { ...TEXT_STYLES.label, color: "#94a3b8" };
+  const chartTooltipLabelStyle = { ...TEXT_STYLES.label, color: "#f1f5f9" };
+  const chartLegendFormatter = (value, entry) => <span style={{ ...TEXT_STYLES.label, color: entry?.color ?? "#94a3b8" }}>{value}</span>;
+  const compareTableStyle = { fontFamily: FONT_STACKS.sans, width: "100%", borderCollapse: "collapse", fontSize: 13 };
+  const compareHeaderCellStyle = { ...TEXT_STYLES.label, fontFamily: FONT_STACKS.sans, textAlign: "right", padding: "8px 6px" };
+  const compareMetricCellStyle = { ...labelTextStyle, fontFamily: FONT_STACKS.sans, padding: "8px 6px", borderTop: "1px solid #334155" };
+  const compareValueCellStyle = { ...bodyStrongTextStyle, fontFamily: FONT_STACKS.sans, fontSize: 12 };
+  const compareScoreCellStyle = { ...TEXT_STYLES.captionStrong, fontFamily: FONT_STACKS.sans };
+  const selectStyle = { ...TEXT_STYLES.body, width: "100%", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px" };
 
   return (
-    <div style={{ fontFamily: "system-ui,sans-serif", background: "#0f172a", minHeight: "100vh", color: "#e2e8f0", padding: isMobile ? 10 : 16, WebkitTextSizeAdjust: "100%", textSizeAdjust: "100%" }}>
+    <div style={{ fontFamily: FONT_STACKS.sans, background: "#0f172a", minHeight: "100vh", color: "#e2e8f0", padding: isMobile ? 10 : 16, WebkitTextSizeAdjust: "100%", textSizeAdjust: "100%" }}>
       <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: "#f8fafc", marginBottom: 4 }}>🏠 Home Comparison Dashboard</h1>
-        <p style={{ color: "#94a3b8", fontSize: 13, marginBottom: 16 }}>Monthly payment includes P&amp;I, tax, and HOA · Fountain-area homes are excluded for safety concerns · canvas computes all scores</p>
-        {importSummary.blockCount > 0 && <div style={{ background: "#111827", border: "1px solid #334155", borderRadius: 8, padding: "8px 10px", marginBottom: 12, fontSize: 12, color: "#cbd5e1" }}>Parsed {importSummary.importedCount} imported home(s) from {importSummary.blockCount} block(s) · flagged {importSummary.unknownFieldCount} unknown field(s) · flagged {importSummary.placeholderFieldCount} blank field(s)</div>}
+        <h1 style={{ ...TEXT_STYLES.heroTitle, color: "#f8fafc", marginBottom: 4 }}>🏠 Home Comparison Dashboard</h1>
+        <p style={{ ...bodyMutedTextStyle, marginBottom: 16 }}>Monthly payment includes P&amp;I, tax, and HOA · Fountain-area homes are excluded for safety concerns · canvas computes all scores</p>
+        {importSummary.blockCount > 0 && <div style={{ ...labelTextStyle, background: "#111827", border: "1px solid #334155", borderRadius: 8, padding: "8px 10px", marginBottom: 12 }}>Parsed {importSummary.importedCount} imported home(s) from {importSummary.blockCount} block(s) · flagged {importSummary.unknownFieldCount} unknown field(s) · flagged {importSummary.placeholderFieldCount} blank field(s)</div>}
         <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
           {["overview", "data-entry", "compare", "cards", "weights"].map((k) => {
             const label = k === "overview" ? "📊 Overview" : k === "data-entry" ? "🛠️ Data Entry" : k === "compare" ? "⚡ Compare" : k === "cards" ? "🏠 Cards" : "⚖️ Weights";
-            return <button key={k} onClick={() => setTab(k)} style={{ padding: "6px 14px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: tab === k ? "#6366f1" : "#1e293b", color: tab === k ? "#fff" : "#94a3b8" }}>{label}</button>;
+            return <button key={k} onClick={() => setTab(k)} style={{ ...TEXT_STYLES.bodyStrong, padding: "6px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: tab === k ? "#6366f1" : "#1e293b", color: tab === k ? "#fff" : "#94a3b8" }}>{label}</button>;
           })}
         </div>
         {importSummary.blockCount === 0 && (
           <div style={{ background: "#1f2937", border: "1px solid #f59e0b66", borderRadius: 8, padding: "8px 10px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <div style={{ fontSize: 12, color: "#fcd34d" }}>No imported homes are currently loaded.</div>
-            <button onClick={() => setTab("data-entry")} style={{ border: "1px solid #334155", background: "#111827", color: "#e2e8f0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Open Data Entry</button>
+            <div style={{ ...TEXT_STYLES.label, color: "#fcd34d" }}>No imported homes are currently loaded.</div>
+            <button onClick={() => setTab("data-entry")} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Open Data Entry</button>
           </div>
         )}
 
         {tab === "overview" && <div>
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 16, marginBottom: 16 }}>
-            <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12, color: "#f1f5f9" }}>🏆 Rankings</h2>
+            <h2 style={{ ...sectionTitleStyle, marginBottom: 12 }}>🏆 Rankings</h2>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed", fontSize: isMobile ? 10 : 12, minWidth: overviewTableMinWidth }}>
                 <colgroup>
@@ -2534,12 +2575,12 @@ export default function App() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "left", padding: isMobile ? "5px 4px" : "7px 5px", color: "#94a3b8", width: overviewRankColWidth, whiteSpace: "nowrap" }}>#</th>
+                    <th style={{ ...TEXT_STYLES.label, textAlign: "left", padding: isMobile ? "5px 4px" : "7px 5px", fontSize: isMobile ? 10 : 12, color: "#94a3b8", width: overviewRankColWidth, whiteSpace: "nowrap" }}>#</th>
                     {overviewColumns.map((col) => (
                       <th
                         key={col.key}
                         onClick={() => onOverviewSort(col.key)}
-                        style={{ textAlign: col.align, padding: isMobile ? "5px 4px" : "7px 5px", color: overviewSortKey === col.key ? "#e2e8f0" : "#94a3b8", cursor: "pointer", whiteSpace: "nowrap", userSelect: "none", overflow: "hidden", textOverflow: "ellipsis" }}
+                        style={{ ...TEXT_STYLES.label, textAlign: col.align, padding: isMobile ? "5px 4px" : "7px 5px", fontSize: isMobile ? 10 : 12, color: overviewSortKey === col.key ? "#e2e8f0" : "#94a3b8", cursor: "pointer", whiteSpace: "nowrap", userSelect: "none", overflow: "hidden", textOverflow: "ellipsis" }}
                         title="Click to sort"
                       >
                         {col.label}{overviewSortIndicator(col.key)}
@@ -2568,16 +2609,16 @@ export default function App() {
                         onKeyDown={(e) => onOverviewRowKeyDown(e, h.homeId)}
                         style={{ cursor: "pointer", outline: "none", boxShadow: rowOutline }}
                       >
-                        <td style={{ padding: isMobile ? "7px 4px" : "9px 5px", color: rowTone === "locked" ? "#a5b4fc" : "#64748b", borderTop: `1px solid ${rowBorder}`, fontWeight: 700, verticalAlign: "top", fontSize: isMobile ? 10 : 12, whiteSpace: "nowrap", background: rowBg }}>
+                        <td style={{ ...TEXT_STYLES.label, padding: isMobile ? "7px 4px" : "9px 5px", color: rowTone === "locked" ? "#a5b4fc" : "#64748b", borderTop: `1px solid ${rowBorder}`, verticalAlign: "top", fontSize: isMobile ? 10 : 12, whiteSpace: "nowrap", background: rowBg }}>
                           #{lockedRank ?? "—"}
                         </td>
                         {overviewColumns.map((col) => {
                           if (col.key === "address") {
                             return (
                               <td key={col.key} style={{ padding: isMobile ? "7px 4px" : "9px 5px", borderTop: `1px solid ${rowBorder}`, verticalAlign: "top", minWidth: isMobile ? 210 : 240, background: rowBg }}>
-                                <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 600, color: rowTone === "locked" ? "#eef2ff" : "#f1f5f9", lineHeight: 1.25, overflowWrap: "anywhere", whiteSpace: "normal" }}>{overviewAddress(h)}</div>
+                                <div style={{ ...TEXT_STYLES.bodyStrong, fontSize: isMobile ? 10 : 12, color: rowTone === "locked" ? "#eef2ff" : "#f1f5f9", lineHeight: 1.25, overflowWrap: "anywhere", whiteSpace: "normal" }}>{overviewAddress(h)}</div>
                                 {missingCount > 0 && (
-                                  <div style={{ marginTop: 2, fontSize: isMobile ? 9 : 10, color: "#fbbf24" }}>
+                                  <div style={{ ...TEXT_STYLES.caption, marginTop: 2, fontSize: isMobile ? 9 : 10, color: "#fbbf24" }}>
                                     Missing {missingCount}: {placeholderSummary(h)}
                                   </div>
                                 )}
@@ -2595,14 +2636,15 @@ export default function App() {
                                   borderTop: `1px solid ${rowBorder}`,
                                   background: rowBg,
                                   whiteSpace: "nowrap",
+                                  fontFamily: FONT_STACKS.sans,
                                   fontSize: isMobile ? 10 : 11,
                                   overflow: "hidden",
                                   textOverflow: "ellipsis",
                                   verticalAlign: "top",
                                 }}
                               >
-                                <div style={{ color: "#e2e8f0", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis" }}>{pair.raw}</div>
-                                <div style={{ marginTop: 1, color: Number.isFinite(pair.scoreNum) ? gradeColor(pair.scoreNum) : "#64748b", fontWeight: 700, fontSize: isMobile ? 9 : 10 }}>
+                                <div style={{ ...TEXT_STYLES.bodyStrong, color: "#e2e8f0", fontSize: isMobile ? 10 : 11, overflow: "hidden", textOverflow: "ellipsis" }}>{pair.raw}</div>
+                                <div style={{ ...TEXT_STYLES.captionStrong, marginTop: 1, color: Number.isFinite(pair.scoreNum) ? gradeColor(pair.scoreNum) : "#64748b", fontSize: isMobile ? 9 : 10 }}>
                                   Score: {pair.score}
                                 </div>
                               </td>
@@ -2621,6 +2663,7 @@ export default function App() {
                                 color: isWeightedTotal ? gradeColor(h.weightedTotal) : "#e2e8f0",
                                 fontWeight: isWeightedTotal ? 800 : 500,
                                 whiteSpace: "nowrap",
+                                fontFamily: FONT_STACKS.sans,
                                 fontSize: isMobile ? 10 : 11,
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
@@ -2638,50 +2681,50 @@ export default function App() {
             </div>
           </div>
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
-            <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12, color: "#f1f5f9" }}>Weighted Score</h2>
-            <ResponsiveContainer width="100%" height={260}><BarChart data={overviewRows} margin={{ top: 0, right: 0, bottom: 50, left: 0 }}><XAxis dataKey="short" tick={{ fill: "#94a3b8", fontSize: 11 }} angle={-35} textAnchor="end" interval={0} height={60} /><YAxis domain={[0, 100]} tick={{ fill: "#64748b", fontSize: 11 }} /><Tooltip contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }} labelStyle={{ color: "#f1f5f9" }} formatter={(v, n) => [n === "weightedTotal" ? Number(v).toFixed(2) : v, n]} /><Bar dataKey="weightedTotal" radius={[4, 4, 0, 0]}>{overviewRows.map((h, i) => <Cell key={h.homeId} fill={COLORS[i % COLORS.length]} />)}</Bar></BarChart></ResponsiveContainer>
+            <h2 style={{ ...sectionTitleStyle, marginBottom: 12 }}>Weighted Score</h2>
+            <ResponsiveContainer width="100%" height={260}><BarChart data={overviewRows} margin={{ top: 0, right: 0, bottom: 50, left: 0 }}><XAxis dataKey="short" tick={chartXAxisTickStyle} angle={-35} textAnchor="end" interval={0} height={60} /><YAxis domain={[0, 100]} tick={chartYAxisTickStyle} /><Tooltip contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontFamily: FONT_STACKS.sans }} labelStyle={chartTooltipLabelStyle} formatter={(v, n) => [n === "weightedTotal" ? Number(v).toFixed(2) : v, n]} /><Bar dataKey="weightedTotal" radius={[4, 4, 0, 0]}>{overviewRows.map((h, i) => <Cell key={h.homeId} fill={COLORS[i % COLORS.length]} />)}</Bar></BarChart></ResponsiveContainer>
           </div>
         </div>}
 
         {tab === "data-entry" && <div style={{ display: "grid", gridTemplateColumns: "minmax(280px,340px) minmax(0,1fr)", gap: 12, alignItems: "start" }}>
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 12, overflowX: "hidden" }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", marginBottom: 8 }}>Import Data</div>
+            <div style={{ ...cardTitleStyle, marginBottom: 8 }}>Import Data</div>
             <textarea
               value={importRawText}
               onChange={(e) => setImportRawText(e.target.value)}
               placeholder="Paste unformatted listing blocks here. Imports update live."
-              style={{ width: "100%", boxSizing: "border-box", minHeight: 120, resize: "vertical", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "8px 9px", fontSize: 12, marginBottom: 8, overflowX: "hidden" }}
+              style={{ ...inputTextStyle, width: "100%", boxSizing: "border-box", minHeight: 120, resize: "vertical", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "8px 9px", marginBottom: 8, overflowX: "hidden" }}
             />
             <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
-              <button onClick={downloadBackup} style={{ border: "1px solid #334155", background: "#111827", color: "#e2e8f0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Download Backup</button>
-              <button onClick={triggerRestoreBackup} style={{ border: "1px solid #334155", background: "#111827", color: "#e2e8f0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Restore Backup JSON</button>
+              <button onClick={downloadBackup} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Download Backup</button>
+              <button onClick={triggerRestoreBackup} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Restore Backup JSON</button>
               <input ref={restoreBackupInputRef} type="file" accept="application/json,.json" style={{ display: "none" }} onChange={onRestoreBackupFile} />
-              <button onClick={restoreEmbeddedImports} style={{ border: "1px solid #334155", background: "#111827", color: "#e2e8f0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Use Embedded Imports</button>
-              <button onClick={clearImportText} style={{ border: "1px solid #7f1d1d", background: "#3f1d1d", color: "#fecaca", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Clear Imported Data</button>
+              <button onClick={restoreEmbeddedImports} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Use Embedded Imports</button>
+              <button onClick={clearImportText} style={{ ...buttonTextStyle, border: "1px solid #7f1d1d", background: "#3f1d1d", color: "#fecaca", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Clear Imported Data</button>
             </div>
             {backupNotice && (
-              <div style={{ marginBottom: 10, fontSize: 11, color: backupNotice.startsWith("Restore failed") ? "#fca5a5" : "#86efac" }}>
+              <div style={{ ...TEXT_STYLES.caption, marginBottom: 10, color: backupNotice.startsWith("Restore failed") ? "#fca5a5" : "#86efac" }}>
                 {backupNotice}
               </div>
             )}
-            <label style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 12, color: "#cbd5e1", marginBottom: 10 }}>
+            <label style={{ ...labelTextStyle, display: "flex", gap: 6, alignItems: "center", marginBottom: 10 }}>
               <input type="checkbox" checked={showHidden} onChange={(e) => setShowHidden(e.target.checked)} />
               Show Hidden (Ruled Out / Sold)
             </label>
-            <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 12 }}>
+            <div style={{ ...captionTextStyle, marginBottom: 12 }}>
               Active imports: {importSummary.importedCount} home(s) from {importSummary.blockCount} block(s)
             </div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", marginBottom: 8 }}>Homes</div>
-            <input value={editorQuery} onChange={(e) => setEditorQuery(e.target.value)} placeholder="Search address, status, or id" style={{ width: "100%", boxSizing: "border-box", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "7px 8px", fontSize: 12, marginBottom: 10 }} />
+            <div style={{ ...cardTitleStyle, marginBottom: 8 }}>Homes</div>
+            <input value={editorQuery} onChange={(e) => setEditorQuery(e.target.value)} placeholder="Search address, status, or id" style={{ ...inputTextStyle, width: "100%", boxSizing: "border-box", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "7px 8px", marginBottom: 10 }} />
             <div style={{ display: "grid", gap: 8, maxHeight: "42vh", overflowY: "auto", overflowX: "hidden", paddingRight: 4 }}>
               {filteredEditorHomes.map((h) => {
                 const active = h.homeId === selectedHome?.homeId;
                 const missing = getMissingFields(h).length;
                 return (
                   <button key={h.homeId} onClick={() => setSelectedHomeId(h.homeId)} style={{ textAlign: "left", padding: 10, borderRadius: 8, border: active ? "1px solid #818cf8" : "1px solid #334155", background: active ? "#0f172a" : "#111827", color: "#f1f5f9", cursor: "pointer" }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 2, overflowWrap: "anywhere" }}>{h.name}</div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#94a3b8" }}><span>{h.status}</span><span>{h.weightedTotal.toFixed(2)}</span></div>
-                    <div style={{ fontSize: 11, color: missing ? "#fbbf24" : "#64748b", marginTop: 4 }}>{missing ? `${missing} blank field(s)` : "No blank fields"}</div>
+                    <div style={{ ...TEXT_STYLES.label, color: "#f1f5f9", marginBottom: 2, overflowWrap: "anywhere" }}>{h.name}</div>
+                    <div style={{ ...TEXT_STYLES.caption, display: "flex", justifyContent: "space-between", color: "#94a3b8" }}><span>{h.status}</span><span>{h.weightedTotal.toFixed(2)}</span></div>
+                    <div style={{ ...TEXT_STYLES.caption, color: missing ? "#fbbf24" : "#64748b", marginTop: 4 }}>{missing ? `${missing} blank field(s)` : "No blank fields"}</div>
                   </button>
                 );
               })}
@@ -2689,41 +2732,41 @@ export default function App() {
           </div>
 
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
-            {!selectedHome && <div style={{ color: "#94a3b8", fontSize: 13 }}>No home selected.</div>}
+            {!selectedHome && <div style={bodyMutedTextStyle}>No home selected.</div>}
             {selectedHome && (
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 10, flexWrap: "wrap" }}>
                   <div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: "#f8fafc" }}>{selectedHome.name}</div>
-                    <div style={{ fontSize: 12, color: "#94a3b8" }}>{selectedHome.homeId} · Weighted {selectedHome.weightedTotal.toFixed(2)} · {selectedHome.status}</div>
+                    <div style={{ ...TEXT_STYLES.heroTitle, fontSize: 18, fontWeight: 800, color: "#f8fafc" }}>{selectedHome.name}</div>
+                    <div style={{ ...TEXT_STYLES.label, fontWeight: 500, color: "#94a3b8" }}>{selectedHome.homeId} · Weighted {selectedHome.weightedTotal.toFixed(2)} · {selectedHome.status}</div>
                     {["Ruled Out", "Sold"].includes(selectedHome.status) && (
-                      <div style={{ fontSize: 11, color: "#fbbf24", marginTop: 4 }}>
+                      <div style={{ ...TEXT_STYLES.caption, color: "#fbbf24", marginTop: 4 }}>
                         This home is hidden from Overview/Compare/Cards while status is {selectedHome.status}.
                       </div>
                     )}
                   </div>
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                    <button onClick={downloadBackup} style={{ border: "1px solid #334155", background: "#111827", color: "#e2e8f0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Save Backup</button>
-                    <label style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 12, color: "#cbd5e1" }}>
+                    <button onClick={downloadBackup} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Save Backup</button>
+                    <label style={{ ...labelTextStyle, display: "flex", gap: 6, alignItems: "center" }}>
                       <input type="checkbox" checked={showMissingOnly} onChange={(e) => setShowMissingOnly(e.target.checked)} />
                       Show only blank/missing fields
                     </label>
                     {selectedHome.status === "Considering" && (
-                      <button onClick={() => setSelectedStatus("Ruled Out")} style={{ border: "1px solid #7f1d1d", background: "#3f1d1d", color: "#fecaca", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Rule Out Home</button>
+                      <button onClick={() => setSelectedStatus("Ruled Out")} style={{ ...buttonTextStyle, border: "1px solid #7f1d1d", background: "#3f1d1d", color: "#fecaca", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Rule Out Home</button>
                     )}
                     {selectedHome.status === "Ruled Out" && (
-                      <button onClick={() => setSelectedStatus("Considering")} style={{ border: "1px solid #14532d", background: "#052e16", color: "#bbf7d0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Restore Home</button>
+                      <button onClick={() => setSelectedStatus("Considering")} style={{ ...buttonTextStyle, border: "1px solid #14532d", background: "#052e16", color: "#bbf7d0", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Restore Home</button>
                     )}
-                    <button onClick={resetSelectedHome} style={{ border: "1px solid #334155", background: "#0f172a", color: "#e2e8f0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Reset Selected Home</button>
-                    <button onClick={resetAllEdits} style={{ border: "1px solid #7f1d1d", background: "#3f1d1d", color: "#fecaca", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Reset All Local Edits</button>
+                    <button onClick={resetSelectedHome} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#0f172a", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Reset Selected Home</button>
+                    <button onClick={resetAllEdits} style={{ ...buttonTextStyle, border: "1px solid #7f1d1d", background: "#3f1d1d", color: "#fecaca", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Reset All Local Edits</button>
                   </div>
                 </div>
 
-                {visibleEditGroups.length === 0 && <div style={{ fontSize: 13, color: "#94a3b8" }}>No blank fields left on this home.</div>}
+                {visibleEditGroups.length === 0 && <div style={bodyMutedTextStyle}>No blank fields left on this home.</div>}
                 <div style={{ display: "grid", gap: 14 }}>
                   {visibleEditGroups.map((group) => (
                     <div key={group.title} style={{ border: "1px solid #334155", borderRadius: 10, padding: 12 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", marginBottom: 10 }}>{group.title}</div>
+                      <div style={{ ...cardTitleStyle, marginBottom: 10 }}>{group.title}</div>
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 10 }}>
                         {group.fields.map((field) => {
                           const key = field.key;
@@ -2756,15 +2799,15 @@ export default function App() {
                             const tags = Array.isArray(selectedHome.tags) ? selectedHome.tags : [];
                             return (
                               <div key={key} style={{ gridColumn: "1 / -1", background: "#0f172a", border: "1px solid #334155", borderRadius: 8, padding: 10 }}>
-                                <div style={{ fontSize: 12, color: "#e2e8f0", fontWeight: 700, marginBottom: 8 }}>Tags</div>
+                                <div style={{ ...labelTextStyle, color: "#e2e8f0", marginBottom: 8 }}>Tags</div>
                                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
-                                  {tags.map((tag) => <button key={tag} onClick={() => removeTag(tag)} style={{ fontSize: 11, color: "#cbd5e1", background: "#111827", border: "1px solid #334155", borderRadius: 999, padding: "3px 8px", cursor: "pointer" }}>{tag} ×</button>)}
+                                  {tags.map((tag) => <button key={tag} onClick={() => removeTag(tag)} style={{ ...captionStrongTextStyle, background: "#111827", border: "1px solid #334155", borderRadius: 999, padding: "3px 8px", cursor: "pointer" }}>{tag} ×</button>)}
                                 </div>
                                 <div style={{ display: "flex", gap: 6 }}>
-                                  <input value={tagDraft} onChange={(e) => setTagDraft(e.target.value)} placeholder="Add tag/note" style={{ flex: 1, background: "#111827", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px", fontSize: 12 }} />
-                                  <button onClick={addTag} style={{ border: "1px solid #334155", background: "#1f2937", color: "#e2e8f0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Add</button>
+                                  <input value={tagDraft} onChange={(e) => setTagDraft(e.target.value)} placeholder="Add tag/note" style={{ ...inputTextStyle, flex: 1, background: "#111827", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px" }} />
+                                  <button onClick={addTag} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#1f2937", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Add</button>
                                 </div>
-                                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>Base: {displayFieldValue(sourceValue)} · Override: {hasOverride ? displayFieldValue(overrideValue) : "—"}</div>
+                                <div style={{ ...captionTextStyle, marginTop: 6 }}>Base: {displayFieldValue(sourceValue)} · Override: {hasOverride ? displayFieldValue(overrideValue) : "—"}</div>
                               </div>
                             );
                           }
@@ -2772,26 +2815,26 @@ export default function App() {
                           return (
                             <div key={key} style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 8, padding: 10 }}>
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                                <label style={{ fontSize: 12, color: "#e2e8f0", fontWeight: 700 }}>{field.label}</label>
-                                {hasPlaceholder && <span style={{ fontSize: 10, color: "#fbbf24", border: "1px solid #fbbf2444", borderRadius: 999, padding: "2px 6px" }}>placeholder</span>}
+                                <label style={{ ...labelTextStyle, color: "#e2e8f0" }}>{field.label}</label>
+                                {hasPlaceholder && <span style={{ ...TEXT_STYLES.eyebrow, color: "#fbbf24", border: "1px solid #fbbf2444", borderRadius: 999, padding: "2px 6px" }}>placeholder</span>}
                               </div>
                               {field.type === "select" && (
-                                <select value={inputValue} onChange={(e) => onTextChange(selectedHome.homeId, key, e.target.value)} style={{ width: "100%", background: "#111827", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px", fontSize: 12 }}>
+                                <select value={inputValue} onChange={(e) => onTextChange(selectedHome.homeId, key, e.target.value)} style={{ ...inputTextStyle, width: "100%", background: "#111827", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px" }}>
                                   <option value="">(clear)</option>
                                   {field.options.map((option) => <option key={option} value={option}>{option}</option>)}
                                 </select>
                               )}
                               {field.type === "number" && (
-                                <input value={inputValue} onChange={(e) => onNumericChange(selectedHome.homeId, key, e.target.value)} onBlur={() => onNumericBlur(selectedHome.homeId, key)} style={{ width: "100%", background: "#111827", color: "#f1f5f9", border: error ? "1px solid #ef4444" : "1px solid #334155", borderRadius: 6, padding: "6px 8px", fontSize: 12 }} />
+                                <input value={inputValue} onChange={(e) => onNumericChange(selectedHome.homeId, key, e.target.value)} onBlur={() => onNumericBlur(selectedHome.homeId, key)} style={{ ...inputTextStyle, width: "100%", background: "#111827", color: "#f1f5f9", border: error ? "1px solid #ef4444" : "1px solid #334155", borderRadius: 6, padding: "6px 8px" }} />
                               )}
                               {field.type === "text" && (
-                                <input value={inputValue} onChange={(e) => onTextChange(selectedHome.homeId, key, e.target.value)} style={{ width: "100%", background: "#111827", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px", fontSize: 12 }} />
+                                <input value={inputValue} onChange={(e) => onTextChange(selectedHome.homeId, key, e.target.value)} style={{ ...inputTextStyle, width: "100%", background: "#111827", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px" }} />
                               )}
-                              {error && <div style={{ fontSize: 11, color: "#fca5a5", marginTop: 4 }}>{error}</div>}
-                              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>
+                              {error && <div style={{ ...TEXT_STYLES.caption, color: "#fca5a5", marginTop: 4 }}>{error}</div>}
+                              <div style={{ ...captionTextStyle, marginTop: 6 }}>
                                 Base: {key === "hoa" ? displayHoaFieldValue(sourceValue) : displayFieldValue(sourceValue)}
                               </div>
-                              <div style={{ fontSize: 11, color: "#94a3b8" }}>
+                              <div style={captionTextStyle}>
                                 Override: {hasOverride ? (key === "hoa" ? displayHoaFieldValue(overrideValue) : displayFieldValue(overrideValue)) : "—"}
                               </div>
                             </div>
@@ -2806,20 +2849,20 @@ export default function App() {
           </div>
         </div>}
 
-        {tab === "compare" && <div>
+        {tab === "compare" && <div style={{ fontFamily: FONT_STACKS.sans }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12, marginBottom: 12 }}>
             {[["A", compareA, setCompareA, "#6366f1"], ["B", compareB, setCompareB, "#f59e0b"], ["C", compareC, setCompareC, "#22c55e"]].map(([label, val, setter, color]) => {
               const slotHome = pick(val, null);
               const missingCount = slotHome ? getMissingFields(slotHome).length : 0;
               return (
                 <div key={label} style={{ background: "#1e293b", borderRadius: 12, padding: 12 }}>
-                  <div style={{ fontSize: 12, color, fontWeight: 700, marginBottom: 6 }}>Home {label}</div>
+                  <div style={{ ...labelTextStyle, color, marginBottom: 6 }}>Home {label}</div>
                   <select value={val} onChange={(e) => setter(e.target.value)} style={selectStyle}>
                     <option value={EMPTY}>Blank</option>
                     {homes.map((h) => <option key={h.homeId} value={h.homeId}>{h.name}</option>)}
                   </select>
                   {slotHome && (
-                    <div style={{ marginTop: 8, fontSize: 11, color: missingCount ? "#fbbf24" : "#64748b" }}>
+                    <div style={{ ...TEXT_STYLES.caption, marginTop: 8, color: missingCount ? "#fbbf24" : "#64748b" }}>
                       {missingCount ? `Missing ${missingCount}: ${placeholderSummary(slotHome)}` : "No missing fields"}
                     </div>
                   )}
@@ -2829,63 +2872,63 @@ export default function App() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))", gap: 12, marginBottom: 12 }}>
             <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
-              <div style={{ fontSize: 13, color: "#f1f5f9", fontWeight: 700, marginBottom: 4 }}>Raw Score Radar</div>
-              <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 6 }}>Each axis uses the raw factor score (0-100).</div>
+              <div style={{ ...cardTitleStyle, marginBottom: 4 }}>Raw Score Radar</div>
+              <div style={{ ...captionTextStyle, marginBottom: 6 }}>Each axis uses the raw factor score (0-100).</div>
               <ResponsiveContainer width="100%" height={340}>
                 <RadarChart data={rawRadarData}>
                   <PolarGrid stroke="#334155" />
-                  <PolarAngleAxis dataKey="subject" tick={{ fill: "#94a3b8", fontSize: 11 }} />
+                  <PolarAngleAxis dataKey="subject" tick={chartXAxisTickStyle} />
                   <Tooltip
                     formatter={(v) => {
                       const n = typeof v === "number" ? v : Number(v);
                       return [Number.isFinite(n) ? n.toFixed(2) : "—", "Raw Score"];
                     }}
-                    contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }}
-                    labelStyle={{ color: "#f1f5f9" }}
+                    contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontFamily: FONT_STACKS.sans }}
+                    labelStyle={chartTooltipLabelStyle}
                   />
                   {a && <Radar name={a.short} dataKey="a" stroke="#6366f1" fill="#6366f1" fillOpacity={0.16} />}
                   {b && <Radar name={b.short} dataKey="b" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.14} />}
                   {c && <Radar name={c.short} dataKey="c" stroke="#22c55e" fill="#22c55e" fillOpacity={0.12} />}
-                  <Legend wrapperStyle={{ color: "#94a3b8", fontSize: 12 }} />
+                  <Legend wrapperStyle={chartLegendStyle} formatter={chartLegendFormatter} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
             <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
-              <div style={{ fontSize: 13, color: "#f1f5f9", fontWeight: 700, marginBottom: 4 }}>Weighted Impact Radar</div>
-              <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 6 }}>Each axis uses weighted contribution points (score x effective weight).</div>
+              <div style={{ ...cardTitleStyle, marginBottom: 4 }}>Weighted Impact Radar</div>
+              <div style={{ ...captionTextStyle, marginBottom: 6 }}>Each axis uses weighted contribution points (score x effective weight).</div>
               <ResponsiveContainer width="100%" height={340}>
                 <RadarChart data={weightedRadarData}>
                   <PolarGrid stroke="#334155" />
-                  <PolarAngleAxis dataKey="subject" tick={{ fill: "#94a3b8", fontSize: 11 }} />
+                  <PolarAngleAxis dataKey="subject" tick={chartXAxisTickStyle} />
                   <Tooltip
                     formatter={(v) => {
                       const n = typeof v === "number" ? v : Number(v);
                       return [Number.isFinite(n) ? `${n.toFixed(2)} pts` : "—", "Weighted Impact"];
                     }}
-                    contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }}
-                    labelStyle={{ color: "#f1f5f9" }}
+                    contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontFamily: FONT_STACKS.sans }}
+                    labelStyle={chartTooltipLabelStyle}
                   />
                   {a && <Radar name={`${a.short} (pts)`} dataKey="a" stroke="#6366f1" fill="#6366f1" fillOpacity={0.16} />}
                   {b && <Radar name={`${b.short} (pts)`} dataKey="b" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.14} />}
                   {c && <Radar name={`${c.short} (pts)`} dataKey="c" stroke="#22c55e" fill="#22c55e" fillOpacity={0.12} />}
-                  <Legend wrapperStyle={{ color: "#94a3b8", fontSize: 12 }} />
+                  <Legend wrapperStyle={chartLegendStyle} formatter={chartLegendFormatter} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
           </div>
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 16, overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <table style={compareTableStyle}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: "left", padding: "8px 6px", color: "#94a3b8" }}>Metric</th>
-                  <th style={{ textAlign: "right", padding: "8px 6px", color: compareHeaderColors[0] }}>{a?.short ?? "Blank"}</th>
-                  <th style={{ textAlign: "right", padding: "8px 6px", color: compareHeaderColors[1] }}>{b?.short ?? "Blank"}</th>
-                  <th style={{ textAlign: "right", padding: "8px 6px", color: compareHeaderColors[2] }}>{c?.short ?? "Blank"}</th>
+                  <th style={{ ...compareHeaderCellStyle, textAlign: "left", color: "#94a3b8" }}>Metric</th>
+                  <th style={{ ...compareHeaderCellStyle, color: compareHeaderColors[0] }}>{a?.short ?? "Blank"}</th>
+                  <th style={{ ...compareHeaderCellStyle, color: compareHeaderColors[1] }}>{b?.short ?? "Blank"}</th>
+                  <th style={{ ...compareHeaderCellStyle, color: compareHeaderColors[2] }}>{c?.short ?? "Blank"}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td style={{ padding: "8px 6px", color: "#cbd5e1", borderTop: "1px solid #334155", fontWeight: 700 }}>Weighted Score</td>
+                  <td style={compareMetricCellStyle}>Weighted Score</td>
                   {compareHomes.map((home, i) => {
                     const value = toNum(home?.weightedTotal);
                     const nums = compareHomes.map((h) => toNum(h?.weightedTotal)).filter((n) => Number.isFinite(n));
@@ -2895,6 +2938,7 @@ export default function App() {
                       <td
                         key={`weighted-${i}`}
                         style={{
+                          fontFamily: FONT_STACKS.sans,
                           padding: "8px 6px",
                           textAlign: "right",
                           borderTop: "1px solid #334155",
@@ -2913,14 +2957,14 @@ export default function App() {
                   const best = nums.length ? Math.max(...nums) : null;
                   return (
                     <tr key={row.key}>
-                      <td style={{ padding: "8px 6px", color: "#cbd5e1", borderTop: "1px solid #334155" }}>{row.label}</td>
+                      <td style={compareMetricCellStyle}>{row.label}</td>
                       {pairs.map((pair, i) => {
                         const scoreNum = pair?.scoreNum;
                         const isBest = Number.isFinite(scoreNum) && Number.isFinite(best) && scoreNum === best;
                         return (
-                          <td key={`${row.key}-${i}`} style={{ padding: "8px 6px", textAlign: "right", borderTop: "1px solid #334155" }}>
-                            <div style={{ color: "#e2e8f0", fontWeight: 600 }}>{pair?.raw ?? "—"}</div>
-                            <div style={{ color: isBest ? compareHeaderColors[i] : "#94a3b8", fontWeight: isBest ? 800 : 700, fontSize: 11 }}>
+                          <td key={`${row.key}-${i}`} style={{ fontFamily: FONT_STACKS.sans, padding: "8px 6px", textAlign: "right", borderTop: "1px solid #334155" }}>
+                            <div style={compareValueCellStyle}>{pair?.raw ?? "—"}</div>
+                            <div style={{ ...compareScoreCellStyle, color: isBest ? compareHeaderColors[i] : "#94a3b8" }}>
                               Score: {pair?.score ?? "—"}
                             </div>
                           </td>
@@ -2944,23 +2988,23 @@ export default function App() {
                   <div data-fallback="true" style={{ ...NO_PHOTO_STYLE, display: h.photo ? "none" : "flex" }}>NO PHOTO</div>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
                     <div>
-                      <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>#{i + 1} RANKED</div>
-                      <div style={{ fontSize: 16, color: "#f8fafc", fontWeight: 800, lineHeight: 1.2 }}>{h.short}</div>
-                      <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{h.name}</div>
+                      <div style={eyebrowTextStyle}>#{i + 1} RANKED</div>
+                      <div style={{ ...TEXT_STYLES.heroTitle, fontSize: 16, fontWeight: 800, color: "#f8fafc", lineHeight: 1.2 }}>{h.short}</div>
+                      <div style={{ ...TEXT_STYLES.label, fontWeight: 500, color: "#94a3b8", marginTop: 2 }}>{h.name}</div>
                     </div>
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 20, fontWeight: 900, color: gradeColor(h.weightedTotal) }}>{h.weightedTotal.toFixed(2)}</div>
-                      <div style={{ fontSize: 11, color: gradeColor(h.weightedTotal), fontWeight: 700 }}>{h.grade}</div>
+                      <div style={{ ...metricTextStyle, color: gradeColor(h.weightedTotal) }}>{h.weightedTotal.toFixed(2)}</div>
+                      <div style={{ ...TEXT_STYLES.captionStrong, color: gradeColor(h.weightedTotal) }}>{h.grade}</div>
                     </div>
                   </div>
                   {missingFields.length > 0 && (
-                    <div style={{ marginBottom: 10, padding: "7px 9px", borderRadius: 8, background: "#3f2a12", border: "1px solid #f59e0b55", color: "#fbbf24", fontSize: 11 }}>
+                    <div style={{ ...TEXT_STYLES.caption, marginBottom: 10, padding: "7px 9px", borderRadius: 8, background: "#3f2a12", border: "1px solid #f59e0b55", color: "#fbbf24" }}>
                       Missing data: {missingFields.length} field(s) ({placeholderSummary(h, 4)})
                     </div>
                   )}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>{CARD_FIELDS(h).map(([label, value]) => <CardMetric key={label} label={label} value={value} />)}</div>
                   <div style={{ marginBottom: 10, borderTop: "1px solid #334155", borderBottom: "1px solid #334155", padding: "8px 0" }}>
-                    <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase", marginBottom: 8 }}>Scored Factors (Raw + Score)</div>
+                    <div style={{ ...TEXT_STYLES.eyebrow, color: "#94a3b8", marginBottom: 8 }}>Scored Factors (Raw + Score)</div>
                     <div style={{ display: "grid", gap: 6 }}>
                       {scoredFactorSpecs.map((spec) => {
                         const pair = factorPairForHome(h, spec.key);
@@ -2968,10 +3012,10 @@ export default function App() {
                           <div key={`${h.homeId}-${spec.key}`} style={{ display: "grid", gap: 5 }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
                               <div style={{ minWidth: 0 }}>
-                                <div style={{ fontSize: 11, color: "#cbd5e1", fontWeight: 700 }}>{spec.label}</div>
-                                <div style={{ fontSize: 11, color: "#94a3b8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pair.raw}</div>
+                                <div style={captionStrongTextStyle}>{spec.label}</div>
+                                <div style={{ ...captionTextStyle, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pair.raw}</div>
                               </div>
-                              <div style={{ fontSize: 12, color: Number.isFinite(pair.scoreNum) ? gradeColor(pair.scoreNum) : "#64748b", fontWeight: 800, whiteSpace: "nowrap" }}>
+                              <div style={{ ...TEXT_STYLES.label, color: Number.isFinite(pair.scoreNum) ? gradeColor(pair.scoreNum) : "#64748b", fontWeight: 800, whiteSpace: "nowrap" }}>
                                 {pair.score}
                               </div>
                             </div>
@@ -2983,11 +3027,11 @@ export default function App() {
                   </div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingTop: 8, borderTop: "1px solid #334155" }}>
                     {missingFields.map((fieldKey) => (
-                      <span key={`missing-${fieldKey}`} style={{ fontSize: 11, color: "#fbbf24", background: "#3f2a12", border: "1px solid #f59e0b55", borderRadius: 999, padding: "3px 8px" }}>
+                      <span key={`missing-${fieldKey}`} style={{ ...TEXT_STYLES.caption, color: "#fbbf24", background: "#3f2a12", border: "1px solid #f59e0b55", borderRadius: 999, padding: "3px 8px" }}>
                         Missing: {placeholderLabel(fieldKey)}
                       </span>
                     ))}
-                    {(h.tags || []).map((tag) => <span key={tag} style={{ fontSize: 11, color: "#cbd5e1", background: "#0f172a", border: "1px solid #334155", borderRadius: 999, padding: "3px 8px" }}>{tag}</span>)}
+                    {(h.tags || []).map((tag) => <span key={tag} style={{ ...captionStrongTextStyle, background: "#0f172a", border: "1px solid #334155", borderRadius: 999, padding: "3px 8px" }}>{tag}</span>)}
                   </div>
                 </div>
               );
@@ -2998,15 +3042,15 @@ export default function App() {
         {tab === "weights" && (
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-              <h2 style={{ fontSize: 15, fontWeight: 700, color: "#f1f5f9", margin: 0 }}>Interactive Weights</h2>
+              <h2 style={{ ...sectionTitleStyle, margin: 0 }}>Interactive Weights</h2>
               <button
                 onClick={resetWeightsToDefault}
-                style={{ border: "1px solid #334155", background: "#111827", color: "#e2e8f0", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}
+                style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}
               >
                 Reset Weights
               </button>
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 12 }}>{weightsSubtitle}</div>
+            <div style={{ ...TEXT_STYLES.label, fontWeight: 500, color: "#94a3b8", marginBottom: 12 }}>{weightsSubtitle}</div>
             <div style={{ display: "grid", gap: 10 }}>
               {weightRows.map((row) => {
                 const rawPercent = +((row.raw ?? 0) * 100).toFixed(1);
@@ -3014,8 +3058,8 @@ export default function App() {
                 return (
                   <div key={row.key} style={{ border: "1px solid #334155", borderRadius: 10, background: "#0f172a", padding: 10 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, gap: 8, flexWrap: "wrap" }}>
-                      <div style={{ color: "#e2e8f0", fontWeight: 700, fontSize: 13 }}>{row.label}</div>
-                      <div style={{ display: "flex", gap: 10, fontSize: 12, color: "#94a3b8" }}>
+                      <div style={{ ...cardTitleStyle, color: "#e2e8f0" }}>{row.label}</div>
+                      <div style={{ ...TEXT_STYLES.label, display: "flex", gap: 10, fontWeight: 500, color: "#94a3b8" }}>
                         <span>Raw: {rawPercent.toFixed(1)}%</span>
                         <span style={{ color: "#cbd5e1" }}>Effective: {effectivePercent.toFixed(1)}%</span>
                       </div>
@@ -3034,22 +3078,22 @@ export default function App() {
               })}
             </div>
             <div style={{ marginTop: 14, borderTop: "1px solid #334155", paddingTop: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", marginBottom: 4 }}>Impact Audit</div>
-              <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 8 }}>
+              <div style={{ ...cardTitleStyle, marginBottom: 4 }}>Impact Audit</div>
+              <div style={{ ...captionTextStyle, marginBottom: 8 }}>
                 Weak factors are those with weighted spread below {IMPACT_AUDIT_THRESHOLD.toFixed(1)} points across visible homes. Weak factors with variation are auto-stretched to a {IMPACT_STRETCH_MIN_SCORE}-{IMPACT_STRETCH_MAX_SCORE} score band.
               </div>
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 760 }}>
                   <thead>
                     <tr>
-                      <th style={{ textAlign: "left", padding: "7px 6px", color: "#94a3b8" }}>Factor</th>
-                      <th style={{ textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Eff Wt</th>
-                      <th style={{ textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Score Min</th>
-                      <th style={{ textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Score Max</th>
-                      <th style={{ textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Spread</th>
-                      <th style={{ textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Weighted (Before)</th>
-                      <th style={{ textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Weighted (After)</th>
-                      <th style={{ textAlign: "left", padding: "7px 6px", color: "#94a3b8" }}>Status</th>
+                      <th style={{ ...TEXT_STYLES.label, textAlign: "left", padding: "7px 6px", color: "#94a3b8" }}>Factor</th>
+                      <th style={{ ...TEXT_STYLES.label, textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Eff Wt</th>
+                      <th style={{ ...TEXT_STYLES.label, textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Score Min</th>
+                      <th style={{ ...TEXT_STYLES.label, textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Score Max</th>
+                      <th style={{ ...TEXT_STYLES.label, textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Spread</th>
+                      <th style={{ ...TEXT_STYLES.label, textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Weighted (Before)</th>
+                      <th style={{ ...TEXT_STYLES.label, textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Weighted (After)</th>
+                      <th style={{ ...TEXT_STYLES.label, textAlign: "left", padding: "7px 6px", color: "#94a3b8" }}>Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -3057,15 +3101,15 @@ export default function App() {
                       const badge = auditStatusStyle(row.status);
                       return (
                         <tr key={row.key}>
-                          <td style={{ padding: "7px 6px", color: "#e2e8f0", borderTop: "1px solid #334155", fontWeight: 600 }}>{row.label}</td>
-                          <td style={{ padding: "7px 6px", color: "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{(row.effectiveWeight * 100).toFixed(1)}%</td>
-                          <td style={{ padding: "7px 6px", color: "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{Number.isFinite(row.min) ? row.min.toFixed(1) : "—"}</td>
-                          <td style={{ padding: "7px 6px", color: "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{Number.isFinite(row.max) ? row.max.toFixed(1) : "—"}</td>
-                          <td style={{ padding: "7px 6px", color: "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{row.spread.toFixed(1)}</td>
-                          <td style={{ padding: "7px 6px", color: "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{row.weightedSpreadBefore.toFixed(2)}</td>
-                          <td style={{ padding: "7px 6px", color: row.weightedSpreadAfter > row.weightedSpreadBefore ? "#86efac" : "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{row.weightedSpreadAfter.toFixed(2)}</td>
+                          <td style={{ ...bodyStrongTextStyle, fontSize: 12, padding: "7px 6px", borderTop: "1px solid #334155" }}>{row.label}</td>
+                          <td style={{ ...labelTextStyle, fontWeight: 500, padding: "7px 6px", borderTop: "1px solid #334155", textAlign: "right" }}>{(row.effectiveWeight * 100).toFixed(1)}%</td>
+                          <td style={{ ...labelTextStyle, fontWeight: 500, padding: "7px 6px", borderTop: "1px solid #334155", textAlign: "right" }}>{Number.isFinite(row.min) ? row.min.toFixed(1) : "—"}</td>
+                          <td style={{ ...labelTextStyle, fontWeight: 500, padding: "7px 6px", borderTop: "1px solid #334155", textAlign: "right" }}>{Number.isFinite(row.max) ? row.max.toFixed(1) : "—"}</td>
+                          <td style={{ ...labelTextStyle, fontWeight: 500, padding: "7px 6px", borderTop: "1px solid #334155", textAlign: "right" }}>{row.spread.toFixed(1)}</td>
+                          <td style={{ ...labelTextStyle, fontWeight: 500, padding: "7px 6px", borderTop: "1px solid #334155", textAlign: "right" }}>{row.weightedSpreadBefore.toFixed(2)}</td>
+                          <td style={{ ...labelTextStyle, fontWeight: 500, padding: "7px 6px", color: row.weightedSpreadAfter > row.weightedSpreadBefore ? "#86efac" : "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{row.weightedSpreadAfter.toFixed(2)}</td>
                           <td style={{ padding: "7px 6px", borderTop: "1px solid #334155" }}>
-                            <span style={{ ...badge, borderRadius: 999, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>{row.status}</span>
+                            <span style={{ ...TEXT_STYLES.captionStrong, ...badge, borderRadius: 999, padding: "2px 8px" }}>{row.status}</span>
                           </td>
                         </tr>
                       );
