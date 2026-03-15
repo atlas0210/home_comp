@@ -1630,6 +1630,27 @@ function CardMetric({ label, value }) {
   return <div style={{ background: "#0f172a", borderRadius: 10, padding: "8px 10px" }}><div style={{ fontSize: 10, color: "#64748b", textTransform: "uppercase" }}>{label}</div><div style={{ fontSize: 13, color: "#f1f5f9", fontWeight: 700 }}>{value}</div></div>;
 }
 
+function ScoreBar({ value }) {
+  const numericValue = toNum(value);
+  const widthPct = Number.isFinite(numericValue) ? Math.max(0, Math.min(100, numericValue)) : 0;
+  const fillColor = Number.isFinite(numericValue) ? gradeColor(numericValue) : "#334155";
+  return (
+    <div
+      aria-hidden="true"
+      style={{ height: 7, borderRadius: 999, overflow: "hidden", background: "#0f172a", border: "1px solid #1f2937" }}
+    >
+      <div
+        style={{
+          width: `${widthPct}%`,
+          height: "100%",
+          borderRadius: 999,
+          background: `linear-gradient(90deg, ${fillColor}aa, ${fillColor})`,
+        }}
+      />
+    </div>
+  );
+}
+
 export default function App() {
   const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
   const LOCAL_IMPORT_STORAGE_KEY = "homeComp.importRaw.v2";
@@ -2944,14 +2965,17 @@ export default function App() {
                       {scoredFactorSpecs.map((spec) => {
                         const pair = factorPairForHome(h, spec.key);
                         return (
-                          <div key={`${h.homeId}-${spec.key}`} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{ fontSize: 11, color: "#cbd5e1", fontWeight: 700 }}>{spec.label}</div>
-                              <div style={{ fontSize: 11, color: "#94a3b8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pair.raw}</div>
+                          <div key={`${h.homeId}-${spec.key}`} style={{ display: "grid", gap: 5 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
+                              <div style={{ minWidth: 0 }}>
+                                <div style={{ fontSize: 11, color: "#cbd5e1", fontWeight: 700 }}>{spec.label}</div>
+                                <div style={{ fontSize: 11, color: "#94a3b8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pair.raw}</div>
+                              </div>
+                              <div style={{ fontSize: 12, color: Number.isFinite(pair.scoreNum) ? gradeColor(pair.scoreNum) : "#64748b", fontWeight: 800, whiteSpace: "nowrap" }}>
+                                {pair.score}
+                              </div>
                             </div>
-                            <div style={{ fontSize: 12, color: Number.isFinite(pair.scoreNum) ? gradeColor(pair.scoreNum) : "#64748b", fontWeight: 800, whiteSpace: "nowrap" }}>
-                              {pair.score}
-                            </div>
+                            <ScoreBar value={pair.scoreNum} />
                           </div>
                         );
                       })}
