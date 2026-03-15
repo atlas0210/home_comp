@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, RadarChart, Radar, PolarGrid, PolarAngleAxis, Legend, Cell } from "recharts";
 
 const DP = 80000;
@@ -31,8 +31,6 @@ const IMPACT_AUDIT_THRESHOLD = 3.0;
 const IMPACT_STRETCH_MIN_SCORE = 20;
 const IMPACT_STRETCH_MAX_SCORE = 100;
 const EMPTY = "__none__";
-const SHOWHORSE_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJYAlgDASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAAAAECAwQFBgf/xAA8EAACAQMBBQgDBwQDAAAAAAAAAQIDEQQSITEFQVEGEyJhcYGRMqGxI0JSYrHB0fAUI+HxM1OS/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAhEQEBAAICAgIDAQAAAAAAAAAAAQIRAyESMQQTQVFhIv/aAAwDAQACEQMRAD8A9vREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAERED5zb7V4j0+I/8Aj2+uU1l6Wl9W9Y+r2g9s3F7us6Qe6r0PtL8n0+8vL5q3r7f9v6W1pxp0m2v3F7gL8vwv3v28j+z7r9j9pqj9lV7q7n8M5g3lbH2H6V7fWf6uYv2fW3i8+71MZ6Yw6p3i3n4ebVtZxcm9m2n4Jq9X3o/ZoX6a9v2L5b0Vv7n6e9r8g4tSx6H6t3Lr7e2g7n2l1nCwz3Sx3+9Z9Tz6dTg+2J+R6f1X4O4sYt8mQH4i3m4h8U1dVdV3+R9n2b1V9Vx3Y2m7eV3Q1uV7t2n3nqR3K8a+1b4u1u3V6v1b2r4V3d7M2m3F8R4r9j3Y+K1uJ7cQ2X3t7P6rj9Xf3ZVw2m+R3g0QERAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQHk9vtXiPT4j/AONb65TWXpaX1b1j6vaD2zcXu6zpB7qvQ+0vyfT7y8vmrevt/2/pbWnGnSba/cXuAvy/C/e/byP7Puv2P2mqP2VXuru fwzmDeVsfYfpXt9Z/q5i/Z9beLz7vUxn pjDqneLefh5tW1nFyb2bafgmr1fej9mhfpr2/YvlvRW/ufp72vyDi1LHo fq3cuvt7aDufaXWcLDPdLHf71n1PPp1OD7Yn5Hp/Vfg7ixi3yZAfiLebiHxTV1V1Xf5H2fZvVX1XHdjabt5XdDW5Xu3afeepHcrxr7Vvi7W7dXq/VvavhXd3szabcXxHiv2Pdj4rW4ntxDZfe3s/quP1d/dlX Dab5HeDRAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQERH//Z";
-const CANDELABRA_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJiA4ADASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAAAAECAwQFBgf/xAA8EAACAQMBBQgDBwQDAAAAAAAAAQIDEQQSITEFQVEGEyJhcYGRMqGxI0JSYrHB0fAUI+HxM1OS/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAhEQEBAAICAgIDAQAAAAAAAAAAAQIRAyESMQQTQVFhIv/aAAwDAQACEQMRAD8A9vREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAERED5zb7V4j0+I/8Aj2+uU1l6Wl9W9Y+r2g9s3F7us6Qe6r0PtL8n0+8vL5q3r7f9v6W1pxp0m2v3F7gL8vwv3v28j+z7r9j9pqj9lV7q7n8M5g3lbH2H6V7fWf6uYv2fW3i8+71MZ6Yw6p3i3n4ebVtZxcm9m2n4Jq9X3o/ZoX6a9v2L5b0Vv7n6e9r8g4tSx6H6t3Lr7e2g7n2l1nCwz3Sx3+9Z9Tz6dTg+2J+R6f1X4O4sYt8mQH4i3m4h8U1dVdV3+R9n2b1V9Vx3Y2m7eV3Q1uV7t2n3nqR3K8a+1b4u1u3V6v1b2r4V3d7M2m3F8R4r9j3Y+K1uJ7cQ2X3t7P6rj9Xf3ZVw2m+R3g0QERAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQHk9vtXiPT4j/AONb65TWXpaX1b1j6vaD2zcXu6zpB7qvQ+0vyfT7y8vmrevt/2/pbWnGnSba/cXuAvy/C/e/byP7Puv2P2mqP2VXuru fwzmDeVsfYfpXt9Z/q5i/Z9beLz7vUxn pjDqneLefh5tW1nFyb2bafgmr1fej9mhfpr2/YvlvRW/ufp72vyDi1LHo fq3cuvt7aDufaXWcLDPdLHf71n1PPp1OD7Yn5Hp/Vfg7ixi3yZAfiLebiHxTV1V1Xf5H2fZvVX1XHdjabt5XdDW5Xu3afeepHcrxr7Vvi7W7dXq/VvavhXd3szabcXxHiv2Pdj4rW4ntxDZfe3s/quP1d/dlX Dab5HeDRAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQERH//Z";
 const DOM_ROLL_DATE_KEY = "homeComp.domRollDate.v1";
 
 const WEIGHT_KEYS = ["rating", "monthlyPayment", "safety", "sizeValue", "lot", "kitchen", "yard", "ageScore", "masterBed"];
@@ -263,6 +261,68 @@ const TEXT_STYLES = {
 };
 const NO_PHOTO_STYLE = { ...TEXT_STYLES.eyebrow, margin: "-16px -16px 12px -16px", borderTopLeftRadius: 16, borderTopRightRadius: 16, background: "linear-gradient(135deg,#1e293b,#0f172a)", height: 180, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" };
 const IMG_WRAP_STYLE = { margin: "-16px -16px 12px -16px", borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: "hidden", background: "#0f172a" };
+const EDIT_GROUPS = [
+  {
+    title: "Identity",
+    fields: [
+      { key: "name", label: "Address / Name", type: "text" },
+      { key: "short", label: "Short Name", type: "text" },
+      { key: "status", label: "Status", type: "select", options: ["Considering", "Ruled Out", "Sold"] },
+      { key: "photo", label: "Photo URL", type: "text" },
+    ],
+  },
+  {
+    title: "Core Pricing / Size",
+    fields: [
+      { key: "price", label: "Price", type: "number" },
+      { key: "pricePerSqft", label: "PPSF", type: "number" },
+      { key: "sqft", label: "Sqft", type: "number" },
+      { key: "lotSqft", label: "Lot Sqft", type: "number" },
+      { key: "masterBedSqft", label: "Master Bed Sqft", type: "number" },
+      { key: "built", label: "Year Built", type: "number" },
+      { key: "dom", label: "Days On Market", type: "number" },
+    ],
+  },
+  {
+    title: "Costs",
+    fields: [{ key: "hoa", label: "HOA (Monthly, auto-converts)", type: "number" }],
+  },
+  {
+    title: "Ratings / Preferences",
+    fields: [
+      { key: "greg", label: "Greg (0-10)", type: "number" },
+      { key: "bre", label: "Bre (0-10)", type: "number" },
+      { key: "kitchenSize", label: "Kitchen Size", type: "select", options: ["Small", "Medium", "Large", "Gourmet"] },
+      { key: "yardCondition", label: "Yard Condition", type: "select", options: ["Poor", "Fair", "Good", "Excellent"] },
+    ],
+  },
+  {
+    title: "Safety",
+    fields: [
+      { key: "safetyNeighborhood", label: "Safety Area", type: "text" },
+      { key: "safetyGrade", label: "Safety Grade", type: "text" },
+      { key: "safetyAssaultIndex", label: "Assault Index", type: "number" },
+      { key: "safetyBurglaryIndex", label: "Burglary Index", type: "number" },
+      { key: "safetyLarcenyTheftIndex", label: "Larceny/Theft Index", type: "number" },
+      { key: "safetyVehicleTheftIndex", label: "Vehicle Theft Index", type: "number" },
+    ],
+  },
+  {
+    title: "Tags / Notes",
+    fields: [{ key: "tags", label: "Tags", type: "tags" }],
+  },
+];
+const arraysEqual = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => v === b[i]);
+const displayFieldValue = (v) => {
+  if (Array.isArray(v)) return v.length ? v.join(", ") : "—";
+  if (v == null || v === "") return "—";
+  return String(v);
+};
+const displayHoaFieldValue = (annualValue) => {
+  const annual = toNum(annualValue);
+  if (!Number.isFinite(annual)) return "—";
+  return `${fmtUsd(annual / 12, 2)}/mo (${fmtUsd(annual, 2)}/yr)`;
+};
 
 const homesRaw = [
   { name:"8091 Parsonage Lane", short:"8091 Parsonage", status:"Considering", photo:"https://www.compass.com/m/9ada19d681290ef7e9420f4760e9e2f463348c3c_img_0_a01d9/origin.webp", price:479000, sqft:2204, lotSqft:7153, built:2006, hoa:0, tax:2400, dom:44, greg:6, bre:6, kitchenSize:"Medium", yardCondition:"Good", aestheticsRating:0, neighborhood:72, safetyNeighborhood:"Claremont Ranch", safetyGrade:"A+", safetyAssaultIndex:9, safetyBurglaryIndex:53, safetyLarcenyTheftIndex:18, safetyVehicleTheftIndex:39, tags:["Kitchen medium","Yard good","Neighborhood 72","Safety: Claremont Ranch"] },
@@ -274,8 +334,8 @@ const homesRaw = [
   { name:"4195 Greens Drive", short:"4195 Greens", status:"Considering", photo:"https://cdn02.deltamediagroup.com/listing_photos/active/18463/184628534/1.jpg?hash=68d62892a6d9468f2baf3bc5adbf52a4", price:520000, sqft:2842, lotSqft:6971, built:2001, hoa:3600, tax:1433, dom:19, greg:6.5, bre:5.5, kitchenSize:"Gourmet", yardCondition:"Fair", aestheticsRating:0, neighborhood:65, safetyNeighborhood:"Springs Ranch", safetyGrade:"A+", safetyAssaultIndex:14, safetyBurglaryIndex:46, safetyLarcenyTheftIndex:67, safetyVehicleTheftIndex:53, tags:["Kitchen gourmet","Yard fair","Neighborhood 65","Golf access","Community pool","Safety: Springs Ranch"] },
   { name:"9534 Feathergrass Drive", short:"9534 Feather", status:"Considering", photo:"https://cdn02.deltamediagroup.com/listing_photos/active/18406/184055125/1.jpg?hash=35304503ab84dabc4b869e41dc6a5d6b", price:515000, sqft:2647, lotSqft:4956, built:2023, hoa:400, tax:4554, dom:46, greg:4, bre:4, kitchenSize:"Large", yardCondition:"Good", aestheticsRating:0, neighborhood:75, safetyNeighborhood:"Banning Lewis Ranch", safetyGrade:"A", safetyAssaultIndex:120, safetyBurglaryIndex:58, safetyLarcenyTheftIndex:31, safetyVehicleTheftIndex:144, tags:["Kitchen large","Yard good","Neighborhood 75","Solar","HOA unconfirmed","Safety: Banning Lewis Ranch"] },
   { name:"765 Piros Drive", short:"765 Piros", status:"Considering", photo:"https://www.compass.com/m/666cae37c59317f19fdfc172c7b3d09c2c6823a6_img_0_31458/origin.webp", price:525000, sqft:2960, lotSqft:7000, built:1995, hoa:304, tax:1812.3, dom:9, greg:6.5, bre:8, kitchenSize:"Large", yardCondition:"Good", aestheticsRating:0, neighborhood:80, safetyNeighborhood:"Springs Ranch proxy", safetyGrade:"A+", safetyAssaultIndex:14, safetyBurglaryIndex:46, safetyLarcenyTheftIndex:67, safetyVehicleTheftIndex:53, tags:["Greenhouse","Shed","Gas fireplace","Mountain views","Office with French doors","Composite deck","Safety proxy: Springs Ranch"] },
-  { name:"6709 Showhorse Court", short:"6709 Showhorse", status:"Considering", photo:"https://photos.zillowstatic.com/fp/fdd3f94aaed7d7d174e54fb6c1fc0d87-cc_ft_768.webp", price:499900, sqft:3440, lotSqft:7635, built:2000, hoa:3600, tax:2003.52, dom:47, greg:6.5, bre:7.5, kitchenSize:"Large", yardCondition:"Good", aestheticsRating:0, neighborhood:70, safetyNeighborhood:"Springs Ranch / Island at Springs Ranch", safetyGrade:"A+", safetyAssaultIndex:14, safetyBurglaryIndex:46, safetyLarcenyTheftIndex:67, safetyVehicleTheftIndex:53, tags:["Pikes Peak views","Finished basement","Wet bar","HOA includes lawn care","Exterior paint every 7–8 years","Snow removal","Trash","Safety: Springs Ranch"] },
-  { name:"7352 Candelabra Drive", short:"7352 Candelabra", status:"Ruled Out", photo:CANDELABRA_PHOTO, price:519500, sqft:3093, lotSqft:8726, built:2005, hoa:0, tax:4450.34, dom:5, greg:8, bre:7.5, kitchenSize:"Large", yardCondition:"Good", aestheticsRating:0, neighborhood:70, safetyNeighborhood:"Widefield", safetyGrade:"A+", safetyAssaultIndex:21, safetyBurglaryIndex:72, safetyLarcenyTheftIndex:31, safetyVehicleTheftIndex:56, tags:["Safety: Widefield"] },
+  { name:"6709 Showhorse Court", short:"6709 Showhorse", status:"Considering", photo:"./assets/showhorse.png", price:499900, sqft:3440, lotSqft:7635, built:2000, hoa:3600, tax:2003.52, dom:47, greg:6.5, bre:7.5, kitchenSize:"Large", yardCondition:"Good", aestheticsRating:0, neighborhood:70, safetyNeighborhood:"Springs Ranch / Island at Springs Ranch", safetyGrade:"A+", safetyAssaultIndex:14, safetyBurglaryIndex:46, safetyLarcenyTheftIndex:67, safetyVehicleTheftIndex:53, tags:["Pikes Peak views","Finished basement","Wet bar","HOA includes lawn care","Exterior paint every 7–8 years","Snow removal","Trash","Safety: Springs Ranch"] },
+  { name:"7352 Candelabra Drive", short:"7352 Candelabra", status:"Ruled Out", photo:"./assets/candelabra.png", price:519500, sqft:3093, lotSqft:8726, built:2005, hoa:0, tax:4450.34, dom:5, greg:8, bre:7.5, kitchenSize:"Large", yardCondition:"Good", aestheticsRating:0, neighborhood:70, safetyNeighborhood:"Widefield", safetyGrade:"A+", safetyAssaultIndex:21, safetyBurglaryIndex:72, safetyLarcenyTheftIndex:31, safetyVehicleTheftIndex:56, tags:["Safety: Widefield"] },
 ];
 
 const IMPORT_UNFORMATTED_DATA = String.raw`
@@ -1676,73 +1736,8 @@ export default function App() {
   const LOCAL_IMPORT_STORAGE_KEY = "homeComp.importRaw.v2";
   const LOCAL_WEIGHT_STORAGE_KEY = "homeComp.weights.v1";
   const [viewportWidth, setViewportWidth] = useState(() => (typeof window === "undefined" ? 1280 : window.innerWidth));
+  const [failedImageKeys, setFailedImageKeys] = useState(() => new Set());
   const isMobile = viewportWidth <= 640;
-  const EDIT_GROUPS = [
-    {
-      title: "Identity",
-      fields: [
-        { key: "name", label: "Address / Name", type: "text" },
-        { key: "short", label: "Short Name", type: "text" },
-        { key: "status", label: "Status", type: "select", options: ["Considering", "Ruled Out", "Sold"] },
-        { key: "photo", label: "Photo URL", type: "text" },
-      ],
-    },
-    {
-      title: "Core Pricing / Size",
-      fields: [
-        { key: "price", label: "Price", type: "number" },
-        { key: "pricePerSqft", label: "PPSF", type: "number" },
-        { key: "sqft", label: "Sqft", type: "number" },
-        { key: "lotSqft", label: "Lot Sqft", type: "number" },
-        { key: "masterBedSqft", label: "Master Bed Sqft", type: "number" },
-        { key: "built", label: "Year Built", type: "number" },
-        { key: "dom", label: "Days On Market", type: "number" },
-      ],
-    },
-    {
-      title: "Costs",
-      fields: [
-        { key: "hoa", label: "HOA (Monthly, auto-converts)", type: "number" },
-      ],
-    },
-    {
-      title: "Ratings / Preferences",
-      fields: [
-        { key: "greg", label: "Greg (0-10)", type: "number" },
-        { key: "bre", label: "Bre (0-10)", type: "number" },
-        { key: "kitchenSize", label: "Kitchen Size", type: "select", options: ["Small", "Medium", "Large", "Gourmet"] },
-        { key: "yardCondition", label: "Yard Condition", type: "select", options: ["Poor", "Fair", "Good", "Excellent"] },
-      ],
-    },
-    {
-      title: "Safety",
-      fields: [
-        { key: "safetyNeighborhood", label: "Safety Area", type: "text" },
-        { key: "safetyGrade", label: "Safety Grade", type: "text" },
-        { key: "safetyAssaultIndex", label: "Assault Index", type: "number" },
-        { key: "safetyBurglaryIndex", label: "Burglary Index", type: "number" },
-        { key: "safetyLarcenyTheftIndex", label: "Larceny/Theft Index", type: "number" },
-        { key: "safetyVehicleTheftIndex", label: "Vehicle Theft Index", type: "number" },
-      ],
-    },
-    {
-      title: "Tags / Notes",
-      fields: [{ key: "tags", label: "Tags", type: "tags" }],
-    },
-  ];
-
-  const arraysEqual = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => v === b[i]);
-  const displayFieldValue = (v) => {
-    if (Array.isArray(v)) return v.length ? v.join(", ") : "—";
-    if (v == null || v === "") return "—";
-    return String(v);
-  };
-  const displayHoaFieldValue = (annualValue) => {
-    const annual = toNum(annualValue);
-    if (!Number.isFinite(annual)) return "—";
-    return `${fmtUsd(annual / 12, 2)}/mo (${fmtUsd(annual, 2)}/yr)`;
-  };
-
   const [importRawText, setImportRawText] = useState(() => {
     if (typeof window === "undefined") return IMPORT_UNFORMATTED_DATA;
     const fromLocal = window.localStorage.getItem(LOCAL_IMPORT_STORAGE_KEY);
@@ -1801,6 +1796,9 @@ export default function App() {
   const [backupNotice, setBackupNotice] = useState("");
   const restoreBackupInputRef = useRef(null);
   const compareSelectionMigratedRef = useRef(false);
+  const storageWriteTimersRef = useRef({});
+  const pendingStorageWritesRef = useRef({});
+  const STORAGE_WRITE_DEBOUNCE_MS = 350;
   const [rawWeightPoints, setRawWeightPoints] = useState(() => {
     if (typeof window === "undefined") return sanitizeRawWeights(DEFAULT_RAW_WEIGHT_POINTS);
     try {
@@ -1833,49 +1831,107 @@ export default function App() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const onResize = () => setViewportWidth(window.innerWidth);
+    let resizeTimeoutId = null;
+    let resizeRafId = null;
+    const onResize = () => {
+      if (resizeTimeoutId != null) window.clearTimeout(resizeTimeoutId);
+      resizeTimeoutId = window.setTimeout(() => {
+        resizeRafId = window.requestAnimationFrame(() => {
+          setViewportWidth(window.innerWidth);
+          resizeRafId = null;
+        });
+        resizeTimeoutId = null;
+      }, 100);
+    };
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (resizeTimeoutId != null) window.clearTimeout(resizeTimeoutId);
+      if (resizeRafId != null) window.cancelAnimationFrame(resizeRafId);
+    };
   }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      if (!Object.keys(overridesByHomeId).length) {
-        window.localStorage.removeItem(LOCAL_STORAGE_KEY);
-        return;
+    pendingStorageWritesRef.current.overrides = () => {
+      try {
+        if (!Object.keys(overridesByHomeId).length) {
+          window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+          return;
+        }
+        window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(overridesByHomeId));
+      } catch {
+        // Ignore storage write failures (quota/privacy mode) so UI keeps rendering.
       }
-      window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(overridesByHomeId));
-    } catch {
-      // Ignore storage write failures (quota/privacy mode) so UI keeps rendering.
-    }
+    };
+    window.clearTimeout(storageWriteTimersRef.current.overrides);
+    storageWriteTimersRef.current.overrides = window.setTimeout(() => {
+      pendingStorageWritesRef.current.overrides?.();
+      delete pendingStorageWritesRef.current.overrides;
+      delete storageWriteTimersRef.current.overrides;
+    }, STORAGE_WRITE_DEBOUNCE_MS);
   }, [overridesByHomeId]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      if (!importRawText?.trim()) {
-        window.localStorage.removeItem(LOCAL_IMPORT_STORAGE_KEY);
-        return;
+    pendingStorageWritesRef.current.importRawText = () => {
+      try {
+        if (!importRawText?.trim()) {
+          window.localStorage.removeItem(LOCAL_IMPORT_STORAGE_KEY);
+          return;
+        }
+        window.localStorage.setItem(LOCAL_IMPORT_STORAGE_KEY, importRawText);
+      } catch {
+        // Ignore storage write failures (quota/privacy mode) so UI keeps rendering.
       }
-      window.localStorage.setItem(LOCAL_IMPORT_STORAGE_KEY, importRawText);
-    } catch {
-      // Ignore storage write failures (quota/privacy mode) so UI keeps rendering.
-    }
+    };
+    window.clearTimeout(storageWriteTimersRef.current.importRawText);
+    storageWriteTimersRef.current.importRawText = window.setTimeout(() => {
+      pendingStorageWritesRef.current.importRawText?.();
+      delete pendingStorageWritesRef.current.importRawText;
+      delete storageWriteTimersRef.current.importRawText;
+    }, STORAGE_WRITE_DEBOUNCE_MS);
   }, [importRawText]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      if (isDefaultRawWeights(rawWeightPoints)) {
-        window.localStorage.removeItem(LOCAL_WEIGHT_STORAGE_KEY);
-        return;
+    pendingStorageWritesRef.current.rawWeightPoints = () => {
+      try {
+        if (isDefaultRawWeights(rawWeightPoints)) {
+          window.localStorage.removeItem(LOCAL_WEIGHT_STORAGE_KEY);
+          return;
+        }
+        window.localStorage.setItem(LOCAL_WEIGHT_STORAGE_KEY, JSON.stringify(rawWeightPoints));
+      } catch {
+        // Ignore storage failures so UI remains usable.
       }
-      window.localStorage.setItem(LOCAL_WEIGHT_STORAGE_KEY, JSON.stringify(rawWeightPoints));
-    } catch {
-      // Ignore storage failures so UI remains usable.
-    }
+    };
+    window.clearTimeout(storageWriteTimersRef.current.rawWeightPoints);
+    storageWriteTimersRef.current.rawWeightPoints = window.setTimeout(() => {
+      pendingStorageWritesRef.current.rawWeightPoints?.();
+      delete pendingStorageWritesRef.current.rawWeightPoints;
+      delete storageWriteTimersRef.current.rawWeightPoints;
+    }, STORAGE_WRITE_DEBOUNCE_MS);
   }, [rawWeightPoints]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const flushPendingStorageWrites = () => {
+      Object.values(storageWriteTimersRef.current).forEach((timerId) => window.clearTimeout(timerId));
+      storageWriteTimersRef.current = {};
+      Object.values(pendingStorageWritesRef.current).forEach((writeFn) => {
+        if (typeof writeFn === "function") writeFn();
+      });
+      pendingStorageWritesRef.current = {};
+    };
+    window.addEventListener("beforeunload", flushPendingStorageWrites);
+    window.addEventListener("pagehide", flushPendingStorageWrites);
+    return () => {
+      window.removeEventListener("beforeunload", flushPendingStorageWrites);
+      window.removeEventListener("pagehide", flushPendingStorageWrites);
+      flushPendingStorageWrites();
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -2014,10 +2070,34 @@ export default function App() {
     [firstPassAllHomes, impactAudit.stretchByKey, effectiveWeights]
   );
   const homes = useMemo(() => allHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status)), [allHomes]);
+  const getImageKey = useCallback((home) => `${home.homeId}::${home.photo || ""}`, []);
+  const markImageFailed = useCallback((home) => {
+    const key = getImageKey(home);
+    setFailedImageKeys((prev) => {
+      if (prev.has(key)) return prev;
+      const next = new Set(prev);
+      next.add(key);
+      return next;
+    });
+  }, [getImageKey]);
   const dataEntryVisibleHomes = useMemo(
     () => (showHidden ? allHomes : allHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status))),
     [allHomes, showHidden]
   );
+
+  useEffect(() => {
+    setFailedImageKeys((prev) => {
+      if (!prev.size) return prev;
+      const liveKeys = new Set(allHomes.filter((home) => home.photo).map((home) => getImageKey(home)));
+      let changed = false;
+      const next = new Set();
+      prev.forEach((key) => {
+        if (liveKeys.has(key)) next.add(key);
+        else changed = true;
+      });
+      return changed ? next : prev;
+    });
+  }, [allHomes, getImageKey]);
 
   useEffect(() => {
     if (lockedOverviewHomeId && !homes.some((h) => h.homeId === lockedOverviewHomeId)) {
@@ -2088,9 +2168,9 @@ export default function App() {
     if (!selectedHome || !showMissingOnly) return EDIT_GROUPS;
     const missingSet = new Set(getMissingFields(selectedHome));
     return EDIT_GROUPS.map((group) => ({ ...group, fields: group.fields.filter((f) => f.key === "tags" || missingSet.has(f.key)) })).filter((group) => group.fields.length);
-  }, [EDIT_GROUPS, selectedHome, showMissingOnly]);
+  }, [selectedHome, showMissingOnly]);
 
-  const setFieldError = (homeId, field, message) => {
+  const setFieldError = useCallback((homeId, field, message) => {
     setFieldErrorsByHomeId((prev) => {
       const homeErrors = { ...(prev[homeId] ?? {}) };
       if (message) homeErrors[field] = message;
@@ -2100,9 +2180,9 @@ export default function App() {
       else delete next[homeId];
       return next;
     });
-  };
+  }, []);
 
-  const setDraftValue = (homeId, field, value) => {
+  const setDraftValue = useCallback((homeId, field, value) => {
     setEditorDraftsByHomeId((prev) => {
       const homeDrafts = { ...(prev[homeId] ?? {}) };
       if (value == null) delete homeDrafts[field];
@@ -2112,9 +2192,9 @@ export default function App() {
       else delete next[homeId];
       return next;
     });
-  };
+  }, []);
 
-  const updateOverrideField = (homeId, field, nextValue) => {
+  const updateOverrideField = useCallback((homeId, field, nextValue) => {
     const baseValue = sourceById[homeId]?.[field];
     setOverridesByHomeId((prev) => {
       const currentHome = { ...(prev[homeId] ?? {}) };
@@ -2126,7 +2206,7 @@ export default function App() {
       else delete next[homeId];
       return next;
     });
-  };
+  }, [sourceById]);
 
   const onNumericChange = (homeId, field, raw) => {
     setDraftValue(homeId, field, raw);
@@ -2482,7 +2562,40 @@ export default function App() {
   const c = pick(compareC, null);
   const compareHomes = [a, b, c];
   const compareHeaderColors = ["#818cf8", "#fbbf24", "#86efac"];
-  const compareFactorRows = scoredFactorSpecs.map((spec) => ({ key: spec.key, label: spec.label }));
+  const compareFactorRows = useMemo(() => scoredFactorSpecs.map((spec) => ({ key: spec.key, label: spec.label })), [scoredFactorSpecs]);
+  const compareViewModel = useMemo(() => {
+    const weightedTotals = compareHomes.map((home) => toNum(home?.weightedTotal));
+    const bestWeightedScore = weightedTotals
+      .filter((n) => Number.isFinite(n))
+      .reduce((best, n) => Math.max(best, n), -Infinity);
+    const factors = compareFactorRows.map((row) => {
+      const pairs = compareHomes.map((home) => (home ? factorPairForHome(home, row.key) : null));
+      const bestScore = pairs
+        .map((pair) => pair?.scoreNum)
+        .filter((n) => Number.isFinite(n))
+        .reduce((best, n) => Math.max(best, n), -Infinity);
+      return {
+        ...row,
+        pairs,
+        bestScore: Number.isFinite(bestScore) ? bestScore : null,
+      };
+    });
+    return {
+      weightedTotals,
+      bestWeightedScore: Number.isFinite(bestWeightedScore) ? bestWeightedScore : null,
+      factors,
+    };
+  }, [a, b, c, compareFactorRows]);
+  const cardFactorPairsByHomeId = useMemo(() => {
+    const byHomeId = new Map();
+    homes.forEach((home) => {
+      byHomeId.set(
+        home.homeId,
+        Object.fromEntries(scoredFactorSpecs.map((spec) => [spec.key, factorPairForHome(home, spec.key)]))
+      );
+    });
+    return byHomeId;
+  }, [homes, scoredFactorSpecs]);
   const rawRadarData = RADAR.map(([key, label]) => ({
     subject: label,
     a: a?.[key] ?? null,
@@ -2929,11 +3042,8 @@ export default function App() {
               <tbody>
                 <tr>
                   <td style={compareMetricCellStyle}>Weighted Score</td>
-                  {compareHomes.map((home, i) => {
-                    const value = toNum(home?.weightedTotal);
-                    const nums = compareHomes.map((h) => toNum(h?.weightedTotal)).filter((n) => Number.isFinite(n));
-                    const best = nums.length ? Math.max(...nums) : null;
-                    const isBest = Number.isFinite(value) && Number.isFinite(best) && value === best;
+                  {compareViewModel.weightedTotals.map((value, i) => {
+                    const isBest = Number.isFinite(value) && Number.isFinite(compareViewModel.bestWeightedScore) && value === compareViewModel.bestWeightedScore;
                     return (
                       <td
                         key={`weighted-${i}`}
@@ -2942,8 +3052,9 @@ export default function App() {
                           padding: "8px 6px",
                           textAlign: "right",
                           borderTop: "1px solid #334155",
-                          color: isBest ? compareHeaderColors[i] : "#f1f5f9",
+                          color: "#f1f5f9",
                           fontWeight: isBest ? 800 : 700,
+                          background: isBest ? "#33415555" : "transparent",
                         }}
                       >
                         {Number.isFinite(value) ? value.toFixed(2) : "—"}
@@ -2951,20 +3062,26 @@ export default function App() {
                     );
                   })}
                 </tr>
-                {compareFactorRows.map((row) => {
-                  const pairs = compareHomes.map((home) => (home ? factorPairForHome(home, row.key) : null));
-                  const nums = pairs.map((pair) => pair?.scoreNum).filter((n) => Number.isFinite(n));
-                  const best = nums.length ? Math.max(...nums) : null;
+                {compareViewModel.factors.map((row) => {
                   return (
                     <tr key={row.key}>
                       <td style={compareMetricCellStyle}>{row.label}</td>
-                      {pairs.map((pair, i) => {
+                      {row.pairs.map((pair, i) => {
                         const scoreNum = pair?.scoreNum;
-                        const isBest = Number.isFinite(scoreNum) && Number.isFinite(best) && scoreNum === best;
+                        const isBest = Number.isFinite(scoreNum) && Number.isFinite(row.bestScore) && scoreNum === row.bestScore;
                         return (
-                          <td key={`${row.key}-${i}`} style={{ fontFamily: FONT_STACKS.sans, padding: "8px 6px", textAlign: "right", borderTop: "1px solid #334155" }}>
+                          <td
+                            key={`${row.key}-${i}`}
+                            style={{
+                              fontFamily: FONT_STACKS.sans,
+                              padding: "8px 6px",
+                              textAlign: "right",
+                              borderTop: "1px solid #334155",
+                              background: isBest ? "#33415555" : "transparent",
+                            }}
+                          >
                             <div style={compareValueCellStyle}>{pair?.raw ?? "—"}</div>
-                            <div style={{ ...compareScoreCellStyle, color: isBest ? compareHeaderColors[i] : "#94a3b8" }}>
+                            <div style={{ ...compareScoreCellStyle, color: "#94a3b8", fontWeight: 700 }}>
                               Score: {pair?.score ?? "—"}
                             </div>
                           </td>
@@ -2982,10 +3099,26 @@ export default function App() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 12 }}>
             {homes.map((h, i) => {
               const missingFields = getMissingFields(h);
+              const imageKey = getImageKey(h);
+              const showPhoto = h.photo && !failedImageKeys.has(imageKey);
+              const cardFactorPairs = cardFactorPairsByHomeId.get(h.homeId) ?? {};
               return (
                 <div key={h.homeId} style={{ background: "#1e293b", borderRadius: 16, padding: 16, boxShadow: "0 8px 20px rgba(0,0,0,.25)", border: `1px solid ${gradeColor(h.weightedTotal)}33` }}>
-                  {h.photo ? <div style={IMG_WRAP_STYLE}><img src={h.photo} alt={h.name} style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }} onError={(e) => { e.currentTarget.style.display = "none"; const fallback = e.currentTarget.parentElement?.nextSibling; if (fallback && fallback.dataset.fallback === "true") fallback.style.display = "flex"; }} /></div> : null}
-                  <div data-fallback="true" style={{ ...NO_PHOTO_STYLE, display: h.photo ? "none" : "flex" }}>NO PHOTO</div>
+                  {showPhoto ? (
+                    <div style={IMG_WRAP_STYLE}>
+                      <img
+                        src={h.photo}
+                        alt={h.name}
+                        loading="lazy"
+                        decoding="async"
+                        width="320"
+                        height="180"
+                        style={{ width: "100%", height: "auto", aspectRatio: "16 / 9", objectFit: "cover", display: "block" }}
+                        onError={() => markImageFailed(h)}
+                      />
+                    </div>
+                  ) : null}
+                  <div data-fallback="true" style={{ ...NO_PHOTO_STYLE, display: showPhoto ? "none" : "flex" }}>NO PHOTO</div>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
                     <div>
                       <div style={eyebrowTextStyle}>#{i + 1} RANKED</div>
@@ -3007,7 +3140,7 @@ export default function App() {
                     <div style={{ ...TEXT_STYLES.eyebrow, color: "#94a3b8", marginBottom: 8 }}>Scored Factors (Raw + Score)</div>
                     <div style={{ display: "grid", gap: 6 }}>
                       {scoredFactorSpecs.map((spec) => {
-                        const pair = factorPairForHome(h, spec.key);
+                        const pair = cardFactorPairs[spec.key] ?? { raw: "", score: "", scoreNum: null };
                         return (
                           <div key={`${h.homeId}-${spec.key}`} style={{ display: "grid", gap: 5 }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
