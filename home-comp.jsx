@@ -1448,6 +1448,9 @@ function mergeImportRawText(embeddedRaw, localRaw) {
 function fmt(n) {
   return (n == null ? "?" : "$" + n.toLocaleString());
 }
+function fmtCompactUsd(n) {
+  return n == null || !Number.isFinite(n) ? "—" : "$" + Math.round(n).toLocaleString();
+}
 const gradeColor = (s) => s >= 85 ? "#16a34a" : s >= 80 ? "#22c55e" : s >= 75 ? "#84cc16" : s >= 70 ? "#eab308" : s >= 65 ? "#f59e0b" : "#f97316";
 const gradeLabel = (s) => s >= 85 ? "A — Excellent" : s >= 80 ? "A-" : s >= 75 ? "B+" : s >= 70 ? "B" : s >= 65 ? "C+" : "C — Fair";
 const interp = (v, pts) => {
@@ -1742,6 +1745,8 @@ export default function App() {
   const [showMissingOnly, setShowMissingOnly] = useState(false);
   const [overviewSortKey, setOverviewSortKey] = useState(null);
   const [overviewSortDir, setOverviewSortDir] = useState(null);
+  const [hoveredOverviewHomeId, setHoveredOverviewHomeId] = useState(null);
+  const [lockedOverviewHomeId, setLockedOverviewHomeId] = useState(null);
   const [tagDraft, setTagDraft] = useState("");
   const [editorDraftsByHomeId, setEditorDraftsByHomeId] = useState({});
   const [fieldErrorsByHomeId, setFieldErrorsByHomeId] = useState({});
@@ -1915,6 +1920,15 @@ export default function App() {
     () => (showHidden ? allHomes : allHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status))),
     [allHomes, showHidden]
   );
+
+  useEffect(() => {
+    if (lockedOverviewHomeId && !homes.some((h) => h.homeId === lockedOverviewHomeId)) {
+      setLockedOverviewHomeId(null);
+    }
+    if (hoveredOverviewHomeId && !homes.some((h) => h.homeId === hoveredOverviewHomeId)) {
+      setHoveredOverviewHomeId(null);
+    }
+  }, [homes, lockedOverviewHomeId, hoveredOverviewHomeId]);
 
   useEffect(() => {
     if (compareSelectionMigratedRef.current) return;
@@ -2175,28 +2189,47 @@ export default function App() {
     return `${raw}, Colorado Springs, CO`;
   };
   const overviewColumns = [
-    { key: "address", label: "Address", align: "left" },
-    { key: "totalMo", label: "Monthly $", align: "right" },
-    { key: "weightedTotal", label: "Weighted Total", align: "right" },
-    { key: "price", label: "Price", align: "right" },
-    { key: "sqft", label: "Sqft", align: "right" },
-    { key: "masterBedSqft", label: "Master Bed Sqft", align: "right" },
-    { key: "lotSqft", label: "Lot Sqft", align: "right" },
-    { key: "greg", label: "Greg", align: "right" },
-    { key: "bre", label: "Bre", align: "right" },
-    { key: "kitchenSize", label: "Kitchen", align: "left" },
-    { key: "yardCondition", label: "Yard", align: "left" },
-    { key: "built", label: "Built", align: "right" },
-    { key: "dom", label: "DOM", align: "right" },
-    { key: "hoa", label: "HOA (Mo)", align: "right" },
-    { key: "tax", label: "Tax (Annual)", align: "right" },
+    { key: "address", label: "Address", align: "left", minWidth: 240, mobileMinWidth: 210, wrap: true },
+    { key: "totalMo", label: "Monthly $", align: "right", minWidth: 86, mobileMinWidth: 78 },
+    { key: "weightedTotal", label: "Weighted Total", align: "right", minWidth: 92, mobileMinWidth: 84 },
+    { key: "price", label: "Price", align: "right", minWidth: 86, mobileMinWidth: 78 },
+    { key: "sqft", label: "Sqft", align: "right", minWidth: 64, mobileMinWidth: 58 },
+    { key: "masterBedSqft", label: "Master Bed", align: "right", minWidth: 84, mobileMinWidth: 78 },
+    { key: "lotSqft", label: "Lot Sqft", align: "right", minWidth: 78, mobileMinWidth: 70 },
+    { key: "greg", label: "Greg", align: "right", minWidth: 52, mobileMinWidth: 48 },
+    { key: "bre", label: "Bre", align: "right", minWidth: 52, mobileMinWidth: 48 },
+    { key: "kitchenSize", label: "Kitchen", align: "left", minWidth: 78, mobileMinWidth: 72 },
+    { key: "yardCondition", label: "Yard", align: "left", minWidth: 70, mobileMinWidth: 64 },
+    { key: "built", label: "Built", align: "right", minWidth: 60, mobileMinWidth: 56 },
+    { key: "dom", label: "DOM", align: "right", minWidth: 52, mobileMinWidth: 48 },
+    { key: "hoa", label: "HOA (Mo)", align: "right", minWidth: 82, mobileMinWidth: 76 },
+    { key: "tax", label: "Tax (Yr)", align: "right", minWidth: 82, mobileMinWidth: 76 },
     ...(SAFETY_SCORING_ENABLED ? [
-      { key: "safetyAssaultIndex", label: "Assault Idx", align: "right" },
-      { key: "safetyBurglaryIndex", label: "Burglary Idx", align: "right" },
-      { key: "safetyLarcenyTheftIndex", label: "Larceny/Theft Idx", align: "right" },
-      { key: "safetyVehicleTheftIndex", label: "Vehicle Theft Idx", align: "right" },
+      { key: "safetyAssaultIndex", label: "Assault", align: "right", minWidth: 64, mobileMinWidth: 60 },
+      { key: "safetyBurglaryIndex", label: "Burglary", align: "right", minWidth: 70, mobileMinWidth: 64 },
+      { key: "safetyLarcenyTheftIndex", label: "Larceny/Theft", align: "right", minWidth: 88, mobileMinWidth: 80 },
+      { key: "safetyVehicleTheftIndex", label: "Vehicle Theft", align: "right", minWidth: 90, mobileMinWidth: 82 },
     ] : []),
   ];
+  const overviewRankColWidth = isMobile ? 36 : 42;
+  const overviewTableMinWidth = useMemo(() => (
+    overviewRankColWidth
+    + overviewColumns.reduce((sum, col) => sum + (isMobile ? (col.mobileMinWidth ?? col.minWidth ?? 70) : (col.minWidth ?? 70)), 0)
+  ), [overviewColumns, overviewRankColWidth, isMobile]);
+  const overviewRowTone = (homeId) => {
+    if (lockedOverviewHomeId === homeId) return "locked";
+    if (hoveredOverviewHomeId === homeId) return "hover";
+    return "default";
+  };
+  const toggleOverviewRowLock = (homeId) => {
+    setLockedOverviewHomeId((prev) => (prev === homeId ? null : homeId));
+  };
+  const onOverviewRowKeyDown = (e, homeId) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleOverviewRowLock(homeId);
+    }
+  };
   const getOverviewSortValue = (home, key) => {
     switch (key) {
       case "address":
@@ -2290,11 +2323,11 @@ export default function App() {
   const renderOverviewMetric = (home, key) => {
     switch (key) {
       case "totalMo":
-        return fmt(home.totalMo);
+        return fmtCompactUsd(home.totalMo);
       case "weightedTotal":
         return home.weightedTotal?.toFixed(2) ?? "—";
       case "price":
-        return fmt(home.price);
+        return fmtCompactUsd(home.price);
       case "sqft":
         return Number.isFinite(home.sqft) ? home.sqft.toLocaleString() : "—";
       case "masterBedSqft":
@@ -2314,11 +2347,9 @@ export default function App() {
       case "dom":
         return Number.isFinite(home.dom) ? String(home.dom) : "—";
       case "hoa":
-        return Number.isFinite(home.hoa)
-          ? `$${(home.hoa / 12).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-          : "—";
+        return Number.isFinite(home.hoa) ? fmtCompactUsd(home.hoa / 12) : "—";
       case "tax":
-        return Number.isFinite(home.tax) ? `$${home.tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "—";
+        return Number.isFinite(home.tax) ? fmtCompactUsd(home.tax) : "—";
       case "safetyAssaultIndex":
         return Number.isFinite(home.safetyAssaultIndex) ? String(home.safetyAssaultIndex) : "—";
       case "safetyBurglaryIndex":
@@ -2393,15 +2424,27 @@ export default function App() {
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 16, marginBottom: 16 }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12, color: "#f1f5f9" }}>🏆 Rankings</h2>
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: isMobile ? 10 : 12, minWidth: isMobile ? 1080 : 1680 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed", fontSize: isMobile ? 10 : 12, minWidth: overviewTableMinWidth }}>
+                <colgroup>
+                  <col style={{ width: overviewRankColWidth, minWidth: overviewRankColWidth }} />
+                  {overviewColumns.map((col) => (
+                    <col
+                      key={col.key}
+                      style={{
+                        width: isMobile ? (col.mobileMinWidth ?? col.minWidth ?? 70) : (col.minWidth ?? 70),
+                        minWidth: isMobile ? (col.mobileMinWidth ?? col.minWidth ?? 70) : (col.minWidth ?? 70),
+                      }}
+                    />
+                  ))}
+                </colgroup>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "left", padding: isMobile ? "6px 5px" : "8px 6px", color: "#94a3b8", width: 42 }}>#</th>
+                    <th style={{ textAlign: "left", padding: isMobile ? "5px 4px" : "7px 5px", color: "#94a3b8", width: overviewRankColWidth, whiteSpace: "nowrap" }}>#</th>
                     {overviewColumns.map((col) => (
                       <th
                         key={col.key}
                         onClick={() => onOverviewSort(col.key)}
-                        style={{ textAlign: col.align, padding: isMobile ? "6px 5px" : "8px 6px", color: overviewSortKey === col.key ? "#e2e8f0" : "#94a3b8", cursor: "pointer", whiteSpace: "nowrap", userSelect: "none" }}
+                        style={{ textAlign: col.align, padding: isMobile ? "5px 4px" : "7px 5px", color: overviewSortKey === col.key ? "#e2e8f0" : "#94a3b8", cursor: "pointer", whiteSpace: "nowrap", userSelect: "none", overflow: "hidden", textOverflow: "ellipsis" }}
                         title="Click to sort"
                       >
                         {col.label}{overviewSortIndicator(col.key)}
@@ -2413,18 +2456,33 @@ export default function App() {
                   {overviewRows.map((h) => {
                     const missingCount = getMissingFields(h).length;
                     const lockedRank = rankByHomeId.get(h.homeId);
+                    const rowTone = overviewRowTone(h.homeId);
+                    const rowBg = rowTone === "locked" ? "#1f2350" : rowTone === "hover" ? "#1d253f" : "transparent";
+                    const rowBorder = rowTone === "locked" ? "#6366f1" : rowTone === "hover" ? "#475569" : "#334155";
+                    const rowOutline = rowTone === "locked" ? "0 0 0 1px #6366f155 inset" : "none";
                     return (
-                      <tr key={h.homeId}>
-                        <td style={{ padding: isMobile ? "8px 5px" : "10px 6px", color: "#64748b", borderTop: "1px solid #334155", fontWeight: 700, verticalAlign: "top", fontSize: isMobile ? 10 : 12 }}>
+                      <tr
+                        key={h.homeId}
+                        tabIndex={0}
+                        aria-selected={rowTone === "locked"}
+                        onMouseEnter={() => setHoveredOverviewHomeId(h.homeId)}
+                        onMouseLeave={() => setHoveredOverviewHomeId((prev) => (prev === h.homeId ? null : prev))}
+                        onFocus={() => setHoveredOverviewHomeId(h.homeId)}
+                        onBlur={() => setHoveredOverviewHomeId((prev) => (prev === h.homeId ? null : prev))}
+                        onClick={() => toggleOverviewRowLock(h.homeId)}
+                        onKeyDown={(e) => onOverviewRowKeyDown(e, h.homeId)}
+                        style={{ cursor: "pointer", outline: "none", boxShadow: rowOutline }}
+                      >
+                        <td style={{ padding: isMobile ? "7px 4px" : "9px 5px", color: rowTone === "locked" ? "#a5b4fc" : "#64748b", borderTop: `1px solid ${rowBorder}`, fontWeight: 700, verticalAlign: "top", fontSize: isMobile ? 10 : 12, whiteSpace: "nowrap", background: rowBg }}>
                           #{lockedRank ?? "—"}
                         </td>
                         {overviewColumns.map((col) => {
                           if (col.key === "address") {
                             return (
-                              <td key={col.key} style={{ padding: isMobile ? "8px 5px" : "10px 6px", borderTop: "1px solid #334155", verticalAlign: "top", minWidth: isMobile ? 220 : 320 }}>
-                                <div style={{ fontSize: isMobile ? 11 : 13, fontWeight: 600, color: "#f1f5f9", lineHeight: 1.3, overflowWrap: "anywhere" }}>{overviewAddress(h)}</div>
+                              <td key={col.key} style={{ padding: isMobile ? "7px 4px" : "9px 5px", borderTop: `1px solid ${rowBorder}`, verticalAlign: "top", minWidth: isMobile ? 210 : 240, background: rowBg }}>
+                                <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 600, color: rowTone === "locked" ? "#eef2ff" : "#f1f5f9", lineHeight: 1.25, overflowWrap: "anywhere", whiteSpace: "normal" }}>{overviewAddress(h)}</div>
                                 {missingCount > 0 && (
-                                  <div style={{ marginTop: 2, fontSize: isMobile ? 10 : 11, color: "#fbbf24" }}>
+                                  <div style={{ marginTop: 2, fontSize: isMobile ? 9 : 10, color: "#fbbf24" }}>
                                     Missing {missingCount}: {placeholderSummary(h)}
                                   </div>
                                 )}
@@ -2437,13 +2495,16 @@ export default function App() {
                             <td
                               key={col.key}
                               style={{
-                                padding: isMobile ? "8px 5px" : "10px 6px",
+                                padding: isMobile ? "7px 4px" : "9px 5px",
                                 textAlign: col.align,
-                                borderTop: "1px solid #334155",
+                                borderTop: `1px solid ${rowBorder}`,
+                                background: rowBg,
                                 color: isWeightedTotal ? gradeColor(h.weightedTotal) : "#e2e8f0",
                                 fontWeight: isWeightedTotal ? 800 : 500,
                                 whiteSpace: "nowrap",
-                                fontSize: isMobile ? 11 : 12,
+                                fontSize: isMobile ? 10 : 11,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
                               }}
                             >
                               {value}
