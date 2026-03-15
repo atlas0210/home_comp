@@ -1104,6 +1104,27 @@ const DEFAULT_EDITABLE_KEYS = [
 const STATUS_VALUES = new Set(["Considering", "Ruled Out", "Sold"]);
 const KITCHEN_VALUES = new Set(["Small", "Medium", "Large", "Gourmet"]);
 const YARD_VALUES = new Set(["Poor", "Fair", "Good", "Excellent"]);
+const LEGACY_OVERRIDES_TO_DROP = {
+  "imported-mls-9798133": {
+    photo: "https://photos.zillowstatic.com/fp/1d62f5d430620693791ce58ae53e9561-cc_ft_576.webp",
+  },
+};
+const migrateOverrides = (candidate) => {
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) return {};
+  const migrated = {};
+  Object.entries(candidate).forEach(([homeId, values]) => {
+    if (!values || typeof values !== "object" || Array.isArray(values)) return;
+    const nextValues = { ...values };
+    const dropRules = LEGACY_OVERRIDES_TO_DROP[homeId];
+    if (dropRules) {
+      Object.entries(dropRules).forEach(([key, legacyValue]) => {
+        if (nextValues[key] === legacyValue) delete nextValues[key];
+      });
+    }
+    if (Object.keys(nextValues).length) migrated[homeId] = nextValues;
+  });
+  return migrated;
+};
 const mergeOverrides = (seed, incoming) => {
   const merged = {};
   const apply = (src) => {
@@ -1848,7 +1869,7 @@ export default function App() {
       if (!raw) return mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, {});
       const parsed = JSON.parse(raw);
       return parsed && typeof parsed === "object"
-        ? mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, parsed)
+        ? mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, migrateOverrides(parsed))
         : mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, {});
     } catch {
       return mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, {});
@@ -1892,7 +1913,7 @@ export default function App() {
     snapshotHashAppliedRef.current = true;
     const snapshot = decodeShareSnapshot(window.location.hash);
     if (!snapshot) return;
-    const maybeOverrides = snapshot?.overridesByHomeId;
+    const maybeOverrides = migrateOverrides(snapshot?.overridesByHomeId);
     if (maybeOverrides && typeof maybeOverrides === "object" && !Array.isArray(maybeOverrides)) {
       setOverridesByHomeId(mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, maybeOverrides));
     }
@@ -2454,10 +2475,11 @@ export default function App() {
     try {
       const text = await file.text();
       const parsed = JSON.parse(text);
-      const maybeOverrides = parsed?.overridesByHomeId ?? parsed;
-      if (!maybeOverrides || typeof maybeOverrides !== "object" || Array.isArray(maybeOverrides)) {
+      const rawOverrides = parsed?.overridesByHomeId ?? parsed;
+      if (!rawOverrides || typeof rawOverrides !== "object" || Array.isArray(rawOverrides)) {
         throw new Error("Backup file does not contain a valid overrides object.");
       }
+      const maybeOverrides = migrateOverrides(rawOverrides);
 
       setOverridesByHomeId(mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, maybeOverrides));
       if (typeof parsed?.importRawText === "string" && parsed.importRawText.trim()) {
