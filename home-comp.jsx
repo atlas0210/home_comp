@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, RadarChart, Radar, PolarGrid, PolarAngleAxis, Legend, Cell } from "recharts";
 
 const DP = 80000;
@@ -201,6 +201,7 @@ const RADAR = [["rating","Rating"],["monthlyPayment","Mo Pmt"],["sizeValue","Sqf
 const fmtUsd = (n, digits = 0) => Number.isFinite(n)
   ? `$${n.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })}`
   : null;
+const getImageKey = (home) => `${home.homeId}::${home.photo || ""}`;
 const CARD_FIELDS = (h) => {
   const ageYears = Number.isFinite(h?.built) ? Math.max(0, CURRENT_YEAR - h.built) : null;
   const rows = [
@@ -2070,8 +2071,7 @@ export default function App() {
     [firstPassAllHomes, impactAudit.stretchByKey, effectiveWeights]
   );
   const homes = useMemo(() => allHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status)), [allHomes]);
-  const getImageKey = useCallback((home) => `${home.homeId}::${home.photo || ""}`, []);
-  const markImageFailed = useCallback((home) => {
+  const markImageFailed = (home) => {
     const key = getImageKey(home);
     setFailedImageKeys((prev) => {
       if (prev.has(key)) return prev;
@@ -2079,7 +2079,7 @@ export default function App() {
       next.add(key);
       return next;
     });
-  }, [getImageKey]);
+  };
   const dataEntryVisibleHomes = useMemo(
     () => (showHidden ? allHomes : allHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status))),
     [allHomes, showHidden]
@@ -2097,7 +2097,7 @@ export default function App() {
       });
       return changed ? next : prev;
     });
-  }, [allHomes, getImageKey]);
+  }, [allHomes]);
 
   useEffect(() => {
     if (lockedOverviewHomeId && !homes.some((h) => h.homeId === lockedOverviewHomeId)) {
@@ -2170,7 +2170,7 @@ export default function App() {
     return EDIT_GROUPS.map((group) => ({ ...group, fields: group.fields.filter((f) => f.key === "tags" || missingSet.has(f.key)) })).filter((group) => group.fields.length);
   }, [selectedHome, showMissingOnly]);
 
-  const setFieldError = useCallback((homeId, field, message) => {
+  const setFieldError = (homeId, field, message) => {
     setFieldErrorsByHomeId((prev) => {
       const homeErrors = { ...(prev[homeId] ?? {}) };
       if (message) homeErrors[field] = message;
@@ -2180,9 +2180,9 @@ export default function App() {
       else delete next[homeId];
       return next;
     });
-  }, []);
+  };
 
-  const setDraftValue = useCallback((homeId, field, value) => {
+  const setDraftValue = (homeId, field, value) => {
     setEditorDraftsByHomeId((prev) => {
       const homeDrafts = { ...(prev[homeId] ?? {}) };
       if (value == null) delete homeDrafts[field];
@@ -2192,9 +2192,9 @@ export default function App() {
       else delete next[homeId];
       return next;
     });
-  }, []);
+  };
 
-  const updateOverrideField = useCallback((homeId, field, nextValue) => {
+  const updateOverrideField = (homeId, field, nextValue) => {
     const baseValue = sourceById[homeId]?.[field];
     setOverridesByHomeId((prev) => {
       const currentHome = { ...(prev[homeId] ?? {}) };
@@ -2206,7 +2206,7 @@ export default function App() {
       else delete next[homeId];
       return next;
     });
-  }, [sourceById]);
+  };
 
   const onNumericChange = (homeId, field, raw) => {
     setDraftValue(homeId, field, raw);
