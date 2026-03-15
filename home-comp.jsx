@@ -234,23 +234,17 @@ const CARD_FIELDS = (h) => {
   }
   return rows.filter(([, value]) => value != null && value !== "" && value !== "N/A" && value !== "—");
 };
-const COMPARE_ROWS = [
-  ["Weighted Score","weightedTotal"],
-  ["Combined Rating Score","rating"],
-  ["Monthly Payment Score","monthlyPayment"],
-  ...(!SAFETY_SCORING_ENABLED ? [] : [["Safety Score","safety"]]),
-  ["Size Score","sizeValue"],
-  ["Lot Score","lot"],
-  ["Kitchen Score","kitchen"],
-  ["Yard Score","yard"],
-  ["Age Score","ageScore"],
-  ["Master Bed Score","masterBed"],
-  ["Master Bed Sqft","masterBedSqft"],
-  ["Monthly $","totalMo"],
-  ["Greg","greg"],
-  ["Bre","bre"],
+const SCORED_FACTOR_BASE = [
+  { key: "rating", label: "Personal Appeal", minWidth: 150, mobileMinWidth: 132 },
+  { key: "monthlyPayment", label: "Monthly", minWidth: 140, mobileMinWidth: 124 },
+  { key: "sizeValue", label: "Size", minWidth: 130, mobileMinWidth: 116 },
+  { key: "lot", label: "Lot", minWidth: 126, mobileMinWidth: 112 },
+  { key: "kitchen", label: "Kitchen", minWidth: 130, mobileMinWidth: 116 },
+  { key: "yard", label: "Yard", minWidth: 126, mobileMinWidth: 112 },
+  { key: "ageScore", label: "Age", minWidth: 130, mobileMinWidth: 116 },
+  { key: "masterBed", label: "Master Bed", minWidth: 142, mobileMinWidth: 124 },
+  { key: "safety", label: "Safety", minWidth: 130, mobileMinWidth: 116 },
 ];
-const BAR_ROWS = [["Rating","rating"],["Monthly","monthlyPayment"],["Size","sizeValue"],["Lot","lot"],["Kitchen","kitchen"],["Yard","yard"],["Age","ageScore"],["Master Bed","masterBed"], ...(!SAFETY_SCORING_ENABLED ? [] : [["Safety","safety"]])];
 const COLORS = ["#22c55e","#22c55e","#3b82f6","#3b82f6","#3b82f6","#f59e0b","#f59e0b","#f59e0b","#f97316","#ef4444","#8b5cf6","#14b8a6"];
 const NO_PHOTO_STYLE = { margin: "-16px -16px 12px -16px", borderTopLeftRadius: 16, borderTopRightRadius: 16, background: "linear-gradient(135deg,#1e293b,#0f172a)", height: 180, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", fontWeight: 700, letterSpacing: 1 };
 const IMG_WRAP_STYLE = { margin: "-16px -16px 12px -16px", borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: "hidden", background: "#0f172a" };
@@ -1636,15 +1630,6 @@ function CardMetric({ label, value }) {
   return <div style={{ background: "#0f172a", borderRadius: 10, padding: "8px 10px" }}><div style={{ fontSize: 10, color: "#64748b", textTransform: "uppercase" }}>{label}</div><div style={{ fontSize: 13, color: "#f1f5f9", fontWeight: 700 }}>{value}</div></div>;
 }
 
-function ScoreBar({ label, value }) {
-  return (
-    <div style={{ marginBottom: 6 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}><span style={{ fontSize: 11, color: "#cbd5e1" }}>{label}</span><span style={{ fontSize: 11, color: gradeColor(value), fontWeight: 700 }}>{value.toFixed(1)}</span></div>
-      <div style={{ width: "100%", height: 8, background: "#0f172a", borderRadius: 999 }}><div style={{ width: `${Math.max(0, Math.min(100, value))}%`, height: 8, background: gradeColor(value), borderRadius: 999 }} /></div>
-    </div>
-  );
-}
-
 export default function App() {
   const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
   const LOCAL_IMPORT_STORAGE_KEY = "homeComp.importRaw.v2";
@@ -2260,28 +2245,120 @@ export default function App() {
     // Baseline rows store street only; show full address format in Overview.
     return `${raw}, Colorado Springs, CO`;
   };
+  const formatFactorScore = (value) => {
+    const n = toNum(value);
+    return Number.isFinite(n) ? n.toFixed(1) : "—";
+  };
+  const scoredFactorSpecs = useMemo(() => {
+    const specs = SCORED_FACTOR_BASE
+      .filter((spec) => spec.key !== "safety" || SAFETY_SCORING_ENABLED)
+      .map((spec) => {
+        if (spec.key === "rating") {
+          return {
+            ...spec,
+            rawValue: (h) => {
+              const g = toNum(h?.greg);
+              const b = toNum(h?.bre);
+              return Number.isFinite(g) && Number.isFinite(b) ? `Greg ${g.toFixed(1)} · Bre ${b.toFixed(1)}` : "—";
+            },
+            scoreValue: (h) => toNum(h?.rating),
+            sortValue: (h) => toNum(h?.rating),
+          };
+        }
+        if (spec.key === "monthlyPayment") {
+          return {
+            ...spec,
+            rawValue: (h) => fmtCompactUsd(toNum(h?.totalMo)),
+            scoreValue: (h) => toNum(h?.monthlyPayment),
+            sortValue: (h) => toNum(h?.monthlyPayment),
+          };
+        }
+        if (spec.key === "sizeValue") {
+          return {
+            ...spec,
+            rawValue: (h) => Number.isFinite(toNum(h?.sqft)) ? Math.round(h.sqft).toLocaleString() : "—",
+            scoreValue: (h) => toNum(h?.sizeValue),
+            sortValue: (h) => toNum(h?.sizeValue),
+          };
+        }
+        if (spec.key === "lot") {
+          return {
+            ...spec,
+            rawValue: (h) => Number.isFinite(toNum(h?.lotSqft)) ? Math.round(h.lotSqft).toLocaleString() : "—",
+            scoreValue: (h) => toNum(h?.lot),
+            sortValue: (h) => toNum(h?.lot),
+          };
+        }
+        if (spec.key === "kitchen") {
+          return {
+            ...spec,
+            rawValue: (h) => h?.kitchenSize ?? "—",
+            scoreValue: (h) => toNum(h?.kitchen),
+            sortValue: (h) => toNum(h?.kitchen),
+          };
+        }
+        if (spec.key === "yard") {
+          return {
+            ...spec,
+            rawValue: (h) => h?.yardCondition ?? "—",
+            scoreValue: (h) => toNum(h?.yard),
+            sortValue: (h) => toNum(h?.yard),
+          };
+        }
+        if (spec.key === "ageScore") {
+          return {
+            ...spec,
+            rawValue: (h) => {
+              const built = toNum(h?.built);
+              if (!Number.isFinite(built)) return "—";
+              const age = Math.max(0, CURRENT_YEAR - built);
+              return `${Math.round(built)} (${age}y)`;
+            },
+            scoreValue: (h) => toNum(h?.ageScore),
+            sortValue: (h) => toNum(h?.ageScore),
+          };
+        }
+        if (spec.key === "masterBed") {
+          return {
+            ...spec,
+            rawValue: (h) => Number.isFinite(toNum(h?.masterBedSqft)) ? `${Math.round(h.masterBedSqft).toLocaleString()} sqft` : "—",
+            scoreValue: (h) => toNum(h?.masterBed),
+            sortValue: (h) => toNum(h?.masterBed),
+          };
+        }
+        return {
+          ...spec,
+          rawValue: (h) => {
+            const a = toNum(h?.safetyAssaultIndex);
+            const b = toNum(h?.safetyBurglaryIndex);
+            const c = toNum(h?.safetyLarcenyTheftIndex);
+            const d = toNum(h?.safetyVehicleTheftIndex);
+            return [a, b, c, d].every((v) => Number.isFinite(v)) ? `A:${a} B:${b} L:${c} V:${d}` : "—";
+          },
+          scoreValue: (h) => toNum(h?.safety),
+          sortValue: (h) => toNum(h?.safety),
+        };
+      });
+    return specs;
+  }, []);
+  const factorSpecByKey = useMemo(
+    () => Object.fromEntries(scoredFactorSpecs.map((spec) => [spec.key, spec])),
+    [scoredFactorSpecs]
+  );
+  const factorPairForHome = (home, factorKey) => {
+    const spec = factorSpecByKey[factorKey];
+    if (!spec || !home) return { raw: "—", score: "—", scoreNum: null };
+    const scoreNum = toNum(spec.scoreValue(home));
+    return {
+      raw: spec.rawValue(home),
+      score: formatFactorScore(scoreNum),
+      scoreNum,
+    };
+  };
   const overviewColumns = [
-    { key: "address", label: "Address", align: "left", minWidth: 240, mobileMinWidth: 210, wrap: true },
-    { key: "totalMo", label: "Monthly $", align: "right", minWidth: 86, mobileMinWidth: 78 },
-    { key: "weightedTotal", label: "Weighted Total", align: "right", minWidth: 92, mobileMinWidth: 84 },
-    { key: "price", label: "Price", align: "right", minWidth: 86, mobileMinWidth: 78 },
-    { key: "sqft", label: "Sqft", align: "right", minWidth: 64, mobileMinWidth: 58 },
-    { key: "masterBedSqft", label: "Master Bed", align: "right", minWidth: 84, mobileMinWidth: 78 },
-    { key: "lotSqft", label: "Lot Sqft", align: "right", minWidth: 78, mobileMinWidth: 70 },
-    { key: "greg", label: "Greg", align: "right", minWidth: 52, mobileMinWidth: 48 },
-    { key: "bre", label: "Bre", align: "right", minWidth: 52, mobileMinWidth: 48 },
-    { key: "kitchenSize", label: "Kitchen", align: "left", minWidth: 78, mobileMinWidth: 72 },
-    { key: "yardCondition", label: "Yard", align: "left", minWidth: 70, mobileMinWidth: 64 },
-    { key: "built", label: "Built", align: "right", minWidth: 60, mobileMinWidth: 56 },
-    { key: "dom", label: "DOM", align: "right", minWidth: 52, mobileMinWidth: 48 },
-    { key: "hoa", label: "HOA (Mo)", align: "right", minWidth: 82, mobileMinWidth: 76 },
-    { key: "tax", label: "Tax (Yr)", align: "right", minWidth: 82, mobileMinWidth: 76 },
-    ...(SAFETY_SCORING_ENABLED ? [
-      { key: "safetyAssaultIndex", label: "Assault", align: "right", minWidth: 64, mobileMinWidth: 60 },
-      { key: "safetyBurglaryIndex", label: "Burglary", align: "right", minWidth: 70, mobileMinWidth: 64 },
-      { key: "safetyLarcenyTheftIndex", label: "Larceny/Theft", align: "right", minWidth: 88, mobileMinWidth: 80 },
-      { key: "safetyVehicleTheftIndex", label: "Vehicle Theft", align: "right", minWidth: 90, mobileMinWidth: 82 },
-    ] : []),
+    { key: "address", type: "data", label: "Address", align: "left", minWidth: 240, mobileMinWidth: 210, wrap: true },
+    { key: "weightedTotal", type: "data", label: "Weighted", align: "right", minWidth: 84, mobileMinWidth: 78 },
+    ...scoredFactorSpecs.map((spec) => ({ key: spec.key, type: "factor", label: spec.label, align: "left", minWidth: spec.minWidth, mobileMinWidth: spec.mobileMinWidth })),
   ];
   const overviewRankColWidth = isMobile ? 36 : 42;
   const overviewTableMinWidth = useMemo(() => (
@@ -2303,45 +2380,12 @@ export default function App() {
     }
   };
   const getOverviewSortValue = (home, key) => {
+    if (factorSpecByKey[key]) return factorSpecByKey[key].sortValue(home);
     switch (key) {
       case "address":
         return overviewAddress(home).toLowerCase();
-      case "totalMo":
-        return home.totalMo;
       case "weightedTotal":
         return home.weightedTotal;
-      case "price":
-        return home.price;
-      case "sqft":
-        return home.sqft;
-      case "masterBedSqft":
-        return home.masterBedSqft;
-      case "lotSqft":
-        return home.lotSqft;
-      case "greg":
-        return home.greg;
-      case "bre":
-        return home.bre;
-      case "kitchenSize":
-        return home.kitchenSize;
-      case "yardCondition":
-        return home.yardCondition;
-      case "built":
-        return home.built;
-      case "dom":
-        return home.dom;
-      case "hoa":
-        return Number.isFinite(home.hoa) ? home.hoa / 12 : null;
-      case "tax":
-        return home.tax;
-      case "safetyAssaultIndex":
-        return home.safetyAssaultIndex;
-      case "safetyBurglaryIndex":
-        return home.safetyBurglaryIndex;
-      case "safetyLarcenyTheftIndex":
-        return home.safetyLarcenyTheftIndex;
-      case "safetyVehicleTheftIndex":
-        return home.safetyVehicleTheftIndex;
       default:
         return null;
     }
@@ -2392,52 +2436,12 @@ export default function App() {
     if (overviewSortKey !== key || !overviewSortDir) return "";
     return overviewSortDir === "desc" ? " ▼" : " ▲";
   };
-  const renderOverviewMetric = (home, key) => {
-    switch (key) {
-      case "totalMo":
-        return fmtCompactUsd(home.totalMo);
-      case "weightedTotal":
-        return home.weightedTotal?.toFixed(2) ?? "—";
-      case "price":
-        return fmtCompactUsd(home.price);
-      case "sqft":
-        return Number.isFinite(home.sqft) ? home.sqft.toLocaleString() : "—";
-      case "masterBedSqft":
-        return Number.isFinite(home.masterBedSqft) ? home.masterBedSqft.toLocaleString() : "—";
-      case "lotSqft":
-        return Number.isFinite(home.lotSqft) ? home.lotSqft.toLocaleString() : "—";
-      case "greg":
-        return Number.isFinite(home.greg) ? home.greg.toFixed(1) : "—";
-      case "bre":
-        return Number.isFinite(home.bre) ? home.bre.toFixed(1) : "—";
-      case "kitchenSize":
-        return home.kitchenSize ?? "—";
-      case "yardCondition":
-        return home.yardCondition ?? "—";
-      case "built":
-        return Number.isFinite(home.built) ? String(home.built) : "—";
-      case "dom":
-        return Number.isFinite(home.dom) ? String(home.dom) : "—";
-      case "hoa":
-        return Number.isFinite(home.hoa) ? fmtCompactUsd(home.hoa / 12) : "—";
-      case "tax":
-        return Number.isFinite(home.tax) ? fmtCompactUsd(home.tax) : "—";
-      case "safetyAssaultIndex":
-        return Number.isFinite(home.safetyAssaultIndex) ? String(home.safetyAssaultIndex) : "—";
-      case "safetyBurglaryIndex":
-        return Number.isFinite(home.safetyBurglaryIndex) ? String(home.safetyBurglaryIndex) : "—";
-      case "safetyLarcenyTheftIndex":
-        return Number.isFinite(home.safetyLarcenyTheftIndex) ? String(home.safetyLarcenyTheftIndex) : "—";
-      case "safetyVehicleTheftIndex":
-        return Number.isFinite(home.safetyVehicleTheftIndex) ? String(home.safetyVehicleTheftIndex) : "—";
-      default:
-        return "—";
-    }
-  };
-
   const a = pick(compareA, homes[0] ?? null);
   const b = pick(compareB, homes[Math.min(1, Math.max(homes.length - 1, 0))] ?? null);
   const c = pick(compareC, null);
+  const compareHomes = [a, b, c];
+  const compareHeaderColors = ["#818cf8", "#fbbf24", "#86efac"];
+  const compareFactorRows = scoredFactorSpecs.map((spec) => ({ key: spec.key, label: spec.label }));
   const rawRadarData = RADAR.map(([key, label]) => ({
     subject: label,
     a: a?.[key] ?? null,
@@ -2450,13 +2454,6 @@ export default function App() {
     b: b?.contributions?.[key] ?? null,
     c: c?.contributions?.[key] ?? null,
   }));
-  const renderVal = (key, v) => {
-    if (!SAFETY_SCORING_ENABLED && key === "safety") return "N/A";
-    if (v == null) return "—";
-    if (key === "totalMo") return fmt(Math.round(v));
-    if (key === "masterBedSqft") return Number.isFinite(v) ? Math.round(v).toLocaleString() : "—";
-    return typeof v === "number" ? v.toFixed(key === "weightedTotal" ? 2 : 1) : v;
-  };
   const onWeightSliderChange = (key, percentValue) => {
     const parsedPercent = parseMaybeNumber(percentValue);
     const raw = quantizeRawWeight((parsedPercent ?? 0) / 100);
@@ -2566,7 +2563,31 @@ export default function App() {
                               </td>
                             );
                           }
-                          const value = renderOverviewMetric(h, col.key);
+                          if (col.type === "factor") {
+                            const pair = factorPairForHome(h, col.key);
+                            return (
+                              <td
+                                key={col.key}
+                                style={{
+                                  padding: isMobile ? "7px 4px" : "9px 5px",
+                                  textAlign: col.align,
+                                  borderTop: `1px solid ${rowBorder}`,
+                                  background: rowBg,
+                                  whiteSpace: "nowrap",
+                                  fontSize: isMobile ? 10 : 11,
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  verticalAlign: "top",
+                                }}
+                              >
+                                <div style={{ color: "#e2e8f0", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis" }}>{pair.raw}</div>
+                                <div style={{ marginTop: 1, color: Number.isFinite(pair.scoreNum) ? gradeColor(pair.scoreNum) : "#64748b", fontWeight: 700, fontSize: isMobile ? 9 : 10 }}>
+                                  Score: {pair.score}
+                                </div>
+                              </td>
+                            );
+                          }
+                          const value = col.key === "weightedTotal" ? (h.weightedTotal?.toFixed(2) ?? "—") : "—";
                           const isWeightedTotal = col.key === "weightedTotal";
                           return (
                             <td
@@ -2831,7 +2852,65 @@ export default function App() {
               </ResponsiveContainer>
             </div>
           </div>
-          <div style={{ background: "#1e293b", borderRadius: 12, padding: 16, overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}><thead><tr><th style={{ textAlign: "left", padding: "8px 6px", color: "#94a3b8" }}>Metric</th><th style={{ textAlign: "right", padding: "8px 6px", color: "#818cf8" }}>{a?.short ?? "Blank"}</th><th style={{ textAlign: "right", padding: "8px 6px", color: "#fbbf24" }}>{b?.short ?? "Blank"}</th><th style={{ textAlign: "right", padding: "8px 6px", color: "#86efac" }}>{c?.short ?? "Blank"}</th></tr></thead><tbody>{COMPARE_ROWS.map(([label, key]) => { const vals = [a?.[key], b?.[key], c?.[key]]; const nums = vals.filter((v) => typeof v === "number"); const lower = ["totalMo", "pricePerSqft"].includes(key); const best = nums.length ? (lower ? Math.min(...nums) : Math.max(...nums)) : null; return <tr key={label}><td style={{ padding: "8px 6px", color: "#cbd5e1", borderTop: "1px solid #334155" }}>{label}</td>{vals.map((v, i) => { const active = v != null && best != null && v === best; const color = i === 0 ? "#818cf8" : i === 1 ? "#fbbf24" : "#86efac"; return <td key={i} style={{ padding: "8px 6px", textAlign: "right", borderTop: "1px solid #334155", color: active ? color : "#f1f5f9", fontWeight: active ? 700 : 500 }}>{renderVal(key, v)}</td>; })}</tr>; })}</tbody></table></div>
+          <div style={{ background: "#1e293b", borderRadius: 12, padding: 16, overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: "left", padding: "8px 6px", color: "#94a3b8" }}>Metric</th>
+                  <th style={{ textAlign: "right", padding: "8px 6px", color: compareHeaderColors[0] }}>{a?.short ?? "Blank"}</th>
+                  <th style={{ textAlign: "right", padding: "8px 6px", color: compareHeaderColors[1] }}>{b?.short ?? "Blank"}</th>
+                  <th style={{ textAlign: "right", padding: "8px 6px", color: compareHeaderColors[2] }}>{c?.short ?? "Blank"}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={{ padding: "8px 6px", color: "#cbd5e1", borderTop: "1px solid #334155", fontWeight: 700 }}>Weighted Score</td>
+                  {compareHomes.map((home, i) => {
+                    const value = toNum(home?.weightedTotal);
+                    const nums = compareHomes.map((h) => toNum(h?.weightedTotal)).filter((n) => Number.isFinite(n));
+                    const best = nums.length ? Math.max(...nums) : null;
+                    const isBest = Number.isFinite(value) && Number.isFinite(best) && value === best;
+                    return (
+                      <td
+                        key={`weighted-${i}`}
+                        style={{
+                          padding: "8px 6px",
+                          textAlign: "right",
+                          borderTop: "1px solid #334155",
+                          color: isBest ? compareHeaderColors[i] : "#f1f5f9",
+                          fontWeight: isBest ? 800 : 700,
+                        }}
+                      >
+                        {Number.isFinite(value) ? value.toFixed(2) : "—"}
+                      </td>
+                    );
+                  })}
+                </tr>
+                {compareFactorRows.map((row) => {
+                  const pairs = compareHomes.map((home) => (home ? factorPairForHome(home, row.key) : null));
+                  const nums = pairs.map((pair) => pair?.scoreNum).filter((n) => Number.isFinite(n));
+                  const best = nums.length ? Math.max(...nums) : null;
+                  return (
+                    <tr key={row.key}>
+                      <td style={{ padding: "8px 6px", color: "#cbd5e1", borderTop: "1px solid #334155" }}>{row.label}</td>
+                      {pairs.map((pair, i) => {
+                        const scoreNum = pair?.scoreNum;
+                        const isBest = Number.isFinite(scoreNum) && Number.isFinite(best) && scoreNum === best;
+                        return (
+                          <td key={`${row.key}-${i}`} style={{ padding: "8px 6px", textAlign: "right", borderTop: "1px solid #334155" }}>
+                            <div style={{ color: "#e2e8f0", fontWeight: 600 }}>{pair?.raw ?? "—"}</div>
+                            <div style={{ color: isBest ? compareHeaderColors[i] : "#94a3b8", fontWeight: isBest ? 800 : 700, fontSize: 11 }}>
+                              Score: {pair?.score ?? "—"}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>}
 
         {tab === "cards" && (
@@ -2859,7 +2938,25 @@ export default function App() {
                     </div>
                   )}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>{CARD_FIELDS(h).map(([label, value]) => <CardMetric key={label} label={label} value={value} />)}</div>
-                  <div style={{ marginBottom: 10 }}>{BAR_ROWS.map(([label, key]) => <ScoreBar key={label} label={label} value={h[key]} />)}</div>
+                  <div style={{ marginBottom: 10, borderTop: "1px solid #334155", borderBottom: "1px solid #334155", padding: "8px 0" }}>
+                    <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase", marginBottom: 8 }}>Scored Factors (Raw + Score)</div>
+                    <div style={{ display: "grid", gap: 6 }}>
+                      {scoredFactorSpecs.map((spec) => {
+                        const pair = factorPairForHome(h, spec.key);
+                        return (
+                          <div key={`${h.homeId}-${spec.key}`} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontSize: 11, color: "#cbd5e1", fontWeight: 700 }}>{spec.label}</div>
+                              <div style={{ fontSize: 11, color: "#94a3b8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pair.raw}</div>
+                            </div>
+                            <div style={{ fontSize: 12, color: Number.isFinite(pair.scoreNum) ? gradeColor(pair.scoreNum) : "#64748b", fontWeight: 800, whiteSpace: "nowrap" }}>
+                              {pair.score}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingTop: 8, borderTop: "1px solid #334155" }}>
                     {missingFields.map((fieldKey) => (
                       <span key={`missing-${fieldKey}`} style={{ fontSize: 11, color: "#fbbf24", background: "#3f2a12", border: "1px solid #f59e0b55", borderRadius: 999, padding: "3px 8px" }}>
