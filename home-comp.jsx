@@ -708,12 +708,12 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "dom": 58
   },
   "imported-mls-9798133": {
-    "photo": "https://m1.cbhomes.com/p/723/9798133/E633205A44524b2/pdl23tp.webp",
+    "photo": "https://photos.zillowstatic.com/fp/1d62f5d430620693791ce58ae53e9561-cc_ft_576.webp",
     "safetyAssaultIndex": 29,
     "safetyBurglaryIndex": 43,
     "safetyLarcenyTheftIndex": 73,
     "safetyVehicleTheftIndex": 65,
-    "greg": 7.5,
+    "greg": 8,
     "bre": 7,
     "lotSqft": 10005,
     "masterBedSqft": 270,
@@ -782,7 +782,7 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "safetyBurglaryIndex": 93,
     "safetyLarcenyTheftIndex": 6,
     "safetyVehicleTheftIndex": 27,
-    "greg": 7,
+    "greg": 7.5,
     "bre": 8,
     "lotSqft": 26400,
     "kitchenSize": "Gourmet",
@@ -827,14 +827,14 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "dom": 31
   },
   "imported-mls-8141032": {
-    "photo": "https://photos.zillowstatic.com/fp/57f78ba0a74446b85d75f2e200d0ab02-cc_ft_768.webp",
+    "photo": "https://photos.zillowstatic.com/fp/93c464e5ef4a1e9039187e85b830ce0c-cc_ft_1152.webp",
     "safetyAssaultIndex": 39,
     "safetyBurglaryIndex": 93,
     "safetyLarcenyTheftIndex": 6,
     "safetyVehicleTheftIndex": 27,
     "lotSqft": 7726,
     "bre": 7,
-    "greg": 6,
+    "greg": 7,
     "kitchenSize": "Gourmet",
     "yardCondition": "Fair",
     "hoa": 2820,
@@ -977,7 +977,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
   "base-8": {
     "bre": 6.5,
     "dom": 11,
-    "masterBedSqft": 198
+    "masterBedSqft": 198,
+    "photo": "https://photos.zillowstatic.com/fp/052c6f4d6f652b0358605cd46c9aca64-cc_ft_1152.webp"
   },
   "imported-mls-9271246": {
     "lotSqft": 6949,
@@ -1027,7 +1028,8 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "kitchenSize": "Large",
     "hoa": 2760,
     "dom": 3,
-    "masterBedSqft": 182
+    "masterBedSqft": 182,
+    "photo": "https://photos.zillowstatic.com/fp/74e460311931dbdf962c39b5cdc0d1da-cc_ft_1152.webp"
   },
   "imported-addr-11310-scenic-brush-dr-peyton-co-80831": {
     "bre": 7,
