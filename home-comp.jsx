@@ -27,6 +27,9 @@ const DEFAULT_TAX_RATE = 0.0047;
 const SAFETY_SCORING_ENABLED = false;
 const SAFETY_INDEX_MAX = 200;
 const PLACEHOLDER_TAGS_ENABLED = false;
+const IMPACT_AUDIT_THRESHOLD = 3.0;
+const IMPACT_STRETCH_MIN_SCORE = 20;
+const IMPACT_STRETCH_MAX_SCORE = 100;
 const EMPTY = "__none__";
 const SHOWHORSE_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJYAlgDASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAAAAECAwQFBgf/xAA8EAACAQMBBQgDBwQDAAAAAAAAAQIDEQQSITEFQVEGEyJhcYGRMqGxI0JSYrHB0fAUI+HxM1OS/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAhEQEBAAICAgIDAQAAAAAAAAAAAQIRAyESMQQTQVFhIv/aAAwDAQACEQMRAD8A9vREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAERED5zb7V4j0+I/8Aj2+uU1l6Wl9W9Y+r2g9s3F7us6Qe6r0PtL8n0+8vL5q3r7f9v6W1pxp0m2v3F7gL8vwv3v28j+z7r9j9pqj9lV7q7n8M5g3lbH2H6V7fWf6uYv2fW3i8+71MZ6Yw6p3i3n4ebVtZxcm9m2n4Jq9X3o/ZoX6a9v2L5b0Vv7n6e9r8g4tSx6H6t3Lr7e2g7n2l1nCwz3Sx3+9Z9Tz6dTg+2J+R6f1X4O4sYt8mQH4i3m4h8U1dVdV3+R9n2b1V9Vx3Y2m7eV3Q1uV7t2n3nqR3K8a+1b4u1u3V6v1b2r4V3d7M2m3F8R4r9j3Y+K1uJ7cQ2X3t7P6rj9Xf3ZVw2m+R3g0QERAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQHk9vtXiPT4j/AONb65TWXpaX1b1j6vaD2zcXu6zpB7qvQ+0vyfT7y8vmrevt/2/pbWnGnSba/cXuAvy/C/e/byP7Puv2P2mqP2VXuru fwzmDeVsfYfpXt9Z/q5i/Z9beLz7vUxn pjDqneLefh5tW1nFyb2bafgmr1fej9mhfpr2/YvlvRW/ufp72vyDi1LHo fq3cuvt7aDufaXWcLDPdLHf71n1PPp1OD7Yn5Hp/Vfg7ixi3yZAfiLebiHxTV1V1Xf5H2fZvVX1XHdjabt5XdDW5Xu3afeepHcrxr7Vvi7W7dXq/VvavhXd3szabcXxHiv2Pdj4rW4ntxDZfe3s/quP1d/dlX Dab5HeDRAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQERH//Z";
 const CANDELABRA_PHOTO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJiA4ADASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAAAAECAwQFBgf/xAA8EAACAQMBBQgDBwQDAAAAAAAAAQIDEQQSITEFQVEGEyJhcYGRMqGxI0JSYrHB0fAUI+HxM1OS/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAhEQEBAAICAgIDAQAAAAAAAAAAAQIRAyESMQQTQVFhIv/aAAwDAQACEQMRAD8A9vREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAERED5zb7V4j0+I/8Aj2+uU1l6Wl9W9Y+r2g9s3F7us6Qe6r0PtL8n0+8vL5q3r7f9v6W1pxp0m2v3F7gL8vwv3v28j+z7r9j9pqj9lV7q7n8M5g3lbH2H6V7fWf6uYv2fW3i8+71MZ6Yw6p3i3n4ebVtZxcm9m2n4Jq9X3o/ZoX6a9v2L5b0Vv7n6e9r8g4tSx6H6t3Lr7e2g7n2l1nCwz3Sx3+9Z9Tz6dTg+2J+R6f1X4O4sYt8mQH4i3m4h8U1dVdV3+R9n2b1V9Vx3Y2m7eV3Q1uV7t2n3nqR3K8a+1b4u1u3V6v1b2r4V3d7M2m3F8R4r9j3Y+K1uJ7cQ2X3t7P6rj9Xf3ZVw2m+R3g0QERAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQHk9vtXiPT4j/AONb65TWXpaX1b1j6vaD2zcXu6zpB7qvQ+0vyfT7y8vmrevt/2/pbWnGnSba/cXuAvy/C/e/byP7Puv2P2mqP2VXuru fwzmDeVsfYfpXt9Z/q5i/Z9beLz7vUxn pjDqneLefh5tW1nFyb2bafgmr1fej9mhfpr2/YvlvRW/ufp72vyDi1LHo fq3cuvt7aDufaXWcLDPdLHf71n1PPp1OD7Yn5Hp/Vfg7ixi3yZAfiLebiHxTV1V1Xf5H2fZvVX1XHdjabt5XdDW5Xu3afeepHcrxr7Vvi7W7dXq/VvavhXd3szabcXxHiv2Pdj4rW4ntxDZfe3s/quP1d/dlX Dab5HeDRAREQERAREQERAREQERAREQERAREQERAREQERAREQERAREQERH//Z";
@@ -44,6 +47,7 @@ const WEIGHT_LABELS = {
   ageScore: "Home Age",
   masterBed: "Master Suite",
 };
+const IMPACT_AUDIT_FACTOR_KEYS = ["rating", "monthlyPayment", "sizeValue", "lot", "kitchen", "yard", "ageScore", "masterBed", "safety"];
 const DEFAULT_RAW_WEIGHT_POINTS = { rating: 0.22, monthlyPayment: 0.20, safety: 0.14, sizeValue: 0.20, lot: 0.09, kitchen: 0.05, yard: 0.07, ageScore: 0.08, masterBed: 0.05 };
 const MIN_RAW_WEIGHT = 0;
 const MAX_RAW_WEIGHT = 0.4;
@@ -1609,6 +1613,24 @@ const calc = (h, opts = {}) => {
   const pricePerSqft = Number.isFinite(h.price) && Number.isFinite(h.sqft) && h.sqft > 0 ? h.price / h.sqft : null;
   return { ...h, masterBedSqft, ...vals, piMo, hoaMo, taxMo, totalMo, pricePerSqft, contributions, weightedTotal, grade: gradeLabel(weightedTotal) };
 };
+const applyImpactStretch = (home, stretchByKey, weights) => {
+  if (!home || !stretchByKey || !Object.keys(stretchByKey).length) return home;
+  const next = { ...home };
+  for (const [key, range] of Object.entries(stretchByKey)) {
+    const raw = toNum(home[key]);
+    const min = toNum(range?.min);
+    const max = toNum(range?.max);
+    if (!Number.isFinite(raw) || !Number.isFinite(min) || !Number.isFinite(max) || max <= min) continue;
+    const t = Math.max(0, Math.min(1, (raw - min) / (max - min)));
+    const stretched = IMPACT_STRETCH_MIN_SCORE + t * (IMPACT_STRETCH_MAX_SCORE - IMPACT_STRETCH_MIN_SCORE);
+    next[key] = +stretched.toFixed(1);
+  }
+  const contributions = Object.fromEntries(
+    Object.entries(weights).map(([k, w]) => [k, +(((toNum(next[k]) ?? 0) * w).toFixed(2))])
+  );
+  const weightedTotal = +Object.values(contributions).reduce((a, b) => a + b, 0).toFixed(2);
+  return { ...next, contributions, weightedTotal, grade: gradeLabel(weightedTotal) };
+};
 
 function CardMetric({ label, value }) {
   return <div style={{ background: "#0f172a", borderRadius: 10, padding: "8px 10px" }}><div style={{ fontSize: 10, color: "#64748b", textTransform: "uppercase" }}>{label}</div><div style={{ fontSize: 13, color: "#f1f5f9", fontWeight: 700 }}>{value}</div></div>;
@@ -1911,9 +1933,59 @@ export default function App() {
     const avg = vals.reduce((sum, v) => sum + v, 0) / vals.length;
     return Math.round(avg);
   }, [preparedHomes]);
-  const allHomes = useMemo(
-    () => preparedHomes.map((h) => calc(h, { scoreContexts, masterBedSqftFallback, effectiveWeights })).sort((a, b) => b.weightedTotal - a.weightedTotal),
+  const firstPassAllHomes = useMemo(
+    () => preparedHomes.map((h) => calc(h, { scoreContexts, masterBedSqftFallback, effectiveWeights })),
     [preparedHomes, scoreContexts, masterBedSqftFallback, effectiveWeights]
+  );
+  const firstPassVisibleHomes = useMemo(
+    () => firstPassAllHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status)),
+    [firstPassAllHomes]
+  );
+  const impactScopeHomes = useMemo(
+    () => (firstPassVisibleHomes.length ? firstPassVisibleHomes : firstPassAllHomes),
+    [firstPassVisibleHomes, firstPassAllHomes]
+  );
+  const impactAudit = useMemo(() => {
+    const factorKeys = IMPACT_AUDIT_FACTOR_KEYS.filter((key) => key !== "safety" || SAFETY_SCORING_ENABLED);
+    const rows = factorKeys.map((key) => {
+      const vals = impactScopeHomes.map((h) => toNum(h?.[key])).filter((v) => Number.isFinite(v));
+      const min = vals.length ? Math.min(...vals) : null;
+      const max = vals.length ? Math.max(...vals) : null;
+      const spread = Number.isFinite(min) && Number.isFinite(max) ? +(max - min).toFixed(1) : 0;
+      const effectiveWeight = +(toNum(effectiveWeights?.[key]) ?? 0);
+      const weightedSpreadBefore = +(spread * effectiveWeight).toFixed(2);
+      const noVariation = spread <= 0;
+      const weak = !noVariation && weightedSpreadBefore < IMPACT_AUDIT_THRESHOLD;
+      const weightedSpreadAfter = weak
+        ? +(((IMPACT_STRETCH_MAX_SCORE - IMPACT_STRETCH_MIN_SCORE) * effectiveWeight).toFixed(2))
+        : weightedSpreadBefore;
+      const status = noVariation ? "No Variation" : weak ? "Weak" : "OK";
+      return {
+        key,
+        label: WEIGHT_LABELS[key] ?? key,
+        effectiveWeight,
+        min,
+        max,
+        spread,
+        weightedSpreadBefore,
+        weightedSpreadAfter,
+        noVariation,
+        weak,
+        status,
+      };
+    });
+    const stretchByKey = Object.fromEntries(
+      rows
+        .filter((row) => row.weak && Number.isFinite(row.min) && Number.isFinite(row.max) && row.max > row.min)
+        .map((row) => [row.key, { min: row.min, max: row.max }])
+    );
+    return { rows, stretchByKey };
+  }, [impactScopeHomes, effectiveWeights]);
+  const allHomes = useMemo(
+    () => firstPassAllHomes
+      .map((h) => applyImpactStretch(h, impactAudit.stretchByKey, effectiveWeights))
+      .sort((a, b) => b.weightedTotal - a.weightedTotal),
+    [firstPassAllHomes, impactAudit.stretchByKey, effectiveWeights]
   );
   const homes = useMemo(() => allHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status)), [allHomes]);
   const dataEntryVisibleHomes = useMemo(
@@ -2399,6 +2471,11 @@ export default function App() {
   const weightsSubtitle = SAFETY_SCORING_ENABLED
     ? "Linked sliders: moving one weight auto-rebalances all other active weights proportionally. Effective weights are normalized live."
     : "Linked sliders: moving one weight auto-rebalances the visible weights proportionally. Safety is disabled and excluded.";
+  const auditStatusStyle = (status) => {
+    if (status === "OK") return { color: "#86efac", border: "1px solid #14532d", background: "#052e16" };
+    if (status === "Weak") return { color: "#fbbf24", border: "1px solid #7c2d12", background: "#3f2a12" };
+    return { color: "#cbd5e1", border: "1px solid #334155", background: "#0f172a" };
+  };
   const selectStyle = { width: "100%", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "6px 8px", fontSize: 13 };
 
   return (
@@ -2834,6 +2911,47 @@ export default function App() {
                   </div>
                 );
               })}
+            </div>
+            <div style={{ marginTop: 14, borderTop: "1px solid #334155", paddingTop: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", marginBottom: 4 }}>Impact Audit</div>
+              <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 8 }}>
+                Weak factors are those with weighted spread below {IMPACT_AUDIT_THRESHOLD.toFixed(1)} points across visible homes. Weak factors with variation are auto-stretched to a {IMPACT_STRETCH_MIN_SCORE}-{IMPACT_STRETCH_MAX_SCORE} score band.
+              </div>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 760 }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: "left", padding: "7px 6px", color: "#94a3b8" }}>Factor</th>
+                      <th style={{ textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Eff Wt</th>
+                      <th style={{ textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Score Min</th>
+                      <th style={{ textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Score Max</th>
+                      <th style={{ textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Spread</th>
+                      <th style={{ textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Weighted (Before)</th>
+                      <th style={{ textAlign: "right", padding: "7px 6px", color: "#94a3b8" }}>Weighted (After)</th>
+                      <th style={{ textAlign: "left", padding: "7px 6px", color: "#94a3b8" }}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {impactAudit.rows.map((row) => {
+                      const badge = auditStatusStyle(row.status);
+                      return (
+                        <tr key={row.key}>
+                          <td style={{ padding: "7px 6px", color: "#e2e8f0", borderTop: "1px solid #334155", fontWeight: 600 }}>{row.label}</td>
+                          <td style={{ padding: "7px 6px", color: "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{(row.effectiveWeight * 100).toFixed(1)}%</td>
+                          <td style={{ padding: "7px 6px", color: "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{Number.isFinite(row.min) ? row.min.toFixed(1) : "—"}</td>
+                          <td style={{ padding: "7px 6px", color: "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{Number.isFinite(row.max) ? row.max.toFixed(1) : "—"}</td>
+                          <td style={{ padding: "7px 6px", color: "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{row.spread.toFixed(1)}</td>
+                          <td style={{ padding: "7px 6px", color: "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{row.weightedSpreadBefore.toFixed(2)}</td>
+                          <td style={{ padding: "7px 6px", color: row.weightedSpreadAfter > row.weightedSpreadBefore ? "#86efac" : "#cbd5e1", borderTop: "1px solid #334155", textAlign: "right" }}>{row.weightedSpreadAfter.toFixed(2)}</td>
+                          <td style={{ padding: "7px 6px", borderTop: "1px solid #334155" }}>
+                            <span style={{ ...badge, borderRadius: 999, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>{row.status}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
