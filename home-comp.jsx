@@ -708,7 +708,7 @@ const APPLIED_UPDATES_BY_HOME_ID = {
     "dom": 58
   },
   "imported-mls-9798133": {
-    "photo": "https://photos.zillowstatic.com/fp/1d62f5d430620693791ce58ae53e9561-cc_ft_576.webp",
+    "photo": "https://m1.cbhomes.com/p/723/9798133/E633205A44524b2/pdl23tp.webp",
     "safetyAssaultIndex": 29,
     "safetyBurglaryIndex": 43,
     "safetyLarcenyTheftIndex": 73,
@@ -1810,7 +1810,7 @@ function ScoreBar({ value }) {
 export default function App() {
   const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
   const LOCAL_IMPORT_STORAGE_KEY = "homeComp.importRaw.v2";
-  const LOCAL_WEIGHT_STORAGE_KEY = "homeComp.weights.v1";
+  const LOCAL_WEIGHT_STORAGE_KEY = "homeComp.weights.v2";
   const [viewportWidth, setViewportWidth] = useState(() => (typeof window === "undefined" ? 1280 : window.innerWidth));
   const [failedImageKeys, setFailedImageKeys] = useState(() => new Set());
   const isMobile = viewportWidth <= 640;
