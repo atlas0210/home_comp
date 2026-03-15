@@ -32,6 +32,8 @@ const IMPACT_STRETCH_MIN_SCORE = 20;
 const IMPACT_STRETCH_MAX_SCORE = 100;
 const EMPTY = "__none__";
 const DOM_ROLL_DATE_KEY = "homeComp.domRollDate.v1";
+const SHARE_STATE_HASH_KEY = "state";
+const SHARE_STATE_SCHEMA_VERSION = 1;
 
 const WEIGHT_KEYS = ["rating", "monthlyPayment", "safety", "sizeValue", "lot", "kitchen", "yard", "ageScore", "masterBed"];
 const WEIGHT_LABELS = {
@@ -1199,6 +1201,67 @@ const dayDiff = (fromKey, toKey) => {
   const toUtc = Date.UTC(to.getFullYear(), to.getMonth(), to.getDate());
   return Math.max(0, Math.floor((toUtc - fromUtc) / 86400000));
 };
+const base64UrlEncodeUtf8 = (value) => {
+  if (typeof btoa !== "function") return null;
+  const utf8 = encodeURIComponent(String(value)).replace(/%([0-9A-F]{2})/g, (_, hex) => String.fromCharCode(Number.parseInt(hex, 16)));
+  return btoa(utf8).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+};
+const base64UrlDecodeUtf8 = (value) => {
+  if (typeof atob !== "function") return null;
+  const normalized = String(value ?? "").replace(/-/g, "+").replace(/_/g, "/");
+  const padding = "=".repeat((4 - (normalized.length % 4 || 4)) % 4);
+  const binary = atob(normalized + padding);
+  const encoded = Array.from(binary, (char) => `%${char.charCodeAt(0).toString(16).padStart(2, "0")}`).join("");
+  return decodeURIComponent(encoded);
+};
+const encodeShareSnapshot = (payload) => {
+  try {
+    return base64UrlEncodeUtf8(JSON.stringify(payload));
+  } catch {
+    return null;
+  }
+};
+const decodeShareSnapshot = (hashValue) => {
+  const rawHash = String(hashValue ?? "").replace(/^#/, "").trim();
+  if (!rawHash) return null;
+  try {
+    const params = new URLSearchParams(rawHash);
+    const encoded = params.get(SHARE_STATE_HASH_KEY);
+    if (!encoded) return null;
+    const decoded = base64UrlDecodeUtf8(encoded);
+    if (!decoded) return null;
+    const parsed = JSON.parse(decoded);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+const copyTextToClipboard = async (value) => {
+  const text = String(value ?? "");
+  if (!text) return false;
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return true;
+  }
+  if (typeof document === "undefined") return false;
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "true");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  textarea.style.pointerEvents = "none";
+  document.body.appendChild(textarea);
+  textarea.select();
+  textarea.setSelectionRange(0, text.length);
+  let copied = false;
+  try {
+    copied = Boolean(document.execCommand?.("copy"));
+  } finally {
+    textarea.remove();
+  }
+  return copied;
+};
 const extractZip = (...values) => {
   const combined = values.filter((v) => typeof v === "string" && v.trim()).join(" ");
   if (!combined) return null;
@@ -1208,6 +1271,17 @@ const extractZip = (...values) => {
   return matches.length ? matches[matches.length - 1] : null;
 };
 const pickText = (...vals) => vals.find((v) => typeof v === "string" && v.trim())?.trim() ?? "";
+const resolvePhotoSrc = (photo) => {
+  const raw = pickText(photo);
+  if (!raw) return null;
+  if (/^(?:https?:|data:|blob:)/i.test(raw)) return raw;
+  if (typeof window === "undefined") return raw;
+  try {
+    return new URL(raw, window.location.href).toString();
+  } catch {
+    return raw;
+  }
+};
 const derivedShort = (name, fallbackIndex) => {
   const s = pickText(name);
   if (!s) return `Home ${fallbackIndex + 1}`;
@@ -1797,6 +1871,7 @@ export default function App() {
   const [fieldErrorsByHomeId, setFieldErrorsByHomeId] = useState({});
   const [backupNotice, setBackupNotice] = useState("");
   const restoreBackupInputRef = useRef(null);
+  const snapshotHashAppliedRef = useRef(false);
   const compareSelectionMigratedRef = useRef(false);
   const storageWriteTimersRef = useRef({});
   const pendingStorageWritesRef = useRef({});
@@ -1812,6 +1887,23 @@ export default function App() {
       return sanitizeRawWeights(DEFAULT_RAW_WEIGHT_POINTS);
     }
   });
+  useEffect(() => {
+    if (typeof window === "undefined" || snapshotHashAppliedRef.current) return;
+    snapshotHashAppliedRef.current = true;
+    const snapshot = decodeShareSnapshot(window.location.hash);
+    if (!snapshot) return;
+    const maybeOverrides = snapshot?.overridesByHomeId;
+    if (maybeOverrides && typeof maybeOverrides === "object" && !Array.isArray(maybeOverrides)) {
+      setOverridesByHomeId(mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, maybeOverrides));
+    }
+    if (typeof snapshot?.importRawText === "string") {
+      setImportRawText(mergeImportRawText(IMPORT_UNFORMATTED_DATA, snapshot.importRawText));
+    }
+    if (snapshot?.rawWeightPoints && typeof snapshot.rawWeightPoints === "object" && !Array.isArray(snapshot.rawWeightPoints)) {
+      setRawWeightPoints(sanitizeRawWeights(snapshot.rawWeightPoints));
+    }
+    setBackupNotice("Loaded shared snapshot from link.");
+  }, []);
   const effectiveWeights = useMemo(() => normalizeEffectiveWeights(rawWeightPoints), [rawWeightPoints]);
   const activeWeightKeys = useMemo(
     () => WEIGHT_KEYS.filter((key) => SAFETY_SCORING_ENABLED || key !== "safety"),
@@ -2304,7 +2396,7 @@ export default function App() {
     const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
     const homesMerged = sourceHomes.map((home) => ({ ...home, ...(overridesByHomeId[home.homeId] ?? {}) }));
     const payload = {
-      schemaVersion: 1,
+      schemaVersion: SHARE_STATE_SCHEMA_VERSION,
       exportedAt: now.toISOString(),
       counts: {
         baselineHomes: homesRaw.length,
@@ -2313,6 +2405,7 @@ export default function App() {
       },
       importRawText,
       overridesByHomeId,
+      rawWeightPoints,
       homes: homesMerged,
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -2329,6 +2422,32 @@ export default function App() {
   const triggerRestoreBackup = () => {
     restoreBackupInputRef.current?.click();
   };
+  const copyShareLink = async () => {
+    if (typeof window === "undefined") return;
+    const payload = {
+      schemaVersion: SHARE_STATE_SCHEMA_VERSION,
+      importRawText,
+      overridesByHomeId,
+      rawWeightPoints,
+    };
+    const encoded = encodeShareSnapshot(payload);
+    if (!encoded) {
+      setBackupNotice("Share link failed: could not encode the current app state.");
+      return;
+    }
+    const shareUrl = new URL(window.location.href);
+    shareUrl.hash = `${SHARE_STATE_HASH_KEY}=${encoded}`;
+    if (shareUrl.toString().length > 120000) {
+      setBackupNotice("Share link is too large for a reliable URL. Use Download Backup instead.");
+      return;
+    }
+    try {
+      const copied = await copyTextToClipboard(shareUrl.toString());
+      setBackupNotice(copied ? "Share link copied. Opening it on mobile will load the same photos, imports, and weights." : "Share link created, but automatic clipboard copy was unavailable.");
+    } catch (err) {
+      setBackupNotice(`Share link failed: ${err?.message ?? "clipboard copy was unavailable."}`);
+    }
+  };
   const onRestoreBackupFile = async (e) => {
     const file = e?.target?.files?.[0];
     if (!file) return;
@@ -2343,6 +2462,9 @@ export default function App() {
       setOverridesByHomeId(mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, maybeOverrides));
       if (typeof parsed?.importRawText === "string" && parsed.importRawText.trim()) {
         setImportRawText(mergeImportRawText(IMPORT_UNFORMATTED_DATA, parsed.importRawText));
+      }
+      if (parsed?.rawWeightPoints && typeof parsed.rawWeightPoints === "object" && !Array.isArray(parsed.rawWeightPoints)) {
+        setRawWeightPoints(sanitizeRawWeights(parsed.rawWeightPoints));
       }
       setEditorDraftsByHomeId({});
       setFieldErrorsByHomeId({});
@@ -2811,13 +2933,14 @@ export default function App() {
             />
             <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
               <button onClick={downloadBackup} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Download Backup</button>
+              <button onClick={copyShareLink} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Copy Share Link</button>
               <button onClick={triggerRestoreBackup} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Restore Backup JSON</button>
               <input ref={restoreBackupInputRef} type="file" accept="application/json,.json" style={{ display: "none" }} onChange={onRestoreBackupFile} />
               <button onClick={restoreEmbeddedImports} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Use Embedded Imports</button>
               <button onClick={clearImportText} style={{ ...buttonTextStyle, border: "1px solid #7f1d1d", background: "#3f1d1d", color: "#fecaca", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Clear Imported Data</button>
             </div>
             {backupNotice && (
-              <div style={{ ...TEXT_STYLES.caption, marginBottom: 10, color: backupNotice.startsWith("Restore failed") ? "#fca5a5" : "#86efac" }}>
+              <div style={{ ...TEXT_STYLES.caption, marginBottom: 10, color: /failed/i.test(backupNotice) ? "#fca5a5" : "#86efac" }}>
                 {backupNotice}
               </div>
             )}
@@ -3101,19 +3224,22 @@ export default function App() {
             {homes.map((h, i) => {
               const missingFields = getMissingFields(h);
               const imageKey = getImageKey(h);
-              const showPhoto = h.photo && !failedImageKeys.has(imageKey);
+              const photoSrc = resolvePhotoSrc(h.photo);
+              const showPhoto = photoSrc && !failedImageKeys.has(imageKey);
               const cardFactorPairs = cardFactorPairsByHomeId.get(h.homeId) ?? {};
               return (
                 <div key={h.homeId} style={{ background: "#1e293b", borderRadius: 16, padding: 16, boxShadow: "0 8px 20px rgba(0,0,0,.25)", border: `1px solid ${gradeColor(h.weightedTotal)}33` }}>
                   {showPhoto ? (
                     <div style={IMG_WRAP_STYLE}>
                       <img
-                        src={h.photo}
+                        src={photoSrc}
                         alt={h.name}
                         loading="lazy"
                         decoding="async"
                         width="320"
                         height="180"
+                        sizes="(max-width: 640px) 100vw, 320px"
+                        referrerPolicy="no-referrer"
                         style={{ width: "100%", height: "auto", aspectRatio: "16 / 9", objectFit: "cover", display: "block" }}
                         onError={() => markImageFailed(h)}
                       />
