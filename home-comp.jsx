@@ -1738,7 +1738,18 @@ const scoreSqftLegacy = (s) => interp(s, [{ value: 1200, score: 30 }, { value: 1
 const scoreSqft = (s, ctx) => scoreFromContext(s, ctx, { lowerBetter: false, minScore: 30, maxScore: 100, gamma: 0.88 }) ?? scoreSqftLegacy(s);
 const scoreLotLegacy = (s) => interp(s, [{ value: 3000, score: 45 }, { value: 5000, score: 65 }, { value: 7500, score: 85 }, { value: 10000, score: 100 }]);
 const scoreLot = (s, ctx) => scoreFromContext(s, ctx, { lowerBetter: false, minScore: 30, maxScore: 100, gamma: 0.9 }) ?? scoreLotLegacy(s);
-const scoreMasterBedLegacy = (s) => interp(s, [{ value: 100, score: 20 }, { value: 150, score: 50 }, { value: 200, score: 75 }, { value: 250, score: 90 }, { value: 300, score: 100 }]);
+const scoreMasterBedLegacy = (s) => interp(s, [
+  { value: 100, score: 20 },
+  { value: 120, score: 28 },
+  { value: 140, score: 38 },
+  { value: 160, score: 50 },
+  { value: 180, score: 62 },
+  { value: 200, score: 74 },
+  { value: 220, score: 84 },
+  { value: 240, score: 91 },
+  { value: 260, score: 96 },
+  { value: 300, score: 100 },
+]);
 const scoreMasterBed = (s, ctx) => scoreFromContext(s, ctx, { lowerBetter: false, minScore: 20, maxScore: 100, gamma: 0.9 }) ?? scoreMasterBedLegacy(s);
 const scoreKitchen = (k) => k === "Gourmet" ? 100 : k === "Large" ? 73 : k === "Medium" ? 47 : 20;
 const scoreYard = (y) => y === "Excellent" ? 100 : y === "Good" ? 71 : y === "Fair" ? 43 : 15;
@@ -2172,13 +2183,15 @@ export default function App() {
       // Use full observed range for monthly payments so near-cheapest homes
       // don't all collapse to the same top score.
       monthly: buildRangeContext(scope.map((h) => estimateMonthlyTotal(h)), { minSpread: 120, lowQuantile: 0, highQuantile: 1 }),
-      sqft: buildRangeContext(scope.map((h) => h?.sqft), { minSpread: 200 }),
+      sqft: buildRangeContext(scope.map((h) => h?.sqft), { minSpread: 200, lowQuantile: 0, highQuantile: 1 }),
       lot: buildRangeContext(scope.map((h) => h?.lotSqft), { minSpread: 500 }),
-      masterBed: buildRangeContext(scope.map((h) => h?.masterBedSqft), { minSpread: 50 }),
+      // Use the full observed range so larger primary suites don't bunch up at
+      // the ceiling and smaller ones don't all floor out.
+      masterBed: buildRangeContext(scope.map((h) => h?.masterBedSqft), { minSpread: 35, lowQuantile: 0, highQuantile: 1 }),
       age: buildRangeContext(scope.map((h) => {
         const built = toNum(h?.built);
         return Number.isFinite(built) ? Math.max(0, CURRENT_YEAR - built) : null;
-      }), { minSpread: 3 }),
+      }), { minSpread: 3, lowQuantile: 0, highQuantile: 1 }),
     };
   }, [preparedHomes]);
   const masterBedSqftFallback = useMemo(() => {
