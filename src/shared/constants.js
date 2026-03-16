@@ -1,0 +1,55 @@
+const DP = 80000;
+const MORTGAGE_RATE_ANNUAL = 0.065;
+const MORTGAGE_TERM_MONTHS = 360;
+const PI_FACTOR = (() => {
+  const monthlyRate = MORTGAGE_RATE_ANNUAL / 12;
+  const growth = Math.pow(1 + monthlyRate, MORTGAGE_TERM_MONTHS);
+  return (monthlyRate * growth) / (growth - 1);
+})();
+const MERIDIAN_RANCH_HOA_ANNUAL = 230 * 12;
+const CURRENT_YEAR = new Date().getFullYear();
+const ADDRESS_BLOCK_REGEX = /(?:^|\n)\s*(\d{3,6}\s+[^\n]+?(?:CO|Colorado)\s+\d{5}(?:-\d{4})?)/g;
+const TAX_RATE_BY_ZIP = {
+  "80831": 0.0047,
+  "80908": 0.0047,
+  "80915": 0.0039,
+  "80918": 0.0033,
+  "80920": 0.0041,
+  "80922": 0.0038,
+  "80923": 0.0037,
+  "80924": 0.0059,
+  "80927": 0.0076,
+};
+const DEFAULT_TAX_RATE = 0.0047;
+const SAFETY_SCORING_ENABLED = false;
+const SAFETY_INDEX_MAX = 200;
+const PLACEHOLDER_TAGS_ENABLED = false;
+const IMPACT_AUDIT_THRESHOLD = 3.0;
+const IMPACT_STRETCH_MIN_SCORE = 20;
+const IMPACT_STRETCH_MAX_SCORE = 100;
+const EMPTY = "__none__";
+const DOM_ROLL_DATE_KEY = "homeComp.domRollDate.v1";
+const SHARE_STATE_HASH_KEY = "state";
+const SHARE_STATE_SCHEMA_VERSION = 1;
+
+export {
+  DP,
+  MORTGAGE_RATE_ANNUAL,
+  MORTGAGE_TERM_MONTHS,
+  PI_FACTOR,
+  MERIDIAN_RANCH_HOA_ANNUAL,
+  CURRENT_YEAR,
+  ADDRESS_BLOCK_REGEX,
+  TAX_RATE_BY_ZIP,
+  DEFAULT_TAX_RATE,
+  SAFETY_SCORING_ENABLED,
+  SAFETY_INDEX_MAX,
+  PLACEHOLDER_TAGS_ENABLED,
+  IMPACT_AUDIT_THRESHOLD,
+  IMPACT_STRETCH_MIN_SCORE,
+  IMPACT_STRETCH_MAX_SCORE,
+  EMPTY,
+  DOM_ROLL_DATE_KEY,
+  SHARE_STATE_HASH_KEY,
+  SHARE_STATE_SCHEMA_VERSION,
+};

@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Home Comparison Dashboard</title>
   <style>
     :root {
@@ -29,73 +32,10 @@
   <div id="status">Loading app...</div>
   <div id="root"></div>
 
-  <script src="./vendor/react.development.js"></script>
-  <script src="./vendor/react-dom.development.js"></script>
-  <script src="./vendor/prop-types.min.js"></script>
-  <script src="./vendor/recharts.min.js"></script>
-  <script src="./vendor/babel.min.js"></script>
-  <script>
-    (async function renderApp() {
-      const status = document.getElementById("status");
-      const rootEl = document.getElementById("root");
-      let runtimeFailed = false;
-      const showRuntimeError = (msg) => {
-        runtimeFailed = true;
-        status.textContent = "Runtime error: " + msg;
-        status.style.display = "block";
-      };
-
-      window.addEventListener("error", (event) => {
-        if (event && event.error) showRuntimeError(event.error.message || String(event.error));
-      });
-      window.addEventListener("unhandledrejection", (event) => {
-        const reason = event && event.reason;
-        showRuntimeError(reason && reason.message ? reason.message : String(reason));
-      });
-
-      try {
-        if (!window.React || !window.ReactDOM || !window.PropTypes || !window.Babel || !window.Recharts) {
-          const missing = [
-            !window.React && "React",
-            !window.ReactDOM && "ReactDOM",
-            !window.PropTypes && "PropTypes",
-            !window.Babel && "Babel",
-            !window.Recharts && "Recharts"
-          ].filter(Boolean).join(", ");
-          throw new Error("Dependency scripts failed to load: " + missing);
-        }
-
-        const response = await fetch("./home-comp.jsx", { cache: "no-store" });
-        if (!response.ok) {
-          throw new Error("Could not read home-comp.jsx (" + response.status + ")");
-        }
-
-        const src = await response.text();
-        const withoutImports = src.replace(/^\s*import[^\n]*\n/gm, "");
-        const appFunction = withoutImports.replace(
-          /export\s+default\s+function\s+App\s*\(/,
-          "function App("
-        );
-
-        const prelude = [
-          "const { useCallback, useEffect, useMemo, useRef, useState } = React;",
-          "const { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, RadarChart, Radar, PolarGrid, PolarAngleAxis, Legend, Cell } = Recharts;"
-        ].join("\n");
-
-        const transformed = Babel.transform(
-          prelude + "\n" + appFunction + "\nwindow.__HomeCompApp = App;",
-          { presets: ["react"] }
-        ).code;
-
-        new Function(transformed)();
-        ReactDOM.createRoot(rootEl).render(React.createElement(window.__HomeCompApp));
-        if (!runtimeFailed) status.textContent = "App loaded.";
-      } catch (error) {
-        console.error(error);
-        status.textContent =
-          "Failed to load app: " + (error && error.message ? error.message : String(error));
-      }
-    })();
-  </script>
+  <script src="./vendor/react.development.js?v=20260316l"></script>
+  <script src="./vendor/react-dom.development.js?v=20260316l"></script>
+  <script src="./vendor/prop-types.min.js?v=20260316l"></script>
+  <script src="./vendor/recharts.min.js?v=20260316l"></script>
+  <script type="module" src="./main-loader.js?v=20260316l"></script>
 </body>
 </html>
