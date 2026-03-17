@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:greatcoloradohomes.com)",
+      "WebFetch(domain:www.zillow.com)",
+      "WebFetch(domain:warnergroupco.com)",
+      "WebFetch(domain:www.theroygrouprealtors.com)",
+      "WebFetch(domain:www.redfin.com)",
+      "WebFetch(domain:brokersofcolorado.com)",
+      "WebFetch(domain:acquirehomes.com)",
+      "WebFetch(domain:www.madisonprops.com)",
+      "WebFetch(domain:www.compass.com)",
+      "WebFetch(domain:www.bestcshomes.com)",
+      "WebFetch(domain:www.homes.com)",
+      "WebFetch(domain:www.trulia.com)",
+      "WebFetch(domain:pinkrealty.com)",
+      "WebFetch(domain:assessor.elpasoco.com)",
+      "WebFetch(domain:property.spatialest.com)"
+    ]
+  }
+}

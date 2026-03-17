@@ -82,6 +82,22 @@ const scoreMasterBedLegacy = (s) => interp(s, [
 const scoreMasterBed = (s, ctx) => scoreFromContext(s, ctx, { lowerBetter: false, minScore: 20, maxScore: 100, gamma: 0.9 }) ?? scoreMasterBedLegacy(s);
 const scoreKitchen = (k) => k === "Gourmet" ? 100 : k === "Large" ? 73 : k === "Medium" ? 47 : 20;
 const scoreYard = (y) => y === "Excellent" ? 100 : y === "Good" ? 71 : y === "Fair" ? 43 : 15;
+const buildWeightedResult = (vals, weights) => {
+  const weightedEntries = Object.entries(weights).filter(([, weight]) => Number.isFinite(toNum(weight)) && toNum(weight) > 0);
+  const activeEntries = weightedEntries.filter(([key]) => Number.isFinite(toNum(vals[key])));
+  const activeWeightTotal = activeEntries.reduce((sum, [, weight]) => sum + (toNum(weight) ?? 0), 0);
+  const contributions = Object.fromEntries(
+    weightedEntries.map(([key, weight]) => {
+      const value = toNum(vals[key]);
+      if (!Number.isFinite(value) || activeWeightTotal <= 0) return [key, null];
+      return [key, +((value * ((toNum(weight) ?? 0) / activeWeightTotal)).toFixed(2))];
+    })
+  );
+  const weightedTotal = +Object.values(contributions)
+    .reduce((sum, value) => sum + (Number.isFinite(toNum(value)) ? (toNum(value) ?? 0) : 0), 0)
+    .toFixed(2);
+  return { contributions, weightedTotal };
+};
 const scoreAgeLegacy = (yearBuilt) => {
   const built = Number.isFinite(yearBuilt) ? yearBuilt : null;
   if (built == null) return 50;
@@ -150,6 +166,7 @@ const calc = (h, opts = {}) => {
   const weights = effectiveWeights && typeof effectiveWeights === "object"
     ? effectiveWeights
     : normalizeEffectiveWeights(DEFAULT_RAW_WEIGHT_POINTS);
+  const importDefaultBlankFields = new Set(Array.isArray(h?.importDefaultBlankFields) ? h.importDefaultBlankFields : []);
   const masterBedSqft = Number.isFinite(toNum(h.masterBedSqft))
     ? toNum(h.masterBedSqft)
     : (Number.isFinite(masterBedSqftFallback) ? masterBedSqftFallback : null);
@@ -167,14 +184,13 @@ const calc = (h, opts = {}) => {
     sqftScore,
     lot: scoreLot(h.lotSqft, scoreContexts?.lot),
     // Keep backward compatibility with legacy manual condition overrides.
-    kitchen: h.kitchenOverride ?? h.conditionOverride ?? scoreKitchen(h.kitchenSize),
-    yard: scoreYard(h.yardCondition),
+    kitchen: importDefaultBlankFields.has("kitchenSize") ? null : (h.kitchenOverride ?? h.conditionOverride ?? scoreKitchen(h.kitchenSize)),
+    yard: importDefaultBlankFields.has("yardCondition") ? null : scoreYard(h.yardCondition),
     ageScore: scoreAge(h.built, scoreContexts?.age),
     safety: scoreSafety(h) ?? 0,
     masterBed: scoreMasterBed(masterBedSqft, scoreContexts?.masterBed),
   };
-  const contributions = Object.fromEntries(Object.entries(weights).map(([k, w]) => [k, +((vals[k] ?? 0) * w).toFixed(2)]));
-  const weightedTotal = +Object.values(contributions).reduce((a, b) => a + b, 0).toFixed(2);
+  const { contributions, weightedTotal } = buildWeightedResult(vals, weights);
   const pricePerSqft = Number.isFinite(h.price) && Number.isFinite(h.sqft) && h.sqft > 0 ? h.price / h.sqft : null;
   return { ...h, masterBedSqft, ...vals, piMo, hoaMo, taxMo, totalMo, pricePerSqft, contributions, weightedTotal, grade: gradeLabel(weightedTotal) };
 };
@@ -190,10 +206,7 @@ const applyImpactStretch = (home, stretchByKey, weights) => {
     const stretched = IMPACT_STRETCH_MIN_SCORE + t * (IMPACT_STRETCH_MAX_SCORE - IMPACT_STRETCH_MIN_SCORE);
     next[key] = +stretched.toFixed(1);
   }
-  const contributions = Object.fromEntries(
-    Object.entries(weights).map(([k, w]) => [k, +(((toNum(next[k]) ?? 0) * w).toFixed(2))])
-  );
-  const weightedTotal = +Object.values(contributions).reduce((a, b) => a + b, 0).toFixed(2);
+  const { contributions, weightedTotal } = buildWeightedResult(next, weights);
   return { ...next, contributions, weightedTotal, grade: gradeLabel(weightedTotal) };
 };
 

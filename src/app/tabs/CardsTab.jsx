@@ -2,7 +2,7 @@ import { React } from '../../shared/runtime.js';
 import { TEXT_STYLES } from '../../shared/uiTokens.js';
 import { CardMetric, ScoreBar } from '../../ui/components.js';
 import { getImageKey, getMissingFields, gradeColor, placeholderLabel, placeholderSummary, CARD_FIELDS } from '../../domain/display.js';
-import { resolvePhotoSrc } from '../../domain/records.js';
+import { resolvePhotoSrc } from '../../domain/records.js?v=20260317d';
 
 export default function CardsTab(props) {
   const { homes, failedImageKeys, cardFactorPairsByHomeId, scoredFactorSpecs, markImageFailed, IMG_WRAP_STYLE, NO_PHOTO_STYLE, eyebrowTextStyle, metricTextStyle, captionStrongTextStyle, captionTextStyle } = props;

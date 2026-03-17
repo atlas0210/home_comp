@@ -117,7 +117,8 @@ const hoaMonthlyToAnnual = (monthlyValue) => {
 const parseLotSqft = (value) => {
   if (value == null) return null;
   const raw = String(value);
-  const n = toNum(raw);
+  const numericText = raw.match(/-?[0-9,.]+/)?.[0] ?? raw;
+  const n = toNum(numericText);
   if (n == null) return null;
   if (/acre/i.test(raw)) return Math.round(n * 43560);
   return n;
@@ -276,6 +277,7 @@ function normalizeHomeRecord(home, index) {
   const isImported = home?.sourceType === "imported";
   const overrideKeys = Array.isArray(home?._overrideKeys) ? home._overrideKeys : [];
   const hasOverride = (key) => overrideKeys.includes(key);
+  const importDefaultBlankFields = [];
   const name = pickText(home.name, home.address, home.streetAddress);
   const short = pickText(home.short) || derivedShort(name, index);
 
@@ -356,16 +358,22 @@ function normalizeHomeRecord(home, index) {
   if (SAFETY_SCORING_ENABLED && safetyVehicleTheftIndex == null) placeholderFields.push("safetyVehicleTheftIndex");
 
   const status = asStatus(home.status);
-  const kitchenSize = asKitchen(home.kitchenSize);
+  const kitchenText = pickText(home.kitchenSize);
+  const preserveKitchenBlank = !kitchenText && (hasOverride("kitchenSize") || (isImported && !hasOverride("kitchenSize")));
+  const kitchenSize = preserveKitchenBlank ? "" : asKitchen(home.kitchenSize);
   if (
     !pickText(home.kitchenSize) ||
     (isImported && kitchenSize === "Medium" && !hasOverride("kitchenSize"))
   ) placeholderFields.push("kitchenSize");
-  const yardCondition = asYard(home.yardCondition);
+  if (!kitchenText && isImported && !hasOverride("kitchenSize")) importDefaultBlankFields.push("kitchenSize");
+  const yardText = pickText(home.yardCondition);
+  const preserveYardBlank = !yardText && (hasOverride("yardCondition") || (isImported && !hasOverride("yardCondition")));
+  const yardCondition = preserveYardBlank ? "" : asYard(home.yardCondition);
   if (
     !pickText(home.yardCondition) ||
     (isImported && yardCondition === "Good" && !hasOverride("yardCondition"))
   ) placeholderFields.push("yardCondition");
+  if (!yardText && isImported && !hasOverride("yardCondition")) importDefaultBlankFields.push("yardCondition");
   const tags = asTags(home.tags);
   const defaultedFields = [...new Set(placeholderFields)];
   const normalized = {
@@ -394,6 +402,7 @@ function normalizeHomeRecord(home, index) {
     safetyLarcenyTheftIndex,
     safetyVehicleTheftIndex,
     tags,
+    importDefaultBlankFields,
     // Recompute placeholders from current values (including overrides) so they
     // disappear as soon as a field is filled in.
     placeholderFields: PLACEHOLDER_TAGS_ENABLED ? defaultedFields : [],
@@ -447,6 +456,7 @@ function parseUnformattedHomes(rawText) {
     const ppsf = toNum(capture(/Price per Sq\s*Ft\.?:\s*\$([0-9,]+(?:\.[0-9]+)?)/i));
     const sqft = toNum(capture(/Size[\s:]*([0-9,]+(?:\.[0-9]+)?)\s*sqft/i) || capture(/Above Grade Finished Area:\s*([0-9,]+(?:\.[0-9]+)?)\s*sqft/i));
     const lotRaw = capture(/Lot Size Area:\s*([0-9,.]+\s*(?:sqft|acres))/i);
+    const masterBedSqft = toNum(capture(/Master(?:\s+Bed(?:room)?)?\s*Sqft:\s*([0-9,]+(?:\.[0-9]+)?)/i));
     const built = toNum(capture(/Year Built:\s*([0-9]{4})/i));
     const dom = toNum(capture(/Days on OneHome[\s:]*([0-9]+)/i));
     const hoaRaw = capture(/HOA Fee:\s*\$([0-9,]+(?:\.[0-9]+)?)\s*(Monthly|Annually|Quarterly)?/i);
@@ -472,7 +482,7 @@ function parseUnformattedHomes(rawText) {
     const safetyNeighborhood = capture(/Safety (?:Area|Neighborhood):\s*([^\n]+)/i);
 
     const knownKeySet = new Set([
-      "Type", "Year Built", "Lot Size Area", "Parking Spots", "Heating", "Cooling", "HOA Fee", "County/Parish",
+      "Type", "Year Built", "Lot Size Area", "Master Bed Sqft", "Master Bedroom Sqft", "Parking Spots", "Heating", "Cooling", "HOA Fee", "County/Parish",
       "Subdivision", "Status", "Beds", "Baths", "Full Bathrooms", "Three-Quarter Bathrooms", "Half Bathrooms",
       "Size", "Above Grade Finished Area", "Total Building Area", "Building Area Source", "Stories", "Interior Features",
       "Basement", "% Basement Finished", "Flooring", "Window Features", "Fireplace", "Number of Fireplaces", "Appliances",
@@ -492,17 +502,17 @@ function parseUnformattedHomes(rawText) {
       {
         name: address,
         short: derivedShort(address, 0),
+        sourceType: "imported",
         status: "Considering",
         price,
         pricePerSqft: ppsf,
         sqft,
         lotSqft: parseLotSqft(lotRaw),
+        masterBedSqft,
         built,
         dom,
         hoa: fromAnnual(hoaRaw, hoaCadence),
         tax,
-        kitchenSize: "Medium",
-        yardCondition: "Good",
         neighborhood: neighborhood ? 70 : null,
         safetyNeighborhood: safetyNeighborhood || neighborhood || null,
         assaultIndex,

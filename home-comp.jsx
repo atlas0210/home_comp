@@ -675,6 +675,18 @@ Year Built: 2016
 Days on OneHome: 29
 Annual Taxes: $5,401
 Subdivision: Scenic View At Paint Brush Hills
+
+5226 Balsam Street Colorado Springs, CO 80923-5103
+MLS #9755767
+For Sale
+$549,999
+Price per Sq Ft.: $187
+Size: 2,934 sqft
+Lot Size Area: 8,587.00 sqft
+Year Built: 2001
+Days on OneHome: 3
+Annual Taxes: $1,799.89
+Subdivision: Plowman
 `;
 const APPLIED_UPDATES_BY_HOME_ID = {
   "imported-mls-1217348": {
