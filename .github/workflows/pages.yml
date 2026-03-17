@@ -26,9 +26,11 @@ jobs:
 
       - name: Build static site bundle
         run: |
-          mkdir -p _site/vendor
-          cp index.html preview.html home-comp.jsx _site/
+          mkdir -p _site/vendor _site/src _site/assets
+          cp index.html preview.html home-comp.jsx main-loader.js _site/
           cp -r vendor/* _site/vendor/
+          cp -r src/* _site/src/
+          cp -r assets/* _site/assets/
           touch _site/.nojekyll
 
       - name: Upload Pages artifact
