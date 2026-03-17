@@ -4,7 +4,7 @@ import { displayFieldValue, displayHoaFieldValue, getMissingFields } from '../..
 import { hoaAnnualToMonthly } from '../../domain/records.js?v=20260317d';
 
 export default function DataEntryTab(props) {
-  const { cardTitleStyle, inputTextStyle, buttonTextStyle, backupNotice, labelTextStyle, captionTextStyle, bodyMutedTextStyle, selectedHome, selectedSource, selectedOverrides, selectedDrafts, selectedErrors, filteredEditorHomes, setSelectedHomeId, visibleEditGroups, showHidden, setShowHidden, showMissingOnly, setShowMissingOnly, editorQuery, setEditorQuery, importRawText, setImportRawText, importSummary, restoreBackupInputRef, downloadBackup, copyShareLink, triggerRestoreBackup, onRestoreBackupFile, restoreCommittedImports, clearImportText, addTag, removeTag, tagDraft, setTagDraft, onTextChange, onNumericChange, onNumericBlur, setSelectedStatus, resetSelectedHome, resetAllEdits, bodyStrongTextStyle, captionStrongTextStyle } = props;
+  const { cardTitleStyle, inputTextStyle, buttonTextStyle, backupNotice, labelTextStyle, captionTextStyle, bodyMutedTextStyle, selectedHome, selectedSource, selectedOverrides, selectedDrafts, selectedErrors, filteredEditorHomes, setSelectedHomeId, visibleEditGroups, showHidden, setShowHidden, showMissingOnly, setShowMissingOnly, editorQuery, setEditorQuery, importRawText, setImportRawText, importSummary, restoreBackupInputRef, downloadBackup, exportOverridesJson, copyShareLink, triggerRestoreBackup, onRestoreBackupFile, restoreCommittedImports, clearImportText, addTag, removeTag, tagDraft, setTagDraft, onTextChange, onNumericChange, onNumericBlur, setSelectedStatus, resetSelectedHome, resetAllEdits, bodyStrongTextStyle, captionStrongTextStyle } = props;
   return (
 <div style={{ display: "grid", gridTemplateColumns: "minmax(280px,340px) minmax(0,1fr)", gap: 12, alignItems: "start" }}>
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 12, overflowX: "hidden" }}>
@@ -20,6 +20,7 @@ export default function DataEntryTab(props) {
             </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
               <button onClick={downloadBackup} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Download Backup</button>
+              <button onClick={exportOverridesJson} style={{ ...buttonTextStyle, border: "1px solid #14532d", background: "#052e16", color: "#bbf7d0", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Export Overrides JSON</button>
               <button onClick={copyShareLink} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Copy Share Link</button>
               <button onClick={triggerRestoreBackup} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Restore Backup JSON</button>
               <input ref={restoreBackupInputRef} type="file" accept="application/json,.json" style={{ display: "none" }} onChange={onRestoreBackupFile} />
@@ -27,7 +28,7 @@ export default function DataEntryTab(props) {
               <button onClick={clearImportText} style={{ ...buttonTextStyle, border: "1px solid #7f1d1d", background: "#3f1d1d", color: "#fecaca", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Clear Imported Data</button>
             </div>
             <div style={{ ...captionTextStyle, marginBottom: 8 }}>
-              Permanent edits belong in <code>src/data/seedOverrides.json</code> and <code>src/data/importSeed.txt</code>. Backups are best for recovery and sharing.
+              Permanent edits belong in <code>src/data/seedOverrides.json</code> and <code>src/data/importSeed.txt</code>. Use <code>Export Overrides JSON</code> for a Git-ready overrides file.
             </div>
             {backupNotice && (
               <div style={{ ...TEXT_STYLES.caption, marginBottom: 10, color: /failed/i.test(backupNotice) ? "#fca5a5" : "#86efac" }}>

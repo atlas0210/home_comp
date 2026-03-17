@@ -662,6 +662,29 @@ export function useHomeCompModel({ seedOverridesByHomeId = {}, seedImportRawText
     setImportRawText((prev) => mergeImportRawText(committedImportRawText, prev));
     setBackupNotice("Restored committed import blocks from the repo.");
   };
+  const exportOverridesJson = () => {
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+    const sortJsonValue = (value) => {
+      if (Array.isArray(value)) return value.map(sortJsonValue);
+      if (!value || typeof value !== "object") return value;
+      return Object.fromEntries(
+        Object.keys(value)
+          .sort((a, b) => a.localeCompare(b))
+          .map((key) => [key, sortJsonValue(value[key])])
+      );
+    };
+    const sortedOverrides = sortJsonValue(overridesByHomeId);
+    const blob = new Blob([`${JSON.stringify(sortedOverrides, null, 2)}\n`], { type: "application/json" });
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = href;
+    a.download = "seedOverrides.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(href);
+    setBackupNotice("Exported seedOverrides.json. Replace src/data/seedOverrides.json in the repo and commit it.");
+  };
   const downloadBackup = () => {
     if (typeof window === "undefined" || typeof document === "undefined") return;
     const now = new Date();
@@ -1084,6 +1107,7 @@ export function useHomeCompModel({ seedOverridesByHomeId = {}, seedImportRawText
     triggerRestoreBackup,
     onRestoreBackupFile,
     restoreCommittedImports,
+    exportOverridesJson,
     clearImportText,
     addTag,
     removeTag,

@@ -30,6 +30,7 @@ export default function DataEntryTab(props) {
     importSummary,
     restoreBackupInputRef,
     downloadBackup,
+    exportOverridesJson,
     copyShareLink,
     triggerRestoreBackup,
     onRestoreBackupFile,
@@ -108,6 +109,17 @@ export default function DataEntryTab(props) {
       cursor: "pointer"
     }
   }, "Download Backup"), /*#__PURE__*/React.createElement("button", {
+    onClick: exportOverridesJson,
+    style: {
+      ...buttonTextStyle,
+      border: "1px solid #14532d",
+      background: "#052e16",
+      color: "#bbf7d0",
+      borderRadius: 6,
+      padding: "6px 10px",
+      cursor: "pointer"
+    }
+  }, "Export Overrides JSON"), /*#__PURE__*/React.createElement("button", {
     onClick: copyShareLink,
     style: {
       ...buttonTextStyle,
@@ -161,7 +173,7 @@ export default function DataEntryTab(props) {
       ...captionTextStyle,
       marginBottom: 8
     }
-  }, "Permanent edits belong in ", /*#__PURE__*/React.createElement("code", null, "src/data/seedOverrides.json"), " and ", /*#__PURE__*/React.createElement("code", null, "src/data/importSeed.txt"), ". Backups are best for recovery and sharing."), backupNotice && /*#__PURE__*/React.createElement("div", {
+  }, "Permanent edits belong in ", /*#__PURE__*/React.createElement("code", null, "src/data/seedOverrides.json"), " and ", /*#__PURE__*/React.createElement("code", null, "src/data/importSeed.txt"), ". Use ", /*#__PURE__*/React.createElement("code", null, "Export Overrides JSON"), " for a Git-ready overrides file."), backupNotice && /*#__PURE__*/React.createElement("div", {
     style: {
       ...TEXT_STYLES.caption,
       marginBottom: 10,
