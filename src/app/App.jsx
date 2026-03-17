@@ -1,14 +1,14 @@
 import { React } from '../shared/runtime.js';
 import { TEXT_STYLES } from '../shared/uiTokens.js';
-import { useHomeCompModel } from '../hooks/useHomeCompModel.js';
+import { useHomeCompModel } from '../hooks/useHomeCompModel.js?v=20260317d';
 import OverviewTab from './tabs/OverviewTab.js';
-import DataEntryTab from './tabs/DataEntryTab.js';
+import DataEntryTab from './tabs/DataEntryTab.js?v=20260317d';
 import CompareTab from './tabs/CompareTab.js';
-import CardsTab from './tabs/CardsTab.js';
+import CardsTab from './tabs/CardsTab.js?v=20260317d';
 import WeightsTab from './tabs/WeightsTab.js';
 
-export default function App() {
-  const model = useHomeCompModel();
+export default function App({ seedOverridesByHomeId = {}, seedImportRawText = '' }) {
+  const model = useHomeCompModel({ seedOverridesByHomeId, seedImportRawText });
   const { isMobile, bodyMutedTextStyle, importSummary, buttonTextStyle, tab, setTab } = model;
 
   return (

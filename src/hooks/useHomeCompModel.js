@@ -1,29 +1,31 @@
 import { React, useEffect, useMemo, useRef, useState } from '../shared/runtime.js';
-import { APPLIED_UPDATES_BY_HOME_ID } from '../data/seedOverrides.js?v=20260316l';
 import { EDIT_GROUPS } from '../data/editorConfig.js';
 import { homesRaw } from '../data/baselineHomes.js';
-import { IMPORT_UNFORMATTED_DATA } from '../data/importSeed.js';
 import { COLORS, FONT_STACKS, IMG_WRAP_STYLE, NO_PHOTO_STYLE, TEXT_STYLES } from '../shared/uiTokens.js';
 import { CURRENT_YEAR, DOM_ROLL_DATE_KEY, EMPTY, IMPACT_AUDIT_THRESHOLD, IMPACT_STRETCH_MAX_SCORE, IMPACT_STRETCH_MIN_SCORE, SAFETY_SCORING_ENABLED, SHARE_STATE_HASH_KEY, SHARE_STATE_SCHEMA_VERSION } from '../shared/constants.js';
 import { copyTextToClipboard } from '../domain/clipboard.js';
 import { CARD_FIELDS, RADAR, SCORED_FACTOR_BASE, arraysEqual, displayFieldValue, displayHoaFieldValue, fmtCompactUsd, getImageKey, getMissingFields, gradeColor, placeholderLabel, placeholderSummary } from '../domain/display.js';
-import { buildRangeContext, calc, applyImpactStretch, estimateMonthlyTotal } from '../domain/scoring.js';
+import { buildRangeContext, calc, applyImpactStretch, estimateMonthlyTotal } from '../domain/scoring.js?v=20260317d';
 import { decodeShareSnapshot, encodeShareSnapshot } from '../domain/share.js';
 import { activeDefaultRawTicks, alignActiveRawWeights, DEFAULT_RAW_WEIGHT_POINTS, IMPACT_AUDIT_FACTOR_KEYS, isDefaultRawWeights, normalizeEffectiveWeights, parseMaybeNumber, RAW_WEIGHT_EPS, rebalanceLinkedRawWeights, sanitizeRawWeights, WEIGHT_KEYS, WEIGHT_LABELS, quantizeRawWeight } from '../domain/weights.js';
-import { buildAverageBenchmarkHome, dayDiff, hoaAnnualToMonthly, hoaMonthlyToAnnual, hydrateOverridesFromHomesPayload, mergeImportRawText, mergeOverrides, migrateOverrides, normalizeHomeRecord, parseUnformattedHomes, resolvePhotoSrc, slugify, toDateKey, toNum } from '../domain/records.js?v=20260316l';
+import { buildAverageBenchmarkHome, dayDiff, hoaAnnualToMonthly, hoaMonthlyToAnnual, hydrateOverridesFromHomesPayload, mergeImportRawText, mergeOverrides, migrateOverrides, normalizeHomeRecord, parseUnformattedHomes, resolvePhotoSrc, slugify, toDateKey, toNum } from '../domain/records.js?v=20260317d';
 
-export function useHomeCompModel() {
-const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
+export function useHomeCompModel({ seedOverridesByHomeId = {}, seedImportRawText = "" } = {}) {
+  const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
   const LOCAL_IMPORT_STORAGE_KEY = "homeComp.importRaw.v2";
   const LOCAL_WEIGHT_STORAGE_KEY = "homeComp.weights.v2";
+  const committedOverridesByHomeId = seedOverridesByHomeId && typeof seedOverridesByHomeId === "object" && !Array.isArray(seedOverridesByHomeId)
+    ? seedOverridesByHomeId
+    : {};
+  const committedImportRawText = typeof seedImportRawText === "string" ? seedImportRawText : "";
   const SEEDED_IMPORTED_PHOTO_HOME_IDS = new Set(
-    Object.entries(APPLIED_UPDATES_BY_HOME_ID)
+    Object.entries(committedOverridesByHomeId)
       .filter(([homeId, values]) => homeId.startsWith("imported-") && typeof values?.photo === "string" && values.photo.trim())
       .map(([homeId]) => homeId)
   );
   const getSeededImportedPhoto = (homeId) => {
     if (!homeId || !SEEDED_IMPORTED_PHOTO_HOME_IDS.has(homeId)) return null;
-    const photo = APPLIED_UPDATES_BY_HOME_ID[homeId]?.photo;
+    const photo = committedOverridesByHomeId[homeId]?.photo;
     return typeof photo === "string" && photo.trim() ? photo.trim() : null;
   };
   const sanitizeIncomingOverrides = (candidate) => {
@@ -47,17 +49,17 @@ const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
   const [failedImageKeys, setFailedImageKeys] = useState(() => new Set());
   const isMobile = viewportWidth <= 640;
   const [importRawText, setImportRawText] = useState(() => {
-    if (typeof window === "undefined") return IMPORT_UNFORMATTED_DATA;
+    if (typeof window === "undefined") return committedImportRawText;
     const fromLocal = window.localStorage.getItem(LOCAL_IMPORT_STORAGE_KEY);
-    if (fromLocal != null && fromLocal.trim()) return mergeImportRawText(IMPORT_UNFORMATTED_DATA, fromLocal);
-    return IMPORT_UNFORMATTED_DATA;
+    if (fromLocal != null && fromLocal.trim()) return mergeImportRawText(committedImportRawText, fromLocal);
+    return committedImportRawText;
   });
   useEffect(() => {
     setImportRawText((prev) => {
-      const merged = mergeImportRawText(IMPORT_UNFORMATTED_DATA, prev);
+      const merged = mergeImportRawText(committedImportRawText, prev);
       return merged === prev ? prev : merged;
     });
-  }, []);
+  }, [committedImportRawText]);
   const imported = useMemo(() => parseUnformattedHomes(importRawText), [importRawText]);
   const sourceHomes = useMemo(() => {
     const baseline = homesRaw.map((h, i) => ({ ...h, homeId: `base-${i}`, sourceType: "base" }));
@@ -74,16 +76,16 @@ const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
   const sourceById = useMemo(() => Object.fromEntries(sourceHomes.map((h) => [h.homeId, h])), [sourceHomes]);
 
   const [overridesByHomeId, setOverridesByHomeId] = useState(() => {
-    if (typeof window === "undefined") return mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, {});
+    if (typeof window === "undefined") return mergeOverrides(committedOverridesByHomeId, {});
     try {
       const raw = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (!raw) return mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, {});
+      if (!raw) return mergeOverrides(committedOverridesByHomeId, {});
       const parsed = JSON.parse(raw);
       return parsed && typeof parsed === "object"
-        ? mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, sanitizeIncomingOverrides(parsed))
-        : mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, {});
+        ? mergeOverrides(committedOverridesByHomeId, sanitizeIncomingOverrides(parsed))
+        : mergeOverrides(committedOverridesByHomeId, {});
     } catch {
-      return mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, {});
+      return mergeOverrides(committedOverridesByHomeId, {});
     }
   });
   const [tab, setTab] = useState("overview");
@@ -126,16 +128,16 @@ const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
     if (!snapshot) return;
     const maybeOverrides = sanitizeIncomingOverrides(snapshot?.overridesByHomeId);
     if (maybeOverrides && typeof maybeOverrides === "object" && !Array.isArray(maybeOverrides)) {
-      setOverridesByHomeId(mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, maybeOverrides));
+      setOverridesByHomeId(mergeOverrides(committedOverridesByHomeId, maybeOverrides));
     }
     if (typeof snapshot?.importRawText === "string") {
-      setImportRawText(mergeImportRawText(IMPORT_UNFORMATTED_DATA, snapshot.importRawText));
+      setImportRawText(mergeImportRawText(committedImportRawText, snapshot.importRawText));
     }
     if (snapshot?.rawWeightPoints && typeof snapshot.rawWeightPoints === "object" && !Array.isArray(snapshot.rawWeightPoints)) {
       setRawWeightPoints(sanitizeRawWeights(snapshot.rawWeightPoints));
     }
     setBackupNotice("Loaded shared snapshot from link.");
-  }, []);
+  }, [committedImportRawText, committedOverridesByHomeId]);
   const effectiveWeights = useMemo(() => normalizeEffectiveWeights(rawWeightPoints), [rawWeightPoints]);
   const activeWeightKeys = useMemo(
     () => WEIGHT_KEYS.filter((key) => SAFETY_SCORING_ENABLED || key !== "safety"),
@@ -643,7 +645,7 @@ const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
   };
 
   const resetAllEdits = () => {
-    setOverridesByHomeId(mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, {}));
+    setOverridesByHomeId(mergeOverrides(committedOverridesByHomeId, {}));
     setEditorDraftsByHomeId({});
     setFieldErrorsByHomeId({});
     if (typeof window !== "undefined") window.localStorage.removeItem(LOCAL_STORAGE_KEY);
@@ -656,8 +658,9 @@ const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
   const clearImportText = () => {
     setImportRawText("");
   };
-  const restoreEmbeddedImports = () => {
-    setImportRawText((prev) => mergeImportRawText(IMPORT_UNFORMATTED_DATA, prev));
+  const restoreCommittedImports = () => {
+    setImportRawText((prev) => mergeImportRawText(committedImportRawText, prev));
+    setBackupNotice("Restored committed import blocks from the repo.");
   };
   const downloadBackup = () => {
     if (typeof window === "undefined" || typeof document === "undefined") return;
@@ -732,9 +735,9 @@ const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
         hydrateOverridesFromHomesPayload(rawOverrides, parsed?.homes, sourceById)
       );
 
-      setOverridesByHomeId(mergeOverrides(APPLIED_UPDATES_BY_HOME_ID, maybeOverrides));
+      setOverridesByHomeId(mergeOverrides(committedOverridesByHomeId, maybeOverrides));
       if (typeof parsed?.importRawText === "string" && parsed.importRawText.trim()) {
-        setImportRawText(mergeImportRawText(IMPORT_UNFORMATTED_DATA, parsed.importRawText));
+        setImportRawText(mergeImportRawText(committedImportRawText, parsed.importRawText));
       }
       if (parsed?.rawWeightPoints && typeof parsed.rawWeightPoints === "object" && !Array.isArray(parsed.rawWeightPoints)) {
         setRawWeightPoints(sanitizeRawWeights(parsed.rawWeightPoints));
@@ -1080,7 +1083,7 @@ const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
     copyShareLink,
     triggerRestoreBackup,
     onRestoreBackupFile,
-    restoreEmbeddedImports,
+    restoreCommittedImports,
     clearImportText,
     addTag,
     removeTag,

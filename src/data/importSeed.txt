@@ -1,4 +1,3 @@
-const IMPORT_UNFORMATTED_DATA = String.raw`
 6380 Tenderfoot Drive Colorado Springs, CO 80923-7436
 MLS #3917272
 For Sale
@@ -344,6 +343,16 @@ Year Built: 2001
 Days on OneHome: 3
 Annual Taxes: $1,799.89
 Subdivision: Plowman
-`;
 
-export { IMPORT_UNFORMATTED_DATA };
+7125 Grand Prairie Drive Colorado Springs, CO 80923-8763
+MLS #4050227
+For Sale
+$525,000
+Price per Sq Ft.: $207
+Size: 2,542 sqft
+Lot Size Area: 5,295.00 sqft
+Year Built: 2001
+Days on OneHome: --
+HOA Fee: $30 Monthly
+Annual Taxes: $1,805.81
+Subdivision: Wagon Trails

@@ -1,10 +1,10 @@
 import { React } from '../../shared/runtime.js';
 import { TEXT_STYLES } from '../../shared/uiTokens.js';
 import { displayFieldValue, displayHoaFieldValue, getMissingFields } from '../../domain/display.js';
-import { hoaAnnualToMonthly } from '../../domain/records.js';
+import { hoaAnnualToMonthly } from '../../domain/records.js?v=20260317d';
 
 export default function DataEntryTab(props) {
-  const { cardTitleStyle, inputTextStyle, buttonTextStyle, backupNotice, labelTextStyle, captionTextStyle, bodyMutedTextStyle, selectedHome, selectedSource, selectedOverrides, selectedDrafts, selectedErrors, filteredEditorHomes, setSelectedHomeId, visibleEditGroups, showHidden, setShowHidden, showMissingOnly, setShowMissingOnly, editorQuery, setEditorQuery, importRawText, setImportRawText, importSummary, restoreBackupInputRef, downloadBackup, copyShareLink, triggerRestoreBackup, onRestoreBackupFile, restoreEmbeddedImports, clearImportText, addTag, removeTag, tagDraft, setTagDraft, onTextChange, onNumericChange, onNumericBlur, setSelectedStatus, resetSelectedHome, resetAllEdits, bodyStrongTextStyle, captionStrongTextStyle } = props;
+  const { cardTitleStyle, inputTextStyle, buttonTextStyle, backupNotice, labelTextStyle, captionTextStyle, bodyMutedTextStyle, selectedHome, selectedSource, selectedOverrides, selectedDrafts, selectedErrors, filteredEditorHomes, setSelectedHomeId, visibleEditGroups, showHidden, setShowHidden, showMissingOnly, setShowMissingOnly, editorQuery, setEditorQuery, importRawText, setImportRawText, importSummary, restoreBackupInputRef, downloadBackup, copyShareLink, triggerRestoreBackup, onRestoreBackupFile, restoreCommittedImports, clearImportText, addTag, removeTag, tagDraft, setTagDraft, onTextChange, onNumericChange, onNumericBlur, setSelectedStatus, resetSelectedHome, resetAllEdits, bodyStrongTextStyle, captionStrongTextStyle } = props;
   return (
 <div style={{ display: "grid", gridTemplateColumns: "minmax(280px,340px) minmax(0,1fr)", gap: 12, alignItems: "start" }}>
           <div style={{ background: "#1e293b", borderRadius: 12, padding: 12, overflowX: "hidden" }}>
@@ -12,16 +12,22 @@ export default function DataEntryTab(props) {
             <textarea
               value={importRawText}
               onChange={(e) => setImportRawText(e.target.value)}
-              placeholder="Paste unformatted listing blocks here. Imports update live."
+              placeholder="Paste listing blocks here. Supported lines include Lot Size Area: 6,500 sqft and Master Bed Sqft: 210. Imports update live."
               style={{ ...inputTextStyle, width: "100%", boxSizing: "border-box", minHeight: 120, resize: "vertical", background: "#0f172a", color: "#f1f5f9", border: "1px solid #334155", borderRadius: 6, padding: "8px 9px", marginBottom: 8, overflowX: "hidden" }}
             />
+            <div style={{ ...captionTextStyle, marginBottom: 8 }}>
+              Supported raw import lines include <code>Lot Size Area: ...</code> and <code>Master Bed Sqft: ...</code>.
+            </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
               <button onClick={downloadBackup} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Download Backup</button>
               <button onClick={copyShareLink} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Copy Share Link</button>
               <button onClick={triggerRestoreBackup} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Restore Backup JSON</button>
               <input ref={restoreBackupInputRef} type="file" accept="application/json,.json" style={{ display: "none" }} onChange={onRestoreBackupFile} />
-              <button onClick={restoreEmbeddedImports} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Use Embedded Imports</button>
+              <button onClick={restoreCommittedImports} style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Restore Committed Imports</button>
               <button onClick={clearImportText} style={{ ...buttonTextStyle, border: "1px solid #7f1d1d", background: "#3f1d1d", color: "#fecaca", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}>Clear Imported Data</button>
+            </div>
+            <div style={{ ...captionTextStyle, marginBottom: 8 }}>
+              Permanent edits belong in <code>src/data/seedOverrides.json</code> and <code>src/data/importSeed.txt</code>. Backups are best for recovery and sharing.
             </div>
             {backupNotice && (
               <div style={{ ...TEXT_STYLES.caption, marginBottom: 10, color: /failed/i.test(backupNotice) ? "#fca5a5" : "#86efac" }}>

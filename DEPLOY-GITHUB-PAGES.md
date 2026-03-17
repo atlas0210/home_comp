@@ -42,5 +42,7 @@ Use your Pages URL:
 
 Notes:
 
-- Data Entry edits are browser-local (`localStorage`) on each device.
-- Use **Save Backup** in Data Entry to export and transfer data between devices.
+- Permanent repo-backed edits live in `src/data/seedOverrides.json` and `src/data/importSeed.txt`.
+- For minor GitHub changes, edit those two files directly in GitHub or your editor, commit, and let Pages redeploy.
+- Data Entry edits are still browser-local (`localStorage`) on each device until you choose to commit them into the repo-backed files.
+- Use **Save Backup** in Data Entry for recovery, device transfer, or before larger experiments.

@@ -1,7 +1,7 @@
 import { React } from '../../shared/runtime.js';
 import { TEXT_STYLES } from '../../shared/uiTokens.js';
 import { displayFieldValue, displayHoaFieldValue, getMissingFields } from '../../domain/display.js';
-import { hoaAnnualToMonthly } from '../../domain/records.js';
+import { hoaAnnualToMonthly } from '../../domain/records.js?v=20260317d';
 export default function DataEntryTab(props) {
   const {
     cardTitleStyle,
@@ -33,7 +33,7 @@ export default function DataEntryTab(props) {
     copyShareLink,
     triggerRestoreBackup,
     onRestoreBackupFile,
-    restoreEmbeddedImports,
+    restoreCommittedImports,
     clearImportText,
     addTag,
     removeTag,
@@ -70,7 +70,7 @@ export default function DataEntryTab(props) {
   }, "Import Data"), /*#__PURE__*/React.createElement("textarea", {
     value: importRawText,
     onChange: e => setImportRawText(e.target.value),
-    placeholder: "Paste unformatted listing blocks here. Imports update live.",
+    placeholder: "Paste listing blocks here. Supported lines include Lot Size Area: 6,500 sqft and Master Bed Sqft: 210. Imports update live.",
     style: {
       ...inputTextStyle,
       width: "100%",
@@ -86,6 +86,11 @@ export default function DataEntryTab(props) {
       overflowX: "hidden"
     }
   }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...captionTextStyle,
+      marginBottom: 8
+    }
+  }, "Supported raw import lines include ", /*#__PURE__*/React.createElement("code", null, "Lot Size Area: ..."), " and ", /*#__PURE__*/React.createElement("code", null, "Master Bed Sqft: ..."), "."), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -131,7 +136,7 @@ export default function DataEntryTab(props) {
     },
     onChange: onRestoreBackupFile
   }), /*#__PURE__*/React.createElement("button", {
-    onClick: restoreEmbeddedImports,
+    onClick: restoreCommittedImports,
     style: {
       ...buttonTextStyle,
       border: "1px solid #334155",
@@ -140,7 +145,7 @@ export default function DataEntryTab(props) {
       padding: "6px 10px",
       cursor: "pointer"
     }
-  }, "Use Embedded Imports"), /*#__PURE__*/React.createElement("button", {
+  }, "Restore Committed Imports"), /*#__PURE__*/React.createElement("button", {
     onClick: clearImportText,
     style: {
       ...buttonTextStyle,
@@ -151,7 +156,12 @@ export default function DataEntryTab(props) {
       padding: "6px 10px",
       cursor: "pointer"
     }
-  }, "Clear Imported Data")), backupNotice && /*#__PURE__*/React.createElement("div", {
+  }, "Clear Imported Data")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...captionTextStyle,
+      marginBottom: 8
+    }
+  }, "Permanent edits belong in ", /*#__PURE__*/React.createElement("code", null, "src/data/seedOverrides.json"), " and ", /*#__PURE__*/React.createElement("code", null, "src/data/importSeed.txt"), ". Backups are best for recovery and sharing."), backupNotice && /*#__PURE__*/React.createElement("div", {
     style: {
       ...TEXT_STYLES.caption,
       marginBottom: 10,
