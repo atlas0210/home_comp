@@ -1,7 +1,8 @@
 {
     "base-0":  {
                    "dom":  48,
-                   "masterBedSqft":  195
+                   "masterBedSqft":  195,
+                   "status":  "Ruled Out"
                },
     "base-1":  {
                    "dom":  38
@@ -41,6 +42,7 @@
                    "photo":  "https://photos.zillowstatic.com/fp/052c6f4d6f652b0358605cd46c9aca64-cc_ft_1152.webp"
                },
     "base-9":  {
+                   "bre":  7,
                    "dom":  51,
                    "masterBedSqft":  266,
                    "photo":  "https://photos.zillowstatic.com/fp/cf17f7295bec7896435e1ad0bbc70c8d-cc_ft_1152.webp"
@@ -57,7 +59,7 @@
                                                                 "yardCondition":  "Fair"
                                                             },
     "imported-addr-11908-eagle-crest-ct-peyton-co-80831":  {
-                                                               "bre":  8,
+                                                               "bre":  7.5,
                                                                "dom":  5,
                                                                "greg":  7.5,
                                                                "hoa":  2760,
@@ -109,10 +111,10 @@
                                  "yardCondition":  "Fair"
                              },
     "imported-mls-1627467":  {
-                                 "bre":  7.5,
+                                 "bre":  8,
                                  "dom":  11,
-                                 "greg":  7.5,
-                                 "hoa":  0.1,
+                                 "greg":  8.2,
+                                 "hoa":  1.2,
                                  "kitchenSize":  "Large",
                                  "lotSqft":  8322,
                                  "masterBedSqft":  204,
@@ -122,8 +124,8 @@
     "imported-mls-1957788":  {
                                  "bre":  8.5,
                                  "dom":  88,
-                                 "greg":  8,
-                                 "hoa":  816,
+                                 "greg":  8.7,
+                                 "hoa":  2520,
                                  "kitchenSize":  "Gourmet",
                                  "lotSqft":  7026,
                                  "masterBedSqft":  182,
@@ -291,6 +293,7 @@
                                  "safetyBurglaryIndex":  93,
                                  "safetyLarcenyTheftIndex":  95,
                                  "safetyVehicleTheftIndex":  103,
+                                 "status":  "Ruled Out",
                                  "yardCondition":  "Excellent"
                              },
     "imported-mls-6334289":  {
@@ -334,10 +337,10 @@
                                  "yardCondition":  "Good"
                              },
     "imported-mls-8141032":  {
-                                 "bre":  7,
+                                 "bre":  8,
                                  "dom":  38,
-                                 "greg":  7.5,
-                                 "hoa":  2820,
+                                 "greg":  8.5,
+                                 "hoa":  2520,
                                  "kitchenSize":  "Gourmet",
                                  "lotSqft":  7726,
                                  "masterBedSqft":  210,
@@ -346,7 +349,7 @@
                                  "safetyBurglaryIndex":  93,
                                  "safetyLarcenyTheftIndex":  6,
                                  "safetyVehicleTheftIndex":  27,
-                                 "yardCondition":  "Fair"
+                                 "yardCondition":  "Poor"
                              },
     "imported-mls-8202865":  {
                                  "bre":  6,
@@ -376,13 +379,14 @@
                                  "safetyBurglaryIndex":  43,
                                  "safetyLarcenyTheftIndex":  69,
                                  "safetyVehicleTheftIndex":  45,
+                                 "status":  "Ruled Out",
                                  "yardCondition":  "Poor"
                              },
     "imported-mls-9271246":  {
-                                 "bre":  8.5,
+                                 "bre":  8,
                                  "dom":  9,
                                  "greg":  7,
-                                 "hoa":  2760,
+                                 "hoa":  2520,
                                  "kitchenSize":  "Large",
                                  "lotSqft":  6949,
                                  "masterBedSqft":  169,
@@ -405,9 +409,9 @@
                                  "status":  "Ruled Out"
                              },
     "imported-mls-9755767":  {
-                                 "bre":  8.5,
+                                 "bre":  9,
                                  "dom":  6,
-                                 "greg":  8,
+                                 "greg":  8.5,
                                  "hoa":  1.2,
                                  "kitchenSize":  "Gourmet",
                                  "lotSqft":  8587,
@@ -420,7 +424,7 @@
                                  "dom":  7,
                                  "greg":  8,
                                  "hoa":  0.1,
-                                 "kitchenSize":  "Large",
+                                 "kitchenSize":  "Medium",
                                  "lotSqft":  10005,
                                  "masterBedSqft":  270,
                                  "photo":  "https://photos.zillowstatic.com/fp/1d62f5d430620693791ce58ae53e9561-cc_ft_576.webp",
