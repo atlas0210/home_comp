@@ -2,8 +2,8 @@ import { React } from '../shared/runtime.js';
 import { TEXT_STYLES } from '../shared/uiTokens.js';
 import { useHomeCompModel } from '../hooks/useHomeCompModel.js?v=20260317d';
 import OverviewTab from './tabs/OverviewTab.js';
-import DataEntryTab from './tabs/DataEntryTab.js?v=20260317d';
-import CompareTab from './tabs/CompareTab.js';
+import DataEntryTab from './tabs/DataEntryTab.js?v=20260318a';
+import CompareTab from './tabs/CompareTab.js?v=20260318a';
 import CardsTab from './tabs/CardsTab.js?v=20260317d';
 import WeightsTab from './tabs/WeightsTab.js';
 export default function App({
@@ -53,7 +53,7 @@ export default function App({
       marginBottom: 4,
       display: 'inline-block'
     }
-  }, "\uD83C\uDFE0 Home Comparison"), /*#__PURE__*/React.createElement("p", {
+  }, "\uD83C\uDFE0 Home Comparison"), !isMobile && /*#__PURE__*/React.createElement("p", {
     style: {
       ...bodyMutedTextStyle,
       fontSize: 12,
@@ -85,24 +85,27 @@ export default function App({
     }
   }), "Parsed ", importSummary.importedCount, " imported home(s) from ", importSummary.blockCount, " block(s) \xB7 flagged ", importSummary.unknownFieldCount, " unknown field(s) \xB7 flagged ", importSummary.placeholderFieldCount, " blank field(s)"), /*#__PURE__*/React.createElement("div", {
     style: {
-      display: 'inline-flex',
+      display: 'flex',
       gap: 2,
       marginBottom: 20,
       background: '#111827',
       borderRadius: 10,
       padding: 4,
       border: '1px solid #1e293b',
-      flexWrap: 'wrap'
+      overflowX: 'auto',
+      WebkitOverflowScrolling: 'touch'
     }
   }, ['overview', 'data-entry', 'compare', 'cards', 'weights'].map(k => {
-    const label = k === 'overview' ? '📊 Overview' : k === 'data-entry' ? '🛠️ Data Entry' : k === 'compare' ? '⚡ Compare' : k === 'cards' ? '🏠 Cards' : '⚖️ Weights';
+    const fullLabel = k === 'overview' ? '📊 Overview' : k === 'data-entry' ? '🛠️ Data Entry' : k === 'compare' ? '⚡ Compare' : k === 'cards' ? '🏠 Cards' : '⚖️ Weights';
+    const shortLabel = k === 'overview' ? '📊' : k === 'data-entry' ? '🛠️' : k === 'compare' ? '⚡' : k === 'cards' ? '🏠' : '⚖️';
+    const label = isMobile ? shortLabel : fullLabel;
     const isActive = tab === k;
     return /*#__PURE__*/React.createElement("button", {
       key: k,
       onClick: () => setTab(k),
       style: {
         ...TEXT_STYLES.bodyStrong,
-        padding: '7px 16px',
+        padding: isMobile ? '9px 14px' : '7px 16px',
         borderRadius: 7,
         border: 'none',
         cursor: 'pointer',
@@ -110,7 +113,10 @@ export default function App({
         color: isActive ? '#fff' : '#64748b',
         boxShadow: isActive ? '0 2px 8px #6366f144' : 'none',
         transition: 'all 0.15s',
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+        touchAction: 'manipulation',
+        minHeight: isMobile ? 44 : 'auto'
       }
     }, label);
   })), importSummary.blockCount === 0 && /*#__PURE__*/React.createElement("div", {

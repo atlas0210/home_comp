@@ -4,9 +4,9 @@ import { displayFieldValue, displayHoaFieldValue, getMissingFields } from '../..
 import { hoaAnnualToMonthly } from '../../domain/records.js?v=20260317d';
 
 export default function DataEntryTab(props) {
-  const { cardTitleStyle, inputTextStyle, buttonTextStyle, backupNotice, labelTextStyle, captionTextStyle, bodyMutedTextStyle, selectedHome, selectedSource, selectedOverrides, selectedDrafts, selectedErrors, filteredEditorHomes, setSelectedHomeId, visibleEditGroups, showHidden, setShowHidden, showMissingOnly, setShowMissingOnly, editorQuery, setEditorQuery, importRawText, setImportRawText, importSummary, restoreBackupInputRef, downloadBackup, exportOverridesJson, copyShareLink, triggerRestoreBackup, onRestoreBackupFile, restoreCommittedImports, clearImportText, addTag, removeTag, tagDraft, setTagDraft, onTextChange, onNumericChange, onNumericBlur, setSelectedStatus, resetSelectedHome, resetAllEdits, bodyStrongTextStyle, captionStrongTextStyle } = props;
+  const { cardTitleStyle, inputTextStyle, buttonTextStyle, backupNotice, labelTextStyle, captionTextStyle, bodyMutedTextStyle, isMobile, selectedHome, selectedSource, selectedOverrides, selectedDrafts, selectedErrors, filteredEditorHomes, setSelectedHomeId, visibleEditGroups, showHidden, setShowHidden, showMissingOnly, setShowMissingOnly, editorQuery, setEditorQuery, importRawText, setImportRawText, importSummary, restoreBackupInputRef, downloadBackup, exportOverridesJson, copyShareLink, triggerRestoreBackup, onRestoreBackupFile, restoreCommittedImports, clearImportText, addTag, removeTag, tagDraft, setTagDraft, onTextChange, onNumericChange, onNumericBlur, setSelectedStatus, resetSelectedHome, resetAllEdits, bodyStrongTextStyle, captionStrongTextStyle } = props;
   return (
-<div style={{ display: "grid", gridTemplateColumns: "minmax(280px,340px) minmax(0,1fr)", gap: 12, alignItems: "start" }}>
+<div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(280px,340px) minmax(0,1fr)", gap: 12, alignItems: "start" }}>
           <div style={{ background: "#161d2a", borderRadius: 12, padding: 12, overflowX: "hidden" }}>
             <div style={{ ...cardTitleStyle, marginBottom: 8 }}>Import Data</div>
             <textarea
@@ -44,7 +44,7 @@ export default function DataEntryTab(props) {
             </div>
             <div style={{ ...cardTitleStyle, marginBottom: 8 }}>Homes</div>
             <input value={editorQuery} onChange={(e) => setEditorQuery(e.target.value)} placeholder="Search address, status, or id" style={{ ...inputTextStyle, width: "100%", boxSizing: "border-box", background: "#0d1117", color: "#f1f5f9", border: "1px solid #2d3748", borderRadius: 6, padding: "7px 8px", marginBottom: 10 }} />
-            <div style={{ display: "grid", gap: 8, maxHeight: "42vh", overflowY: "auto", overflowX: "hidden", paddingRight: 4 }}>
+            <div style={{ display: "grid", gap: 8, maxHeight: isMobile ? "55vh" : "42vh", overflowY: "auto", overflowX: "hidden", paddingRight: 4 }}>
               {filteredEditorHomes.map((h) => {
                 const active = h.homeId === selectedHome?.homeId;
                 const missing = getMissingFields(h).length;

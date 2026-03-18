@@ -4,7 +4,7 @@ import { TEXT_STYLES } from '../../shared/uiTokens.js';
 import { getMissingFields, placeholderSummary } from '../../domain/display.js';
 
 export default function CompareTab(props) {
-  const { labelTextStyle, selectStyle, compareHomesPool, compareA, setCompareA, compareB, setCompareB, compareC, setCompareC, captionTextStyle, rawRadarData, weightedRadarData, a, b, c, chartXAxisTickStyle, chartTooltipLabelStyle, chartLegendStyle, chartLegendFormatter, cardTitleStyle, compareTableStyle, compareHeaderCellStyle, compareHeaderColors, compareMetricCellStyle, compareViewModel, compareValueCellStyle, compareScoreCellStyle, FONT_STACKS, pick } = props;
+  const { isMobile, labelTextStyle, selectStyle, compareHomesPool, compareA, setCompareA, compareB, setCompareB, compareC, setCompareC, captionTextStyle, rawRadarData, weightedRadarData, a, b, c, chartXAxisTickStyle, chartTooltipLabelStyle, chartLegendStyle, chartLegendFormatter, cardTitleStyle, compareTableStyle, compareHeaderCellStyle, compareHeaderColors, compareMetricCellStyle, compareViewModel, compareValueCellStyle, compareScoreCellStyle, FONT_STACKS, pick } = props;
   return (
 <div style={{ fontFamily: FONT_STACKS.sans }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12, marginBottom: 12 }}>
@@ -27,11 +27,11 @@ export default function CompareTab(props) {
               );
             })}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))", gap: 12, marginBottom: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit,minmax(340px,1fr))", gap: 12, marginBottom: 12 }}>
             <div style={{ background: "#161d2a", borderRadius: 12, padding: 16 }}>
               <div style={{ ...cardTitleStyle, marginBottom: 4 }}>Raw Score Radar</div>
               <div style={{ ...captionTextStyle, marginBottom: 6 }}>Each axis uses the raw factor score (0-100).</div>
-              <ResponsiveContainer width="100%" height={340}>
+              <ResponsiveContainer width="100%" height={isMobile ? 240 : 340}>
                 <RadarChart data={rawRadarData}>
                   <PolarGrid stroke="#334155" />
                   <PolarAngleAxis dataKey="subject" tick={chartXAxisTickStyle} />
@@ -53,7 +53,7 @@ export default function CompareTab(props) {
             <div style={{ background: "#161d2a", borderRadius: 12, padding: 16 }}>
               <div style={{ ...cardTitleStyle, marginBottom: 4 }}>Weighted Impact Radar</div>
               <div style={{ ...captionTextStyle, marginBottom: 6 }}>Each axis uses weighted contribution points (score x effective weight).</div>
-              <ResponsiveContainer width="100%" height={340}>
+              <ResponsiveContainer width="100%" height={isMobile ? 240 : 340}>
                 <RadarChart data={weightedRadarData}>
                   <PolarGrid stroke="#334155" />
                   <PolarAngleAxis dataKey="subject" tick={chartXAxisTickStyle} />
