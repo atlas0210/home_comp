@@ -11,6 +11,7 @@ export default function DataEntryTab(props) {
     labelTextStyle,
     captionTextStyle,
     bodyMutedTextStyle,
+    isMobile,
     selectedHome,
     selectedSource,
     selectedOverrides,
@@ -52,7 +53,7 @@ export default function DataEntryTab(props) {
   return /*#__PURE__*/React.createElement("div", {
     style: {
       display: "grid",
-      gridTemplateColumns: "minmax(280px,340px) minmax(0,1fr)",
+      gridTemplateColumns: isMobile ? "1fr" : "minmax(280px,340px) minmax(0,1fr)",
       gap: 12,
       alignItems: "start"
     }
@@ -220,7 +221,7 @@ export default function DataEntryTab(props) {
     style: {
       display: "grid",
       gap: 8,
-      maxHeight: "42vh",
+      maxHeight: isMobile ? "55vh" : "42vh",
       overflowY: "auto",
       overflowX: "hidden",
       paddingRight: 4

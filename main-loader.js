@@ -1,5 +1,5 @@
 import { React, ReactDOM } from './src/shared/runtime.js?v=20260317d';
-import App from './src/app/App.js?v=20260317d';
+import App from './src/app/App.js?v=20260318b';
 
 const status = document.getElementById('status');
 const rootEl = document.getElementById('root');

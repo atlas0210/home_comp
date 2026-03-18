@@ -1,9 +1,9 @@
 import { React } from '../shared/runtime.js';
 import { TEXT_STYLES } from '../shared/uiTokens.js';
-import { useHomeCompModel } from '../hooks/useHomeCompModel.js?v=20260317d';
+import { useHomeCompModel } from '../hooks/useHomeCompModel.js?v=20260318b';
 import OverviewTab from './tabs/OverviewTab.js';
-import DataEntryTab from './tabs/DataEntryTab.js?v=20260317d';
-import CompareTab from './tabs/CompareTab.js';
+import DataEntryTab from './tabs/DataEntryTab.js?v=20260318a';
+import CompareTab from './tabs/CompareTab.js?v=20260318a';
 import CardsTab from './tabs/CardsTab.js?v=20260317d';
 import WeightsTab from './tabs/WeightsTab.js';
 
@@ -16,7 +16,7 @@ export default function App({ seedOverridesByHomeId = {}, seedImportRawText = ''
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
         <div style={{ marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #1e293b' }}>
           <h1 style={{ ...TEXT_STYLES.heroTitle, background: 'linear-gradient(135deg, #f8fafc 0%, #a5b4fc 60%, #818cf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: 4, display: 'inline-block' }}>🏠 Home Comparison</h1>
-          <p style={{ ...bodyMutedTextStyle, fontSize: 12, marginTop: 4, marginBottom: 0 }}>Monthly payment includes P&amp;I, tax, and HOA · Fountain-area homes excluded · canvas computes all scores</p>
+          {!isMobile && <p style={{ ...bodyMutedTextStyle, fontSize: 12, marginTop: 4, marginBottom: 0 }}>Monthly payment includes P&amp;I, tax, and HOA · Fountain-area homes excluded · canvas computes all scores</p>}
         </div>
         {importSummary.blockCount > 0 && (
           <div style={{ ...model.labelTextStyle, fontWeight: 500, background: '#161d2a', border: '1px solid #2d3748', borderRadius: 8, padding: '8px 12px', marginBottom: 14, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -24,11 +24,13 @@ export default function App({ seedOverridesByHomeId = {}, seedImportRawText = ''
             Parsed {importSummary.importedCount} imported home(s) from {importSummary.blockCount} block(s) · flagged {importSummary.unknownFieldCount} unknown field(s) · flagged {importSummary.placeholderFieldCount} blank field(s)
           </div>
         )}
-        <div style={{ display: 'inline-flex', gap: 2, marginBottom: 20, background: '#111827', borderRadius: 10, padding: 4, border: '1px solid #1e293b', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 2, marginBottom: 20, background: '#111827', borderRadius: 10, padding: 4, border: '1px solid #1e293b', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           {['overview', 'data-entry', 'compare', 'cards', 'weights'].map((k) => {
-            const label = k === 'overview' ? '📊 Overview' : k === 'data-entry' ? '🛠️ Data Entry' : k === 'compare' ? '⚡ Compare' : k === 'cards' ? '🏠 Cards' : '⚖️ Weights';
+            const fullLabel = k === 'overview' ? '📊 Overview' : k === 'data-entry' ? '🛠️ Data Entry' : k === 'compare' ? '⚡ Compare' : k === 'cards' ? '🏠 Cards' : '⚖️ Weights';
+            const shortLabel = k === 'overview' ? '📊' : k === 'data-entry' ? '🛠️' : k === 'compare' ? '⚡' : k === 'cards' ? '🏠' : '⚖️';
+            const label = isMobile ? shortLabel : fullLabel;
             const isActive = tab === k;
-            return <button key={k} onClick={() => setTab(k)} style={{ ...TEXT_STYLES.bodyStrong, padding: '7px 16px', borderRadius: 7, border: 'none', cursor: 'pointer', background: isActive ? '#6366f1' : 'transparent', color: isActive ? '#fff' : '#64748b', boxShadow: isActive ? '0 2px 8px #6366f144' : 'none', transition: 'all 0.15s', whiteSpace: 'nowrap' }}>{label}</button>;
+            return <button key={k} onClick={() => setTab(k)} style={{ ...TEXT_STYLES.bodyStrong, padding: isMobile ? '9px 14px' : '7px 16px', borderRadius: 7, border: 'none', cursor: 'pointer', background: isActive ? '#6366f1' : 'transparent', color: isActive ? '#fff' : '#64748b', boxShadow: isActive ? '0 2px 8px #6366f144' : 'none', transition: 'all 0.15s', whiteSpace: 'nowrap', flexShrink: 0, touchAction: 'manipulation', minHeight: isMobile ? 44 : 'auto' }}>{label}</button>;
           })}
         </div>
         {importSummary.blockCount === 0 && (

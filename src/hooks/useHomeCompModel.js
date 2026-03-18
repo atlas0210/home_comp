@@ -47,7 +47,7 @@ export function useHomeCompModel({ seedOverridesByHomeId = {}, seedImportRawText
   };
   const [viewportWidth, setViewportWidth] = useState(() => (typeof window === "undefined" ? 1280 : window.innerWidth));
   const [failedImageKeys, setFailedImageKeys] = useState(() => new Set());
-  const isMobile = viewportWidth <= 640;
+  const isMobile = viewportWidth <= 768;
   const [importRawText, setImportRawText] = useState(() => {
     if (typeof window === "undefined") return committedImportRawText;
     const fromLocal = window.localStorage.getItem(LOCAL_IMPORT_STORAGE_KEY);
