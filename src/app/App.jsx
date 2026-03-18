@@ -1,6 +1,6 @@
 import { React } from '../shared/runtime.js';
 import { TEXT_STYLES } from '../shared/uiTokens.js';
-import { useHomeCompModel } from '../hooks/useHomeCompModel.js?v=20260317d';
+import { useHomeCompModel } from '../hooks/useHomeCompModel.js?v=20260318b';
 import OverviewTab from './tabs/OverviewTab.js';
 import DataEntryTab from './tabs/DataEntryTab.js?v=20260318a';
 import CompareTab from './tabs/CompareTab.js?v=20260318a';
