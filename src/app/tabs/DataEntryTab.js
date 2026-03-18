@@ -58,7 +58,7 @@ export default function DataEntryTab(props) {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#1e293b",
+      background: "#161d2a",
       borderRadius: 12,
       padding: 12,
       overflowX: "hidden"
@@ -78,9 +78,9 @@ export default function DataEntryTab(props) {
       boxSizing: "border-box",
       minHeight: 120,
       resize: "vertical",
-      background: "#0f172a",
+      background: "#0d1117",
       color: "#f1f5f9",
-      border: "1px solid #334155",
+      border: "1px solid #2d3748",
       borderRadius: 6,
       padding: "8px 9px",
       marginBottom: 8,
@@ -102,8 +102,8 @@ export default function DataEntryTab(props) {
     onClick: downloadBackup,
     style: {
       ...buttonTextStyle,
-      border: "1px solid #334155",
-      background: "#111827",
+      border: "1px solid #2d3748",
+      background: "#0d1117",
       borderRadius: 6,
       padding: "6px 10px",
       cursor: "pointer"
@@ -123,8 +123,8 @@ export default function DataEntryTab(props) {
     onClick: copyShareLink,
     style: {
       ...buttonTextStyle,
-      border: "1px solid #334155",
-      background: "#111827",
+      border: "1px solid #2d3748",
+      background: "#0d1117",
       borderRadius: 6,
       padding: "6px 10px",
       cursor: "pointer"
@@ -133,8 +133,8 @@ export default function DataEntryTab(props) {
     onClick: triggerRestoreBackup,
     style: {
       ...buttonTextStyle,
-      border: "1px solid #334155",
-      background: "#111827",
+      border: "1px solid #2d3748",
+      background: "#0d1117",
       borderRadius: 6,
       padding: "6px 10px",
       cursor: "pointer"
@@ -151,8 +151,8 @@ export default function DataEntryTab(props) {
     onClick: restoreCommittedImports,
     style: {
       ...buttonTextStyle,
-      border: "1px solid #334155",
-      background: "#111827",
+      border: "1px solid #2d3748",
+      background: "#0d1117",
       borderRadius: 6,
       padding: "6px 10px",
       cursor: "pointer"
@@ -209,9 +209,9 @@ export default function DataEntryTab(props) {
       ...inputTextStyle,
       width: "100%",
       boxSizing: "border-box",
-      background: "#0f172a",
+      background: "#0d1117",
       color: "#f1f5f9",
-      border: "1px solid #334155",
+      border: "1px solid #2d3748",
       borderRadius: 6,
       padding: "7px 8px",
       marginBottom: 10
@@ -263,7 +263,7 @@ export default function DataEntryTab(props) {
     }, missing ? `${missing} blank field(s)` : "No blank fields"));
   }))), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#1e293b",
+      background: "#161d2a",
       borderRadius: 12,
       padding: 16
     }
@@ -308,8 +308,8 @@ export default function DataEntryTab(props) {
     onClick: downloadBackup,
     style: {
       ...buttonTextStyle,
-      border: "1px solid #334155",
-      background: "#111827",
+      border: "1px solid #2d3748",
+      background: "#0d1117",
       borderRadius: 6,
       padding: "6px 10px",
       cursor: "pointer"
@@ -351,8 +351,8 @@ export default function DataEntryTab(props) {
     onClick: resetSelectedHome,
     style: {
       ...buttonTextStyle,
-      border: "1px solid #334155",
-      background: "#0f172a",
+      border: "1px solid #2d3748",
+      background: "#0d1117",
       borderRadius: 6,
       padding: "6px 10px",
       cursor: "pointer"
@@ -378,7 +378,7 @@ export default function DataEntryTab(props) {
   }, visibleEditGroups.map(group => /*#__PURE__*/React.createElement("div", {
     key: group.title,
     style: {
-      border: "1px solid #334155",
+      border: "1px solid #2d3748",
       borderRadius: 10,
       padding: 12
     }
@@ -424,8 +424,8 @@ export default function DataEntryTab(props) {
         key: key,
         style: {
           gridColumn: "1 / -1",
-          background: "#0f172a",
-          border: "1px solid #334155",
+          background: "#0d1117",
+          border: "1px solid #2d3748",
           borderRadius: 8,
           padding: 10
         }
@@ -447,8 +447,8 @@ export default function DataEntryTab(props) {
         onClick: () => removeTag(tag),
         style: {
           ...captionStrongTextStyle,
-          background: "#111827",
-          border: "1px solid #334155",
+          background: "#0d1117",
+          border: "1px solid #2d3748",
           borderRadius: 999,
           padding: "3px 8px",
           cursor: "pointer"
@@ -465,9 +465,9 @@ export default function DataEntryTab(props) {
         style: {
           ...inputTextStyle,
           flex: 1,
-          background: "#111827",
+          background: "#0d1117",
           color: "#f1f5f9",
-          border: "1px solid #334155",
+          border: "1px solid #2d3748",
           borderRadius: 6,
           padding: "6px 8px"
         }
@@ -475,7 +475,7 @@ export default function DataEntryTab(props) {
         onClick: addTag,
         style: {
           ...buttonTextStyle,
-          border: "1px solid #334155",
+          border: "1px solid #2d3748",
           background: "#1f2937",
           borderRadius: 6,
           padding: "6px 10px",
@@ -491,8 +491,8 @@ export default function DataEntryTab(props) {
     return /*#__PURE__*/React.createElement("div", {
       key: key,
       style: {
-        background: "#0f172a",
-        border: "1px solid #334155",
+        background: "#0d1117",
+        border: "1px solid #2d3748",
         borderRadius: 8,
         padding: 10
       }
@@ -522,9 +522,9 @@ export default function DataEntryTab(props) {
       style: {
         ...inputTextStyle,
         width: "100%",
-        background: "#111827",
+        background: "#0d1117",
         color: "#f1f5f9",
-        border: "1px solid #334155",
+        border: "1px solid #2d3748",
         borderRadius: 6,
         padding: "6px 8px"
       }
@@ -540,7 +540,7 @@ export default function DataEntryTab(props) {
       style: {
         ...inputTextStyle,
         width: "100%",
-        background: "#111827",
+        background: "#0d1117",
         color: "#f1f5f9",
         border: error ? "1px solid #ef4444" : "1px solid #334155",
         borderRadius: 6,
@@ -552,9 +552,9 @@ export default function DataEntryTab(props) {
       style: {
         ...inputTextStyle,
         width: "100%",
-        background: "#111827",
+        background: "#0d1117",
         color: "#f1f5f9",
-        border: "1px solid #334155",
+        border: "1px solid #2d3748",
         borderRadius: 6,
         padding: "6px 8px"
       }

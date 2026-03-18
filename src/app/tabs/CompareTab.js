@@ -51,7 +51,7 @@ export default function CompareTab(props) {
     return /*#__PURE__*/React.createElement("div", {
       key: label,
       style: {
-        background: "#1e293b",
+        background: "#161d2a",
         borderRadius: 12,
         padding: 12
       }
@@ -86,7 +86,7 @@ export default function CompareTab(props) {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#1e293b",
+      background: "#161d2a",
       borderRadius: 12,
       padding: 16
     }
@@ -116,8 +116,8 @@ export default function CompareTab(props) {
       return [Number.isFinite(n) ? n.toFixed(2) : "—", "Raw Score"];
     },
     contentStyle: {
-      background: "#1e293b",
-      border: "1px solid #334155",
+      background: "#161d2a",
+      border: "1px solid #2d3748",
       borderRadius: 8,
       fontFamily: FONT_STACKS.sans
     },
@@ -145,7 +145,7 @@ export default function CompareTab(props) {
     formatter: chartLegendFormatter
   })))), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#1e293b",
+      background: "#161d2a",
       borderRadius: 12,
       padding: 16
     }
@@ -175,8 +175,8 @@ export default function CompareTab(props) {
       return [Number.isFinite(n) ? `${n.toFixed(2)} pts` : "—", "Weighted Impact"];
     },
     contentStyle: {
-      background: "#1e293b",
-      border: "1px solid #334155",
+      background: "#161d2a",
+      border: "1px solid #2d3748",
       borderRadius: 8,
       fontFamily: FONT_STACKS.sans
     },
@@ -204,7 +204,7 @@ export default function CompareTab(props) {
     formatter: chartLegendFormatter
   }))))), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#1e293b",
+      background: "#161d2a",
       borderRadius: 12,
       padding: 16,
       overflowX: "auto"

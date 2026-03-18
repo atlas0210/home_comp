@@ -12,21 +12,31 @@ export default function App({ seedOverridesByHomeId = {}, seedImportRawText = ''
   const { isMobile, bodyMutedTextStyle, importSummary, buttonTextStyle, tab, setTab } = model;
 
   return (
-    <div style={{ fontFamily: model.FONT_STACKS.sans, background: '#0f172a', minHeight: '100vh', color: '#e2e8f0', padding: isMobile ? 10 : 16, WebkitTextSizeAdjust: '100%', textSizeAdjust: '100%' }}>
+    <div style={{ fontFamily: model.FONT_STACKS.sans, background: '#0d1117', minHeight: '100vh', color: '#e2e8f0', padding: isMobile ? 10 : 20, WebkitTextSizeAdjust: '100%', textSizeAdjust: '100%' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-        <h1 style={{ ...TEXT_STYLES.heroTitle, color: '#f8fafc', marginBottom: 4 }}>🏠 Home Comparison Dashboard</h1>
-        <p style={{ ...bodyMutedTextStyle, marginBottom: 16 }}>Monthly payment includes P&amp;I, tax, and HOA · Fountain-area homes are excluded for safety concerns · canvas computes all scores</p>
-        {importSummary.blockCount > 0 && <div style={{ ...model.labelTextStyle, background: '#111827', border: '1px solid #334155', borderRadius: 8, padding: '8px 10px', marginBottom: 12 }}>Parsed {importSummary.importedCount} imported home(s) from {importSummary.blockCount} block(s) · flagged {importSummary.unknownFieldCount} unknown field(s) · flagged {importSummary.placeholderFieldCount} blank field(s)</div>}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+        <div style={{ marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #1e293b' }}>
+          <h1 style={{ ...TEXT_STYLES.heroTitle, background: 'linear-gradient(135deg, #f8fafc 0%, #a5b4fc 60%, #818cf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: 4, display: 'inline-block' }}>🏠 Home Comparison</h1>
+          <p style={{ ...bodyMutedTextStyle, fontSize: 12, marginTop: 4, marginBottom: 0 }}>Monthly payment includes P&amp;I, tax, and HOA · Fountain-area homes excluded · canvas computes all scores</p>
+        </div>
+        {importSummary.blockCount > 0 && (
+          <div style={{ ...model.labelTextStyle, fontWeight: 500, background: '#161d2a', border: '1px solid #2d3748', borderRadius: 8, padding: '8px 12px', marginBottom: 14, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block', flexShrink: 0 }} />
+            Parsed {importSummary.importedCount} imported home(s) from {importSummary.blockCount} block(s) · flagged {importSummary.unknownFieldCount} unknown field(s) · flagged {importSummary.placeholderFieldCount} blank field(s)
+          </div>
+        )}
+        <div style={{ display: 'inline-flex', gap: 2, marginBottom: 20, background: '#111827', borderRadius: 10, padding: 4, border: '1px solid #1e293b', flexWrap: 'wrap' }}>
           {['overview', 'data-entry', 'compare', 'cards', 'weights'].map((k) => {
             const label = k === 'overview' ? '📊 Overview' : k === 'data-entry' ? '🛠️ Data Entry' : k === 'compare' ? '⚡ Compare' : k === 'cards' ? '🏠 Cards' : '⚖️ Weights';
-            return <button key={k} onClick={() => setTab(k)} style={{ ...TEXT_STYLES.bodyStrong, padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', background: tab === k ? '#6366f1' : '#1e293b', color: tab === k ? '#fff' : '#94a3b8' }}>{label}</button>;
+            const isActive = tab === k;
+            return <button key={k} onClick={() => setTab(k)} style={{ ...TEXT_STYLES.bodyStrong, padding: '7px 16px', borderRadius: 7, border: 'none', cursor: 'pointer', background: isActive ? '#6366f1' : 'transparent', color: isActive ? '#fff' : '#64748b', boxShadow: isActive ? '0 2px 8px #6366f144' : 'none', transition: 'all 0.15s', whiteSpace: 'nowrap' }}>{label}</button>;
           })}
         </div>
         {importSummary.blockCount === 0 && (
-          <div style={{ background: '#1f2937', border: '1px solid #f59e0b66', borderRadius: 8, padding: '8px 10px', marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <div style={{ ...TEXT_STYLES.label, color: '#fcd34d' }}>No imported homes are currently loaded.</div>
-            <button onClick={() => setTab('data-entry')} style={{ ...buttonTextStyle, border: '1px solid #334155', background: '#111827', borderRadius: 6, padding: '6px 10px', cursor: 'pointer' }}>Open Data Entry</button>
+          <div style={{ background: '#161208', border: '1px solid #f59e0b44', borderRadius: 8, padding: '10px 14px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ ...TEXT_STYLES.label, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>⚠</span> No imported homes are currently loaded.
+            </div>
+            <button onClick={() => setTab('data-entry')} style={{ ...buttonTextStyle, border: '1px solid #2d3748', background: '#1a1a0e', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', color: '#fbbf24' }}>Open Data Entry</button>
           </div>
         )}
 

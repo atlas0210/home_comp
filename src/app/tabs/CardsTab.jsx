@@ -16,7 +16,7 @@ export default function CardsTab(props) {
               const cardFactorPairs = cardFactorPairsByHomeId.get(h.homeId) ?? {};
               const rank = rankByHomeId.get(h.homeId);
               return (
-                <div key={h.homeId} style={{ background: "#1e293b", borderRadius: 16, padding: 16, boxShadow: "0 8px 20px rgba(0,0,0,.25)", border: `1px solid ${gradeColor(h.weightedTotal)}33` }}>
+                <div key={h.homeId} style={{ background: "#161d2a", borderRadius: 16, padding: 16, boxShadow: "0 8px 20px rgba(0,0,0,.25)", border: `1px solid ${gradeColor(h.weightedTotal)}33` }}>
                   {showPhoto ? (
                     <div style={IMG_WRAP_STYLE}>
                       <img
@@ -79,7 +79,7 @@ export default function CardsTab(props) {
                         Missing: {placeholderLabel(fieldKey)}
                       </span>
                     ))}
-                    {(h.tags || []).map((tag) => <span key={tag} style={{ ...captionStrongTextStyle, background: "#0f172a", border: "1px solid #334155", borderRadius: 999, padding: "3px 8px" }}>{tag}</span>)}
+                    {(h.tags || []).map((tag) => <span key={tag} style={{ ...captionStrongTextStyle, background: "#0f172a", border: "1px solid #2d3748", borderRadius: 999, padding: "3px 8px" }}>{tag}</span>)}
                   </div>
                 </div>
               );

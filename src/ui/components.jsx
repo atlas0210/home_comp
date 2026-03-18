@@ -5,9 +5,9 @@ import { toNum } from '../domain/records.js';
 
 function CardMetric({ label, value }) {
   return (
-    <div style={{ background: "#0f172a", borderRadius: 10, padding: "8px 10px" }}>
-      <div style={{ ...TEXT_STYLES.eyebrow, color: "#64748b" }}>{label}</div>
-      <div style={{ ...TEXT_STYLES.bodyStrong, color: "#f1f5f9" }}>{value}</div>
+    <div style={{ background: "#0d1117", borderRadius: 8, padding: "8px 10px", borderLeft: "2px solid #2d3748" }}>
+      <div style={{ ...TEXT_STYLES.eyebrow, color: "#4b5a6e", marginBottom: 3 }}>{label}</div>
+      <div style={{ ...TEXT_STYLES.bodyStrong, color: "#e2e8f0", fontSize: 13 }}>{value}</div>
     </div>
   );
 }
@@ -19,14 +19,15 @@ function ScoreBar({ value }) {
   return (
     <div
       aria-hidden="true"
-      style={{ height: 7, borderRadius: 999, overflow: "hidden", background: "#0f172a", border: "1px solid #1f2937" }}
+      style={{ height: 6, borderRadius: 999, overflow: "hidden", background: "#0d1117", border: "1px solid #1e293b" }}
     >
       <div
         style={{
           width: `${widthPct}%`,
           height: "100%",
           borderRadius: 999,
-          background: `linear-gradient(90deg, ${fillColor}aa, ${fillColor})`,
+          background: `linear-gradient(90deg, ${fillColor}88, ${fillColor})`,
+          boxShadow: widthPct > 0 ? `0 0 6px ${fillColor}55` : "none",
         }}
       />
     </div>

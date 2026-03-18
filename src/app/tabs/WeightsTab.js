@@ -18,7 +18,7 @@ export default function WeightsTab(props) {
   } = props;
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#1e293b",
+      background: "#161d2a",
       borderRadius: 12,
       padding: 16
     }
@@ -40,7 +40,7 @@ export default function WeightsTab(props) {
     onClick: resetWeightsToDefault,
     style: {
       ...buttonTextStyle,
-      border: "1px solid #334155",
+      border: "1px solid #2d3748",
       background: "#111827",
       borderRadius: 6,
       padding: "6px 10px",
@@ -64,9 +64,9 @@ export default function WeightsTab(props) {
     return /*#__PURE__*/React.createElement("div", {
       key: row.key,
       style: {
-        border: "1px solid #334155",
+        border: "1px solid #2d3748",
         borderRadius: 10,
-        background: "#0f172a",
+        background: "#0d1117",
         padding: 10
       }
     }, /*#__PURE__*/React.createElement("div", {

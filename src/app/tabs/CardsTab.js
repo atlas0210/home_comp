@@ -34,7 +34,7 @@ export default function CardsTab(props) {
     return /*#__PURE__*/React.createElement("div", {
       key: h.homeId,
       style: {
-        background: "#1e293b",
+        background: "#161d2a",
         borderRadius: 16,
         padding: 16,
         boxShadow: "0 8px 20px rgba(0,0,0,.25)",
@@ -207,7 +207,7 @@ export default function CardsTab(props) {
       style: {
         ...captionStrongTextStyle,
         background: "#0f172a",
-        border: "1px solid #334155",
+        border: "1px solid #2d3748",
         borderRadius: 999,
         padding: "3px 8px"
       }

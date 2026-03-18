@@ -12,7 +12,7 @@ export default function CompareTab(props) {
               const slotHome = pick(val, null);
               const missingCount = slotHome ? getMissingFields(slotHome).length : 0;
               return (
-                <div key={label} style={{ background: "#1e293b", borderRadius: 12, padding: 12 }}>
+                <div key={label} style={{ background: "#161d2a", borderRadius: 12, padding: 12 }}>
                   <div style={{ ...labelTextStyle, color, marginBottom: 6 }}>Home {label}</div>
                   <select value={val} onChange={(e) => setter(e.target.value)} style={selectStyle}>
                     <option value={EMPTY}>Blank</option>
@@ -28,7 +28,7 @@ export default function CompareTab(props) {
             })}
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))", gap: 12, marginBottom: 12 }}>
-            <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
+            <div style={{ background: "#161d2a", borderRadius: 12, padding: 16 }}>
               <div style={{ ...cardTitleStyle, marginBottom: 4 }}>Raw Score Radar</div>
               <div style={{ ...captionTextStyle, marginBottom: 6 }}>Each axis uses the raw factor score (0-100).</div>
               <ResponsiveContainer width="100%" height={340}>
@@ -40,7 +40,7 @@ export default function CompareTab(props) {
                       const n = typeof v === "number" ? v : Number(v);
                       return [Number.isFinite(n) ? n.toFixed(2) : "—", "Raw Score"];
                     }}
-                    contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontFamily: FONT_STACKS.sans }}
+                    contentStyle={{ background: "#161d2a", border: "1px solid #2d3748", borderRadius: 8, fontFamily: FONT_STACKS.sans }}
                     labelStyle={chartTooltipLabelStyle}
                   />
                   {a && <Radar name={a.short} dataKey="a" stroke="#6366f1" fill="#6366f1" fillOpacity={0.16} />}
@@ -50,7 +50,7 @@ export default function CompareTab(props) {
                 </RadarChart>
               </ResponsiveContainer>
             </div>
-            <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
+            <div style={{ background: "#161d2a", borderRadius: 12, padding: 16 }}>
               <div style={{ ...cardTitleStyle, marginBottom: 4 }}>Weighted Impact Radar</div>
               <div style={{ ...captionTextStyle, marginBottom: 6 }}>Each axis uses weighted contribution points (score x effective weight).</div>
               <ResponsiveContainer width="100%" height={340}>
@@ -62,7 +62,7 @@ export default function CompareTab(props) {
                       const n = typeof v === "number" ? v : Number(v);
                       return [Number.isFinite(n) ? `${n.toFixed(2)} pts` : "—", "Weighted Impact"];
                     }}
-                    contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontFamily: FONT_STACKS.sans }}
+                    contentStyle={{ background: "#161d2a", border: "1px solid #2d3748", borderRadius: 8, fontFamily: FONT_STACKS.sans }}
                     labelStyle={chartTooltipLabelStyle}
                   />
                   {a && <Radar name={`${a.short} (pts)`} dataKey="a" stroke="#6366f1" fill="#6366f1" fillOpacity={0.16} />}
@@ -73,7 +73,7 @@ export default function CompareTab(props) {
               </ResponsiveContainer>
             </div>
           </div>
-          <div style={{ background: "#1e293b", borderRadius: 12, padding: 16, overflowX: "auto" }}>
+          <div style={{ background: "#161d2a", borderRadius: 12, padding: 16, overflowX: "auto" }}>
             <table style={compareTableStyle}>
               <thead>
                 <tr>

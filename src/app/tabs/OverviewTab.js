@@ -27,7 +27,7 @@ export default function OverviewTab(props) {
   } = props;
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#1e293b",
+      background: "#161d2a",
       borderRadius: 12,
       padding: 16,
       marginBottom: 16
@@ -202,7 +202,7 @@ export default function OverviewTab(props) {
     }));
   }))))), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#1e293b",
+      background: "#161d2a",
       borderRadius: 12,
       padding: 16
     }
@@ -234,8 +234,8 @@ export default function OverviewTab(props) {
     tick: chartYAxisTickStyle
   }), /*#__PURE__*/React.createElement(Tooltip, {
     contentStyle: {
-      background: "#1e293b",
-      border: "1px solid #334155",
+      background: "#161d2a",
+      border: "1px solid #2d3748",
       borderRadius: 8,
       fontFamily: FONT_STACKS.sans
     },

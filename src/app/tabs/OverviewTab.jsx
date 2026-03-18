@@ -6,7 +6,7 @@ export default function OverviewTab(props) {
   const { sectionTitleStyle, overviewTableMinWidth, overviewRankColWidth, overviewColumns, isMobile, onOverviewSort, overviewSortKey, overviewSortIndicator, overviewRows, rankByHomeId, overviewRowTone, setHoveredOverviewHomeId, toggleOverviewRowLock, onOverviewRowKeyDown, factorPairForHome, overviewAddress, chartXAxisTickStyle, chartYAxisTickStyle, chartTooltipLabelStyle, FONT_STACKS, COLORS } = props;
   return (
 <div>
-          <div style={{ background: "#1e293b", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+          <div style={{ background: "#161d2a", borderRadius: 12, padding: 16, marginBottom: 16 }}>
             <h2 style={{ ...sectionTitleStyle, marginBottom: 12 }}>🏆 Rankings</h2>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed", fontSize: isMobile ? 10 : 12, minWidth: overviewTableMinWidth }}>
@@ -129,9 +129,9 @@ export default function OverviewTab(props) {
               </table>
             </div>
           </div>
-          <div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
+          <div style={{ background: "#161d2a", borderRadius: 12, padding: 16 }}>
             <h2 style={{ ...sectionTitleStyle, marginBottom: 12 }}>Weighted Score</h2>
-            <ResponsiveContainer width="100%" height={260}><BarChart data={overviewRows} margin={{ top: 0, right: 0, bottom: 50, left: 0 }}><XAxis dataKey="short" tick={chartXAxisTickStyle} angle={-35} textAnchor="end" interval={0} height={60} /><YAxis domain={[0, 100]} tick={chartYAxisTickStyle} /><Tooltip contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontFamily: FONT_STACKS.sans }} labelStyle={chartTooltipLabelStyle} formatter={(v, n) => [n === "weightedTotal" ? Number(v).toFixed(2) : v, n]} /><Bar dataKey="weightedTotal" radius={[4, 4, 0, 0]}>{overviewRows.map((h, i) => <Cell key={h.homeId} fill={COLORS[i % COLORS.length]} />)}</Bar></BarChart></ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={260}><BarChart data={overviewRows} margin={{ top: 0, right: 0, bottom: 50, left: 0 }}><XAxis dataKey="short" tick={chartXAxisTickStyle} angle={-35} textAnchor="end" interval={0} height={60} /><YAxis domain={[0, 100]} tick={chartYAxisTickStyle} /><Tooltip contentStyle={{ background: "#161d2a", border: "1px solid #2d3748", borderRadius: 8, fontFamily: FONT_STACKS.sans }} labelStyle={chartTooltipLabelStyle} formatter={(v, n) => [n === "weightedTotal" ? Number(v).toFixed(2) : v, n]} /><Bar dataKey="weightedTotal" radius={[4, 4, 0, 0]}>{overviewRows.map((h, i) => <Cell key={h.homeId} fill={COLORS[i % COLORS.length]} />)}</Bar></BarChart></ResponsiveContainer>
           </div>
         </div>
   );

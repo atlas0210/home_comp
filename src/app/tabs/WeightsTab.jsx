@@ -5,12 +5,12 @@ import { TEXT_STYLES } from '../../shared/uiTokens.js';
 export default function WeightsTab(props) {
   const { sectionTitleStyle, buttonTextStyle, weightsSubtitle, weightRows, resetWeightsToDefault, onWeightSliderChange, cardTitleStyle, captionTextStyle, impactAudit, auditStatusStyle, bodyStrongTextStyle, labelTextStyle } = props;
   return (
-<div style={{ background: "#1e293b", borderRadius: 12, padding: 16 }}>
+<div style={{ background: "#161d2a", borderRadius: 12, padding: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
               <h2 style={{ ...sectionTitleStyle, margin: 0 }}>Interactive Weights</h2>
               <button
                 onClick={resetWeightsToDefault}
-                style={{ ...buttonTextStyle, border: "1px solid #334155", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}
+                style={{ ...buttonTextStyle, border: "1px solid #2d3748", background: "#111827", borderRadius: 6, padding: "6px 10px", cursor: "pointer" }}
               >
                 Reset Weights
               </button>
@@ -21,7 +21,7 @@ export default function WeightsTab(props) {
                 const rawPercent = +((row.raw ?? 0) * 100).toFixed(1);
                 const effectivePercent = +((row.effective ?? 0) * 100).toFixed(1);
                 return (
-                  <div key={row.key} style={{ border: "1px solid #334155", borderRadius: 10, background: "#0f172a", padding: 10 }}>
+                  <div key={row.key} style={{ border: "1px solid #2d3748", borderRadius: 10, background: "#0d1117", padding: 10 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, gap: 8, flexWrap: "wrap" }}>
                       <div style={{ ...cardTitleStyle, color: "#e2e8f0" }}>{row.label}</div>
                       <div style={{ ...TEXT_STYLES.label, display: "flex", gap: 10, fontWeight: 500, color: "#94a3b8" }}>
