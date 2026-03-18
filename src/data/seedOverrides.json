@@ -1,56 +1,56 @@
 {
     "base-0":  {
-                   "dom":  48,
+                   "dom":  49,
                    "masterBedSqft":  195,
                    "status":  "Ruled Out"
                },
     "base-1":  {
-                   "dom":  38
+                   "dom":  39
                },
     "base-10":  {
-                    "dom":  9
+                    "dom":  10
                 },
     "base-2":  {
-                   "dom":  90
+                   "dom":  91
                },
     "base-3":  {
-                   "dom":  16,
+                   "dom":  17,
                    "masterBedSqft":  224,
                    "status":  "Ruled Out"
                },
     "base-4":  {
                    "bre":  9,
-                   "dom":  107,
+                   "dom":  108,
                    "masterBedSqft":  234
                },
     "base-5":  {
-                   "dom":  40
+                   "dom":  41
                },
     "base-6":  {
-                   "dom":  23,
+                   "dom":  24,
                    "masterBedSqft":  180,
                    "status":  "Ruled Out"
                },
     "base-7":  {
-                   "dom":  50,
+                   "dom":  51,
                    "masterBedSqft":  208,
                    "status":  "Ruled Out"
                },
     "base-8":  {
                    "bre":  6.5,
-                   "dom":  13,
+                   "dom":  14,
                    "masterBedSqft":  198,
                    "photo":  "https://photos.zillowstatic.com/fp/052c6f4d6f652b0358605cd46c9aca64-cc_ft_1152.webp"
                },
     "base-9":  {
                    "bre":  7,
-                   "dom":  51,
+                   "dom":  52,
                    "masterBedSqft":  266,
                    "photo":  "https://photos.zillowstatic.com/fp/cf17f7295bec7896435e1ad0bbc70c8d-cc_ft_1152.webp"
                },
     "imported-addr-11310-scenic-brush-dr-peyton-co-80831":  {
                                                                 "bre":  7,
-                                                                "dom":  33,
+                                                                "dom":  34,
                                                                 "greg":  6,
                                                                 "hoa":  1.2,
                                                                 "kitchenSize":  "Large",
@@ -61,7 +61,7 @@
                                                             },
     "imported-addr-11908-eagle-crest-ct-peyton-co-80831":  {
                                                                "bre":  7.5,
-                                                               "dom":  5,
+                                                               "dom":  6,
                                                                "greg":  7.5,
                                                                "hoa":  2760,
                                                                "kitchenSize":  "Large",
@@ -72,7 +72,7 @@
                                                            },
     "imported-mls-1196446":  {
                                  "bre":  8.75,
-                                 "dom":  5,
+                                 "dom":  6,
                                  "greg":  8.5,
                                  "hoa":  396,
                                  "kitchenSize":  "Gourmet",
@@ -83,7 +83,7 @@
                              },
     "imported-mls-1217348":  {
                                  "bre":  7.5,
-                                 "dom":  173,
+                                 "dom":  174,
                                  "greg":  7.8,
                                  "hoa":  1,
                                  "kitchenSize":  "Large",
@@ -98,7 +98,7 @@
                              },
     "imported-mls-1506020":  {
                                  "bre":  6,
-                                 "dom":  25,
+                                 "dom":  26,
                                  "greg":  6.5,
                                  "hoa":  0.1,
                                  "kitchenSize":  "Large",
@@ -113,7 +113,7 @@
                              },
     "imported-mls-1627467":  {
                                  "bre":  8,
-                                 "dom":  11,
+                                 "dom":  12,
                                  "greg":  8.2,
                                  "hoa":  1.2,
                                  "kitchenSize":  "Large",
@@ -124,7 +124,7 @@
                              },
     "imported-mls-1957788":  {
                                  "bre":  8.5,
-                                 "dom":  88,
+                                 "dom":  89,
                                  "greg":  8.7,
                                  "hoa":  2520,
                                  "kitchenSize":  "Gourmet",
@@ -140,12 +140,13 @@
                              },
     "imported-mls-3822228":  {
                                  "bre":  8,
-                                 "dom":  138,
+                                 "dom":  139,
                                  "greg":  7.5,
                                  "hoa":  0.1,
                                  "kitchenSize":  "Gourmet",
                                  "lotSqft":  26400,
                                  "photo":  "https://photos.zillowstatic.com/fp/9454bf9d14ce57b0fd2cac0b3ce61ca2-cc_ft_576.webp",
+                                 "price":  535000,
                                  "safetyAssaultIndex":  39,
                                  "safetyBurglaryIndex":  93,
                                  "safetyLarcenyTheftIndex":  6,
@@ -154,7 +155,7 @@
                              },
     "imported-mls-3917272":  {
                                  "bre":  7,
-                                 "dom":  20,
+                                 "dom":  21,
                                  "greg":  7,
                                  "hoa":  2700,
                                  "kitchenSize":  "Large",
@@ -169,7 +170,7 @@
                                  "yardCondition":  "Excellent"
                              },
     "imported-mls-3921720":  {
-                                 "dom":  13,
+                                 "dom":  14,
                                  "masterBedSqft":  234,
                                  "photo":  "https://photos.zillowstatic.com/fp/e50f9224bf21b296c8dd839bdaeec569-cc_ft_768.webp",
                                  "safetyAssaultIndex":  44,
@@ -181,7 +182,7 @@
                              },
     "imported-mls-4050227":  {
                                  "bre":  7.75,
-                                 "dom":  1,
+                                 "dom":  2,
                                  "greg":  7,
                                  "hoa":  3780,
                                  "kitchenSize":  "Medium",
@@ -192,7 +193,7 @@
                              },
     "imported-mls-4495204":  {
                                  "bre":  8.5,
-                                 "dom":  98,
+                                 "dom":  99,
                                  "greg":  8.5,
                                  "hoa":  2604,
                                  "kitchenSize":  "Large",
@@ -208,7 +209,7 @@
                              },
     "imported-mls-4539098":  {
                                  "bre":  7,
-                                 "dom":  41,
+                                 "dom":  42,
                                  "greg":  6.5,
                                  "kitchenSize":  "Gourmet",
                                  "lotSqft":  6903,
@@ -221,7 +222,7 @@
                                  "yardCondition":  "Poor"
                              },
     "imported-mls-5252348":  {
-                                 "dom":  33,
+                                 "dom":  34,
                                  "photo":  "https://photos.zillowstatic.com/fp/e5b3fa77e284e6e146a1bda01e9af36d-cc_ft_768.webp",
                                  "safetyAssaultIndex":  119,
                                  "safetyBurglaryIndex":  58,
@@ -232,7 +233,7 @@
                              },
     "imported-mls-5703873":  {
                                  "bre":  5.1,
-                                 "dom":  60,
+                                 "dom":  61,
                                  "greg":  5.1,
                                  "hoa":  0.1,
                                  "kitchenSize":  "Small",
@@ -248,7 +249,7 @@
                              },
     "imported-mls-5900154":  {
                                  "bre":  8.5,
-                                 "dom":  5,
+                                 "dom":  6,
                                  "greg":  9,
                                  "hoa":  5220,
                                  "kitchenSize":  "Large",
@@ -259,7 +260,7 @@
                              },
     "imported-mls-5994546":  {
                                  "bre":  7.5,
-                                 "dom":  38,
+                                 "dom":  39,
                                  "greg":  8,
                                  "hoa":  3240,
                                  "kitchenSize":  "Large",
@@ -275,7 +276,7 @@
                              },
     "imported-mls-6172323":  {
                                  "bre":  8,
-                                 "dom":  42,
+                                 "dom":  43,
                                  "greg":  8.5,
                                  "hoa":  0.1,
                                  "kitchenSize":  "Large",
@@ -290,7 +291,7 @@
                              },
     "imported-mls-6303123":  {
                                  "bre":  8,
-                                 "dom":  5,
+                                 "dom":  6,
                                  "greg":  8,
                                  "hoa":  5844,
                                  "kitchenSize":  "Large",
@@ -305,7 +306,7 @@
                              },
     "imported-mls-6334289":  {
                                  "bre":  8,
-                                 "dom":  5,
+                                 "dom":  6,
                                  "greg":  8,
                                  "hoa":  5460,
                                  "kitchenSize":  "Large",
@@ -321,7 +322,7 @@
                              },
     "imported-mls-6832828":  {
                                  "bre":  8,
-                                 "dom":  5,
+                                 "dom":  6,
                                  "greg":  7.5,
                                  "hoa":  0.1,
                                  "kitchenSize":  "Large",
@@ -332,7 +333,7 @@
                              },
     "imported-mls-7099195":  {
                                  "bre":  7.5,
-                                 "dom":  10,
+                                 "dom":  11,
                                  "greg":  7,
                                  "hoa":  0.1,
                                  "kitchenSize":  "Large",
@@ -348,7 +349,7 @@
                              },
     "imported-mls-8141032":  {
                                  "bre":  8,
-                                 "dom":  38,
+                                 "dom":  39,
                                  "greg":  8.5,
                                  "hoa":  2520,
                                  "kitchenSize":  "Gourmet",
@@ -363,7 +364,7 @@
                              },
     "imported-mls-8202865":  {
                                  "bre":  6,
-                                 "dom":  96,
+                                 "dom":  97,
                                  "greg":  7,
                                  "hoa":  732,
                                  "kitchenSize":  "Large",
@@ -379,7 +380,7 @@
                              },
     "imported-mls-9020481":  {
                                  "bre":  8,
-                                 "dom":  31,
+                                 "dom":  32,
                                  "greg":  7,
                                  "hoa":  0.1,
                                  "kitchenSize":  "Gourmet",
@@ -395,7 +396,7 @@
                              },
     "imported-mls-9271246":  {
                                  "bre":  8,
-                                 "dom":  9,
+                                 "dom":  10,
                                  "greg":  7,
                                  "hoa":  2520,
                                  "kitchenSize":  "Large",
@@ -406,7 +407,7 @@
                              },
     "imported-mls-9617623":  {
                                  "bre":  7.5,
-                                 "dom":  59,
+                                 "dom":  60,
                                  "greg":  8,
                                  "hoa":  720,
                                  "kitchenSize":  "Large",
@@ -421,7 +422,7 @@
                              },
     "imported-mls-9755767":  {
                                  "bre":  9,
-                                 "dom":  6,
+                                 "dom":  7,
                                  "greg":  8.5,
                                  "hoa":  1.2,
                                  "kitchenSize":  "Gourmet",
@@ -432,7 +433,7 @@
                              },
     "imported-mls-9798133":  {
                                  "bre":  7,
-                                 "dom":  7,
+                                 "dom":  8,
                                  "greg":  8,
                                  "hoa":  0.1,
                                  "kitchenSize":  "Medium",
