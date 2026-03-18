@@ -9,6 +9,7 @@ export default function CardsTab(props) {
     failedImageKeys,
     cardFactorPairsByHomeId,
     scoredFactorSpecs,
+    rankByHomeId,
     markImageFailed,
     IMG_WRAP_STYLE,
     NO_PHOTO_STYLE,
@@ -23,12 +24,13 @@ export default function CardsTab(props) {
       gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
       gap: 12
     }
-  }, homes.map((h, i) => {
+  }, homes.map(h => {
     const missingFields = getMissingFields(h);
     const imageKey = getImageKey(h);
     const photoSrc = resolvePhotoSrc(h.photo);
     const showPhoto = photoSrc && !failedImageKeys.has(imageKey);
     const cardFactorPairs = cardFactorPairsByHomeId.get(h.homeId) ?? {};
+    const rank = rankByHomeId.get(h.homeId);
     return /*#__PURE__*/React.createElement("div", {
       key: h.homeId,
       style: {
@@ -72,7 +74,7 @@ export default function CardsTab(props) {
       }
     }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
       style: eyebrowTextStyle
-    }, "#", i + 1, " RANKED"), /*#__PURE__*/React.createElement("div", {
+    }, "#", rank ?? "—", " RANKED"), /*#__PURE__*/React.createElement("div", {
       style: {
         ...TEXT_STYLES.heroTitle,
         fontSize: 16,

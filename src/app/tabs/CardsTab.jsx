@@ -5,15 +5,16 @@ import { getImageKey, getMissingFields, gradeColor, placeholderLabel, placeholde
 import { resolvePhotoSrc } from '../../domain/records.js?v=20260317d';
 
 export default function CardsTab(props) {
-  const { homes, failedImageKeys, cardFactorPairsByHomeId, scoredFactorSpecs, markImageFailed, IMG_WRAP_STYLE, NO_PHOTO_STYLE, eyebrowTextStyle, metricTextStyle, captionStrongTextStyle, captionTextStyle } = props;
+  const { homes, failedImageKeys, cardFactorPairsByHomeId, scoredFactorSpecs, rankByHomeId, markImageFailed, IMG_WRAP_STYLE, NO_PHOTO_STYLE, eyebrowTextStyle, metricTextStyle, captionStrongTextStyle, captionTextStyle } = props;
   return (
 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 12 }}>
-            {homes.map((h, i) => {
+            {homes.map((h) => {
               const missingFields = getMissingFields(h);
               const imageKey = getImageKey(h);
               const photoSrc = resolvePhotoSrc(h.photo);
               const showPhoto = photoSrc && !failedImageKeys.has(imageKey);
               const cardFactorPairs = cardFactorPairsByHomeId.get(h.homeId) ?? {};
+              const rank = rankByHomeId.get(h.homeId);
               return (
                 <div key={h.homeId} style={{ background: "#1e293b", borderRadius: 16, padding: 16, boxShadow: "0 8px 20px rgba(0,0,0,.25)", border: `1px solid ${gradeColor(h.weightedTotal)}33` }}>
                   {showPhoto ? (
@@ -35,7 +36,7 @@ export default function CardsTab(props) {
                   <div data-fallback="true" style={{ ...NO_PHOTO_STYLE, display: showPhoto ? "none" : "flex" }}>NO PHOTO</div>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
                     <div>
-                      <div style={eyebrowTextStyle}>#{i + 1} RANKED</div>
+                      <div style={eyebrowTextStyle}>#{rank ?? "—"} RANKED</div>
                       <div style={{ ...TEXT_STYLES.heroTitle, fontSize: 16, fontWeight: 800, color: "#f8fafc", lineHeight: 1.2 }}>{h.short}</div>
                       <div style={{ ...TEXT_STYLES.label, fontWeight: 500, color: "#94a3b8", marginTop: 2 }}>{h.name}</div>
                     </div>
