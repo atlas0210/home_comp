@@ -4,6 +4,7 @@ import { TEXT_STYLES } from '../../shared/uiTokens.js';
 import { getMissingFields, placeholderSummary } from '../../domain/display.js';
 export default function CompareTab(props) {
   const {
+    isMobile,
     labelTextStyle,
     selectStyle,
     compareHomesPool,
@@ -80,7 +81,7 @@ export default function CompareTab(props) {
   })), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "grid",
-      gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))",
+      gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit,minmax(340px,1fr))",
       gap: 12,
       marginBottom: 12
     }
@@ -102,7 +103,7 @@ export default function CompareTab(props) {
     }
   }, "Each axis uses the raw factor score (0-100)."), /*#__PURE__*/React.createElement(ResponsiveContainer, {
     width: "100%",
-    height: 340
+    height: isMobile ? 240 : 340
   }, /*#__PURE__*/React.createElement(RadarChart, {
     data: rawRadarData
   }, /*#__PURE__*/React.createElement(PolarGrid, {
@@ -161,7 +162,7 @@ export default function CompareTab(props) {
     }
   }, "Each axis uses weighted contribution points (score x effective weight)."), /*#__PURE__*/React.createElement(ResponsiveContainer, {
     width: "100%",
-    height: 340
+    height: isMobile ? 240 : 340
   }, /*#__PURE__*/React.createElement(RadarChart, {
     data: weightedRadarData
   }, /*#__PURE__*/React.createElement(PolarGrid, {

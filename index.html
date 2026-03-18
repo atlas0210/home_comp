@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -23,6 +23,12 @@
       font-family: var(--font-sans);
       -webkit-text-size-adjust: 100%;
       text-size-adjust: 100%;
+      overscroll-behavior: none;
+    }
+    #root {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
     }
     #status {
       padding: 12px 16px;
@@ -70,8 +76,12 @@
       transition: border-color 0.15s;
     }
     select:hover, select:focus { border-color: #6366f1; }
-    button { font-family: var(--font-sans); }
+    button { font-family: var(--font-sans); touch-action: manipulation; }
     textarea, input[type="text"], input[type="number"] { font-family: var(--font-sans); }
+    select { touch-action: manipulation; }
+    @media (max-width: 640px) {
+      ::-webkit-scrollbar { width: 4px; height: 4px; }
+    }
   </style>
 </head>
 <body>
