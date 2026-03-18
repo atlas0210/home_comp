@@ -28,7 +28,8 @@
                },
     "base-6":  {
                    "dom":  23,
-                   "masterBedSqft":  180
+                   "masterBedSqft":  180,
+                   "status":  "Ruled Out"
                },
     "base-7":  {
                    "dom":  50,
@@ -81,9 +82,9 @@
                                  "status":  "Ruled Out"
                              },
     "imported-mls-1217348":  {
-                                 "bre":  5.5,
+                                 "bre":  7.5,
                                  "dom":  173,
-                                 "greg":  6,
+                                 "greg":  7.8,
                                  "hoa":  1,
                                  "kitchenSize":  "Large",
                                  "lotSqft":  7133,
@@ -152,9 +153,10 @@
                                  "yardCondition":  "Good"
                              },
     "imported-mls-3917272":  {
-                                 "bre":  7.5,
+                                 "bre":  7,
                                  "dom":  20,
-                                 "greg":  6.5,
+                                 "greg":  7,
+                                 "hoa":  2700,
                                  "kitchenSize":  "Large",
                                  "lotSqft":  6541,
                                  "masterBedSqft":  210,
@@ -181,9 +183,11 @@
                                  "bre":  7.75,
                                  "dom":  1,
                                  "greg":  7,
+                                 "hoa":  3780,
                                  "kitchenSize":  "Medium",
                                  "lotSqft":  5295,
                                  "masterBedSqft":  198,
+                                 "status":  "Ruled Out",
                                  "yardCondition":  "Good"
                              },
     "imported-mls-4495204":  {
@@ -213,6 +217,7 @@
                                  "safetyBurglaryIndex":  39,
                                  "safetyLarcenyTheftIndex":  6,
                                  "safetyVehicleTheftIndex":  16,
+                                 "status":  "Ruled Out",
                                  "yardCondition":  "Poor"
                              },
     "imported-mls-5252348":  {
@@ -238,6 +243,7 @@
                                  "safetyBurglaryIndex":  43,
                                  "safetyLarcenyTheftIndex":  69,
                                  "safetyVehicleTheftIndex":  45,
+                                 "status":  "Ruled Out",
                                  "yardCondition":  "Fair"
                              },
     "imported-mls-5900154":  {
@@ -264,6 +270,7 @@
                                  "safetyBurglaryIndex":  39,
                                  "safetyLarcenyTheftIndex":  6,
                                  "safetyVehicleTheftIndex":  16,
+                                 "status":  "Ruled Out",
                                  "yardCondition":  "Fair"
                              },
     "imported-mls-6172323":  {
@@ -309,6 +316,7 @@
                                  "safetyBurglaryIndex":  43,
                                  "safetyLarcenyTheftIndex":  73,
                                  "safetyVehicleTheftIndex":  65,
+                                 "status":  "Ruled Out",
                                  "yardCondition":  "Excellent"
                              },
     "imported-mls-6832828":  {
@@ -319,6 +327,7 @@
                                  "kitchenSize":  "Large",
                                  "lotSqft":  4950,
                                  "photo":  "https://photos.zillowstatic.com/fp/8d64b833257cdeb9aa4753dbebf8f6be-cc_ft_768.webp",
+                                 "status":  "Ruled Out",
                                  "yardCondition":  "Poor"
                              },
     "imported-mls-7099195":  {
@@ -334,6 +343,7 @@
                                  "safetyBurglaryIndex":  58,
                                  "safetyLarcenyTheftIndex":  31,
                                  "safetyVehicleTheftIndex":  143,
+                                 "status":  "Ruled Out",
                                  "yardCondition":  "Good"
                              },
     "imported-mls-8141032":  {
@@ -354,7 +364,8 @@
     "imported-mls-8202865":  {
                                  "bre":  6,
                                  "dom":  96,
-                                 "greg":  6.5,
+                                 "greg":  7,
+                                 "hoa":  732,
                                  "kitchenSize":  "Large",
                                  "lotSqft":  7037,
                                  "masterBedSqft":  304,
