@@ -4,9 +4,32 @@ import { TEXT_STYLES } from '../../shared/uiTokens.js';
 import { getMissingFields, placeholderSummary } from '../../domain/display.js';
 
 export default function CompareTab(props) {
-  const { isMobile, labelTextStyle, selectStyle, compareHomesPool, compareA, setCompareA, compareB, setCompareB, compareC, setCompareC, captionTextStyle, rawRadarData, weightedRadarData, a, b, c, chartXAxisTickStyle, chartTooltipLabelStyle, chartLegendStyle, chartLegendFormatter, cardTitleStyle, compareTableStyle, compareHeaderCellStyle, compareHeaderColors, compareMetricCellStyle, compareViewModel, compareValueCellStyle, compareScoreCellStyle, FONT_STACKS, pick } = props;
+  const { isMobile, labelTextStyle, selectStyle, compareA, setCompareA, compareB, setCompareB, compareC, setCompareC, captionTextStyle, rawRadarData, weightedRadarData, a, b, c, finalistHomes, compareOptionGroups, rankByHomeId, overviewAddress, chartXAxisTickStyle, chartTooltipLabelStyle, chartLegendStyle, chartLegendFormatter, cardTitleStyle, compareTableStyle, compareHeaderCellStyle, compareHeaderColors, compareMetricCellStyle, compareViewModel, compareValueCellStyle, compareScoreCellStyle, FONT_STACKS, pick } = props;
   return (
 <div style={{ fontFamily: FONT_STACKS.sans }}>
+          <div style={{ background: "linear-gradient(135deg, #182235 0%, #111827 100%)", borderRadius: 14, padding: 14, marginBottom: 12, border: "1px solid #334155" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 10, flexWrap: "wrap" }}>
+              <div style={{ ...cardTitleStyle, marginBottom: 0 }}>Finalist Comparison Set</div>
+              <div style={{ ...captionTextStyle }}>Default compare slots start with the three shortlisted homes</div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 10 }}>
+              {finalistHomes.map((home, idx) => (
+                <div key={home.homeId} style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 12, padding: 12 }}>
+                  <div style={{ ...TEXT_STYLES.eyebrow, color: "#a5b4fc", marginBottom: 4 }}>Finalist {idx + 1}</div>
+                  <div style={{ ...TEXT_STYLES.bodyStrong, color: "#f8fafc", marginBottom: 4 }}>{home.short}</div>
+                  <div style={{ ...TEXT_STYLES.caption, color: "#94a3b8", marginBottom: 8, lineHeight: 1.35 }}>{overviewAddress(home)}</div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    <span style={{ ...TEXT_STYLES.captionStrong, color: "#e2e8f0", background: "#1e293b", border: "1px solid #334155", borderRadius: 999, padding: "4px 8px" }}>
+                      Rank #{rankByHomeId.get(home.homeId) ?? "—"}
+                    </span>
+                    <span style={{ ...TEXT_STYLES.captionStrong, color: "#c7d2fe", background: "#312e81", border: "1px solid #6366f166", borderRadius: 999, padding: "4px 8px" }}>
+                      {home.weightedTotal.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12, marginBottom: 12 }}>
             {[["A", compareA, setCompareA, "#6366f1"], ["B", compareB, setCompareB, "#f59e0b"], ["C", compareC, setCompareC, "#22c55e"]].map(([label, val, setter, color]) => {
               const slotHome = pick(val, null);
@@ -16,7 +39,11 @@ export default function CompareTab(props) {
                   <div style={{ ...labelTextStyle, color, marginBottom: 6 }}>Home {label}</div>
                   <select value={val} onChange={(e) => setter(e.target.value)} style={selectStyle}>
                     <option value={EMPTY}>Blank</option>
-                    {compareHomesPool.map((h) => <option key={h.homeId} value={h.homeId}>{h.name}</option>)}
+                    {compareOptionGroups.map((group) => (
+                      <optgroup key={group.key} label={group.label}>
+                        {group.homes.map((h) => <option key={h.homeId} value={h.homeId}>{h.name}</option>)}
+                      </optgroup>
+                    ))}
                   </select>
                   {slotHome && (
                     <div style={{ ...TEXT_STYLES.caption, marginTop: 8, color: missingCount ? "#fbbf24" : "#64748b" }}>

@@ -3,9 +3,54 @@ import { TEXT_STYLES } from '../../shared/uiTokens.js';
 import { getMissingFields, gradeColor, placeholderSummary } from '../../domain/display.js';
 
 export default function OverviewTab(props) {
-  const { sectionTitleStyle, overviewTableMinWidth, overviewRankColWidth, overviewColumns, isMobile, onOverviewSort, overviewSortKey, overviewSortIndicator, overviewRows, rankByHomeId, overviewRowTone, setHoveredOverviewHomeId, toggleOverviewRowLock, onOverviewRowKeyDown, factorPairForHome, overviewAddress, chartXAxisTickStyle, chartYAxisTickStyle, chartTooltipLabelStyle, FONT_STACKS, COLORS } = props;
+  const { sectionTitleStyle, overviewTableMinWidth, overviewRankColWidth, overviewColumns, isMobile, onOverviewSort, overviewSortKey, overviewSortIndicator, overviewRows, finalistHomes, rankByHomeId, overviewRowTone, setHoveredOverviewHomeId, toggleOverviewRowLock, onOverviewRowKeyDown, factorPairForHome, overviewAddress, chartXAxisTickStyle, chartYAxisTickStyle, chartTooltipLabelStyle, FONT_STACKS, COLORS, isFinalistHomeId } = props;
+  const fmtCurrency = (value) => Number.isFinite(value) ? `$${Math.round(value).toLocaleString()}` : "—";
+  const fmtInt = (value) => Number.isFinite(value) ? Math.round(value).toLocaleString() : "—";
   return (
 <div>
+          <div style={{ background: "linear-gradient(135deg, #182235 0%, #111827 100%)", borderRadius: 16, padding: 16, marginBottom: 16, border: "1px solid #334155", boxShadow: "0 10px 30px rgba(15,23,42,.35)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
+              <h2 style={{ ...sectionTitleStyle, marginBottom: 0 }}>Finalists</h2>
+              <div style={{ ...TEXT_STYLES.captionStrong, color: "#94a3b8" }}>Pinned shortlist for quick comparison</div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12 }}>
+              {finalistHomes.map((home, idx) => (
+                <div key={home.homeId} style={{ background: "linear-gradient(180deg, #1e293b 0%, #111827 100%)", borderRadius: 14, padding: 14, border: "1px solid #475569", boxShadow: "0 6px 18px rgba(15,23,42,.35)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 8, alignItems: "flex-start" }}>
+                    <div>
+                      <div style={{ ...TEXT_STYLES.eyebrow, color: "#a5b4fc", marginBottom: 4 }}>Finalist {idx + 1}</div>
+                      <div style={{ ...TEXT_STYLES.bodyStrong, fontSize: 15, color: "#f8fafc" }}>{home.short}</div>
+                      <div style={{ ...TEXT_STYLES.caption, color: "#94a3b8", marginTop: 4, lineHeight: 1.35 }}>{overviewAddress(home)}</div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ ...TEXT_STYLES.captionStrong, color: "#94a3b8" }}>Weighted</div>
+                      <div style={{ ...TEXT_STYLES.metric, fontSize: 24, color: gradeColor(home.weightedTotal) }}>{home.weightedTotal.toFixed(2)}</div>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+                    <span style={{ ...TEXT_STYLES.captionStrong, color: "#e2e8f0", background: "#312e81", border: "1px solid #6366f155", borderRadius: 999, padding: "4px 9px" }}>
+                      Rank #{rankByHomeId.get(home.homeId) ?? "—"}
+                    </span>
+                    <span style={{ ...TEXT_STYLES.captionStrong, color: "#cbd5e1", background: "#0f172a", border: "1px solid #334155", borderRadius: 999, padding: "4px 9px" }}>
+                      Grade {home.grade}
+                    </span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8 }}>
+                    {[
+                      ["Monthly", `${fmtCurrency(home.totalMo)}/mo`],
+                      ["Living", `${fmtInt(home.sqft)} sqft`],
+                      ["Lot", `${fmtInt(home.lotSqft)} sqft`],
+                    ].map(([label, value]) => (
+                      <div key={label} style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 10, padding: "10px 9px" }}>
+                        <div style={{ ...TEXT_STYLES.captionStrong, color: "#94a3b8", marginBottom: 3 }}>{label}</div>
+                        <div style={{ ...TEXT_STYLES.bodyStrong, fontSize: 12, color: "#f1f5f9" }}>{value}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           <div style={{ background: "#161d2a", borderRadius: 12, padding: 16, marginBottom: 16 }}>
             <h2 style={{ ...sectionTitleStyle, marginBottom: 12 }}>🏆 Rankings</h2>
             <div style={{ overflowX: "auto" }}>
@@ -42,9 +87,10 @@ export default function OverviewTab(props) {
                     const missingCount = getMissingFields(h).length;
                     const lockedRank = rankByHomeId.get(h.homeId);
                     const rowTone = overviewRowTone(h.homeId);
-                    const rowBg = rowTone === "locked" ? "#1f2350" : rowTone === "hover" ? "#1d253f" : "transparent";
-                    const rowBorder = rowTone === "locked" ? "#6366f1" : rowTone === "hover" ? "#475569" : "#334155";
-                    const rowOutline = rowTone === "locked" ? "0 0 0 1px #6366f155 inset" : "none";
+                    const isFinalist = isFinalistHomeId(h.homeId);
+                    const rowBg = rowTone === "locked" ? "#1f2350" : rowTone === "hover" ? "#1d253f" : isFinalist ? "#172036" : "transparent";
+                    const rowBorder = rowTone === "locked" ? "#6366f1" : rowTone === "hover" ? "#475569" : isFinalist ? "#4f46e5" : "#334155";
+                    const rowOutline = rowTone === "locked" ? "0 0 0 1px #6366f155 inset" : isFinalist ? "0 0 0 1px #4f46e533 inset" : "none";
                     return (
                       <tr
                         key={h.homeId}
@@ -65,6 +111,13 @@ export default function OverviewTab(props) {
                           if (col.key === "address") {
                             return (
                               <td key={col.key} style={{ padding: isMobile ? "7px 4px" : "9px 5px", borderTop: `1px solid ${rowBorder}`, verticalAlign: "top", minWidth: isMobile ? 210 : 240, background: rowBg }}>
+                                {isFinalist && (
+                                  <div style={{ marginBottom: 6 }}>
+                                    <span style={{ ...TEXT_STYLES.captionStrong, color: "#c7d2fe", background: "#312e81", border: "1px solid #6366f166", borderRadius: 999, padding: "3px 8px" }}>
+                                      Finalist
+                                    </span>
+                                  </div>
+                                )}
                                 <div style={{ ...TEXT_STYLES.bodyStrong, fontSize: isMobile ? 10 : 12, color: rowTone === "locked" ? "#eef2ff" : "#f1f5f9", lineHeight: 1.25, overflowWrap: "anywhere", whiteSpace: "normal" }}>{overviewAddress(h)}</div>
                                 {missingCount > 0 && (
                                   <div style={{ ...TEXT_STYLES.caption, marginTop: 2, fontSize: isMobile ? 9 : 10, color: "#fbbf24" }}>

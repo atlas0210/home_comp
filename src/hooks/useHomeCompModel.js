@@ -11,6 +11,7 @@ import { activeDefaultRawTicks, alignActiveRawWeights, DEFAULT_RAW_WEIGHT_POINTS
 import { buildAverageBenchmarkHome, dayDiff, hoaAnnualToMonthly, hoaMonthlyToAnnual, hydrateOverridesFromHomesPayload, mergeImportRawText, mergeOverrides, migrateOverrides, normalizeHomeRecord, parseUnformattedHomes, resolvePhotoSrc, slugify, toDateKey, toNum } from '../domain/records.js?v=20260317d';
 
 export function useHomeCompModel({ seedOverridesByHomeId = {}, seedImportRawText = "" } = {}) {
+  const FINALIST_HOME_ID_ORDER = ["base-4", "imported-mls-4495204", "imported-mls-8141032"];
   const LOCAL_STORAGE_KEY = "homeComp.overrides.v3";
   const LOCAL_IMPORT_STORAGE_KEY = "homeComp.importRaw.v2";
   const LOCAL_WEIGHT_STORAGE_KEY = "homeComp.weights.v2";
@@ -89,9 +90,9 @@ export function useHomeCompModel({ seedOverridesByHomeId = {}, seedImportRawText
     }
   });
   const [tab, setTab] = useState("overview");
-  const [compareA, setCompareA] = useState("0");
-  const [compareB, setCompareB] = useState("1");
-  const [compareC, setCompareC] = useState(EMPTY);
+  const [compareA, setCompareA] = useState(FINALIST_HOME_ID_ORDER[0]);
+  const [compareB, setCompareB] = useState(FINALIST_HOME_ID_ORDER[1]);
+  const [compareC, setCompareC] = useState(FINALIST_HOME_ID_ORDER[2]);
   const [selectedHomeId, setSelectedHomeId] = useState("");
   const [editorQuery, setEditorQuery] = useState("");
   const [showHidden, setShowHidden] = useState(false);
@@ -403,6 +404,17 @@ export function useHomeCompModel({ seedOverridesByHomeId = {}, seedImportRawText
     [firstPassAllHomes, impactAudit.stretchByKey, effectiveWeights]
   );
   const homes = useMemo(() => allHomes.filter((h) => !["Ruled Out", "Sold"].includes(h.status)), [allHomes]);
+  const finalistHomeIdSet = useMemo(() => new Set(FINALIST_HOME_ID_ORDER), []);
+  const isFinalistHomeId = (homeId) => finalistHomeIdSet.has(homeId);
+  const finalistHomes = useMemo(
+    () => homes.filter((home) => finalistHomeIdSet.has(home.homeId)).sort((a, b) => b.weightedTotal - a.weightedTotal),
+    [homes, finalistHomeIdSet]
+  );
+  const finalistHomeIds = useMemo(() => finalistHomes.map((home) => home.homeId), [finalistHomes]);
+  const nonFinalistHomes = useMemo(
+    () => homes.filter((home) => !finalistHomeIdSet.has(home.homeId)),
+    [homes, finalistHomeIdSet]
+  );
   const averageBenchmarkSource = useMemo(
     () => buildAverageBenchmarkHome(firstPassVisibleHomes),
     [firstPassVisibleHomes]
@@ -416,6 +428,13 @@ export function useHomeCompModel({ seedOverridesByHomeId = {}, seedImportRawText
     () => averageBenchmark ? [...homes, averageBenchmark] : homes,
     [homes, averageBenchmark]
   );
+  const compareOptionGroups = useMemo(() => {
+    const groups = [];
+    if (finalistHomes.length) groups.push({ key: "finalists", label: "Finalists", homes: finalistHomes });
+    if (nonFinalistHomes.length) groups.push({ key: "others", label: "Other Homes", homes: nonFinalistHomes });
+    if (averageBenchmark) groups.push({ key: "benchmark", label: "Benchmark", homes: [averageBenchmark] });
+    return groups;
+  }, [finalistHomes, nonFinalistHomes, averageBenchmark]);
   const overviewHomes = useMemo(
     () => averageBenchmark
       ? [...homes, averageBenchmark].sort((a, b) => b.weightedTotal - a.weightedTotal)
@@ -462,33 +481,43 @@ export function useHomeCompModel({ seedOverridesByHomeId = {}, seedImportRawText
   useEffect(() => {
     if (compareSelectionMigratedRef.current) return;
     if (!compareHomesPool.length) return;
+    const fallbackCompareIds = [
+      finalistHomeIds[0] ?? homes[0]?.homeId ?? EMPTY,
+      finalistHomeIds[1] ?? finalistHomeIds[0] ?? homes[1]?.homeId ?? homes[0]?.homeId ?? EMPTY,
+      finalistHomeIds[2] ?? EMPTY,
+    ];
     const mapLegacySelection = (value, fallbackIndex = null) => {
       if (value === EMPTY) return EMPTY;
       if (compareHomesPool.some((h) => h.homeId === value)) return value;
       const idx = Number(value);
       if (Number.isInteger(idx) && idx >= 0 && idx < homes.length) return homes[idx].homeId;
-      if (Number.isInteger(fallbackIndex) && fallbackIndex >= 0 && fallbackIndex < homes.length) return homes[fallbackIndex].homeId;
+      if (Number.isInteger(fallbackIndex) && fallbackCompareIds[fallbackIndex]) return fallbackCompareIds[fallbackIndex];
       return EMPTY;
     };
     setCompareA((prev) => mapLegacySelection(prev, 0));
-    setCompareB((prev) => mapLegacySelection(prev, homes.length > 1 ? 1 : 0));
-    setCompareC((prev) => mapLegacySelection(prev, null));
+    setCompareB((prev) => mapLegacySelection(prev, 1));
+    setCompareC((prev) => mapLegacySelection(prev, 2));
     compareSelectionMigratedRef.current = true;
-  }, [compareHomesPool, homes]);
+  }, [compareHomesPool, homes, finalistHomeIds]);
 
   useEffect(() => {
+    const fallbackCompareIds = [
+      finalistHomeIds[0] ?? homes[0]?.homeId ?? EMPTY,
+      finalistHomeIds[1] ?? finalistHomeIds[0] ?? homes[1]?.homeId ?? homes[0]?.homeId ?? EMPTY,
+      finalistHomeIds[2] ?? EMPTY,
+    ];
     const ensureValidSelection = (value, fallbackIndex = null) => {
       if (value === EMPTY) return EMPTY;
       if (compareHomesPool.some((home) => home.homeId === value)) return value;
-      if (Number.isInteger(fallbackIndex) && fallbackIndex >= 0 && fallbackIndex < homes.length) {
-        return homes[fallbackIndex].homeId;
+      if (Number.isInteger(fallbackIndex) && fallbackCompareIds[fallbackIndex]) {
+        return fallbackCompareIds[fallbackIndex];
       }
       return EMPTY;
     };
-    setCompareA((prev) => ensureValidSelection(prev, homes.length ? 0 : null));
-    setCompareB((prev) => ensureValidSelection(prev, homes.length > 1 ? 1 : (homes.length ? 0 : null)));
-    setCompareC((prev) => ensureValidSelection(prev, null));
-  }, [compareHomesPool, homes]);
+    setCompareA((prev) => ensureValidSelection(prev, 0));
+    setCompareB((prev) => ensureValidSelection(prev, 1));
+    setCompareC((prev) => ensureValidSelection(prev, 2));
+  }, [compareHomesPool, homes, finalistHomeIds]);
 
   useEffect(() => {
     if (!allHomes.length) {
@@ -1161,6 +1190,7 @@ export function useHomeCompModel({ seedOverridesByHomeId = {}, seedImportRawText
     compareC,
     setCompareC,
     compareHomesPool,
+    compareOptionGroups,
     compareHeaderColors,
     compareViewModel,
     a,
@@ -1169,6 +1199,10 @@ export function useHomeCompModel({ seedOverridesByHomeId = {}, seedImportRawText
     rawRadarData,
     weightedRadarData,
     homes,
+    finalistHomes,
+    nonFinalistHomes,
+    finalistHomeIds,
+    isFinalistHomeId,
     failedImageKeys,
     markImageFailed,
     cardFactorPairsByHomeId,

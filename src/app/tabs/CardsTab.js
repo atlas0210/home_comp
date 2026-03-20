@@ -1,216 +1,38 @@
-import { React } from '../../shared/runtime.js';
-import { TEXT_STYLES } from '../../shared/uiTokens.js';
-import { CardMetric, ScoreBar } from '../../ui/components.js';
-import { getImageKey, getMissingFields, gradeColor, placeholderLabel, placeholderSummary, CARD_FIELDS } from '../../domain/display.js';
-import { resolvePhotoSrc } from '../../domain/records.js?v=20260317d';
-export default function CardsTab(props) {
-  const {
-    homes,
-    failedImageKeys,
-    cardFactorPairsByHomeId,
-    scoredFactorSpecs,
-    rankByHomeId,
-    markImageFailed,
-    IMG_WRAP_STYLE,
-    NO_PHOTO_STYLE,
-    eyebrowTextStyle,
-    metricTextStyle,
-    captionStrongTextStyle,
-    captionTextStyle
-  } = props;
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
-      gap: 12
-    }
-  }, homes.map(h => {
+import { React } from "../../shared/runtime.js";
+import { TEXT_STYLES } from "../../shared/uiTokens.js";
+import { CardMetric, ScoreBar } from "../../ui/components.js";
+import { getImageKey, getMissingFields, gradeColor, placeholderLabel, placeholderSummary, CARD_FIELDS } from "../../domain/display.js";
+import { resolvePhotoSrc } from "../../domain/records.js?v=20260317d";
+function CardsTab(props) {
+  const { finalistHomes, nonFinalistHomes, failedImageKeys, cardFactorPairsByHomeId, scoredFactorSpecs, rankByHomeId, markImageFailed, IMG_WRAP_STYLE, NO_PHOTO_STYLE, eyebrowTextStyle, metricTextStyle, captionStrongTextStyle, captionTextStyle } = props;
+  const renderHomeCard = (h, emphasis = false) => {
     const missingFields = getMissingFields(h);
     const imageKey = getImageKey(h);
     const photoSrc = resolvePhotoSrc(h.photo);
     const showPhoto = photoSrc && !failedImageKeys.has(imageKey);
     const cardFactorPairs = cardFactorPairsByHomeId.get(h.homeId) ?? {};
     const rank = rankByHomeId.get(h.homeId);
-    return /*#__PURE__*/React.createElement("div", {
-      key: h.homeId,
-      style: {
-        background: "#161d2a",
-        borderRadius: 16,
-        padding: 16,
-        boxShadow: "0 8px 20px rgba(0,0,0,.25)",
-        border: `1px solid ${gradeColor(h.weightedTotal)}33`
+    return /* @__PURE__ */ React.createElement("div", { key: h.homeId, style: { background: emphasis ? "linear-gradient(180deg, #1b2434 0%, #161d2a 100%)" : "#161d2a", borderRadius: 16, padding: 16, boxShadow: emphasis ? "0 16px 32px rgba(15,23,42,.36)" : "0 8px 20px rgba(0,0,0,.25)", border: emphasis ? "1px solid #6366f166" : `1px solid ${gradeColor(h.weightedTotal)}33`, position: "relative", overflow: "hidden" } }, emphasis && /* @__PURE__ */ React.createElement("div", { style: { position: "absolute", inset: "0 0 auto 0", height: 4, background: "linear-gradient(90deg, #818cf8 0%, #38bdf8 100%)" } }), showPhoto ? /* @__PURE__ */ React.createElement("div", { style: IMG_WRAP_STYLE }, /* @__PURE__ */ React.createElement(
+      "img",
+      {
+        src: photoSrc,
+        alt: h.name,
+        loading: "lazy",
+        decoding: "async",
+        width: "320",
+        height: "180",
+        sizes: "(max-width: 640px) 100vw, 320px",
+        referrerPolicy: "no-referrer",
+        style: { width: "100%", height: "auto", aspectRatio: "16 / 9", objectFit: "cover", display: "block" },
+        onError: () => markImageFailed(h)
       }
-    }, showPhoto ? /*#__PURE__*/React.createElement("div", {
-      style: IMG_WRAP_STYLE
-    }, /*#__PURE__*/React.createElement("img", {
-      src: photoSrc,
-      alt: h.name,
-      loading: "lazy",
-      decoding: "async",
-      width: "320",
-      height: "180",
-      sizes: "(max-width: 640px) 100vw, 320px",
-      referrerPolicy: "no-referrer",
-      style: {
-        width: "100%",
-        height: "auto",
-        aspectRatio: "16 / 9",
-        objectFit: "cover",
-        display: "block"
-      },
-      onError: () => markImageFailed(h)
-    })) : null, /*#__PURE__*/React.createElement("div", {
-      "data-fallback": "true",
-      style: {
-        ...NO_PHOTO_STYLE,
-        display: showPhoto ? "none" : "flex"
-      }
-    }, "NO PHOTO"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        gap: 12,
-        marginBottom: 10
-      }
-    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      style: eyebrowTextStyle
-    }, "#", rank ?? "—", " RANKED"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...TEXT_STYLES.heroTitle,
-        fontSize: 16,
-        fontWeight: 800,
-        color: "#f8fafc",
-        lineHeight: 1.2
-      }
-    }, h.short), /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...TEXT_STYLES.label,
-        fontWeight: 500,
-        color: "#94a3b8",
-        marginTop: 2
-      }
-    }, h.name)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        textAlign: "right"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...metricTextStyle,
-        color: gradeColor(h.weightedTotal)
-      }
-    }, h.weightedTotal.toFixed(2)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...TEXT_STYLES.captionStrong,
-        color: gradeColor(h.weightedTotal)
-      }
-    }, h.grade))), missingFields.length > 0 && /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...TEXT_STYLES.caption,
-        marginBottom: 10,
-        padding: "7px 9px",
-        borderRadius: 8,
-        background: "#3f2a12",
-        border: "1px solid #f59e0b55",
-        color: "#fbbf24"
-      }
-    }, "Missing data: ", missingFields.length, " field(s) (", placeholderSummary(h, 4), ")"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: 8,
-        marginBottom: 12
-      }
-    }, CARD_FIELDS(h).map(([label, value]) => /*#__PURE__*/React.createElement(CardMetric, {
-      key: label,
-      label: label,
-      value: value
-    }))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        marginBottom: 10,
-        borderTop: "1px solid #334155",
-        borderBottom: "1px solid #334155",
-        padding: "8px 0"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...TEXT_STYLES.eyebrow,
-        color: "#94a3b8",
-        marginBottom: 8
-      }
-    }, "Scored Factors (Raw + Score)"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "grid",
-        gap: 6
-      }
-    }, scoredFactorSpecs.map(spec => {
-      const pair = cardFactorPairs[spec.key] ?? {
-        raw: "",
-        score: "",
-        scoreNum: null
-      };
-      return /*#__PURE__*/React.createElement("div", {
-        key: `${h.homeId}-${spec.key}`,
-        style: {
-          display: "grid",
-          gap: 5
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "baseline",
-          gap: 10
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          minWidth: 0
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: captionStrongTextStyle
-      }, spec.label), /*#__PURE__*/React.createElement("div", {
-        style: {
-          ...captionTextStyle,
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis"
-        }
-      }, pair.raw)), /*#__PURE__*/React.createElement("div", {
-        style: {
-          ...TEXT_STYLES.label,
-          color: Number.isFinite(pair.scoreNum) ? gradeColor(pair.scoreNum) : "#64748b",
-          fontWeight: 800,
-          whiteSpace: "nowrap"
-        }
-      }, pair.score)), /*#__PURE__*/React.createElement(ScoreBar, {
-        value: pair.scoreNum
-      }));
-    }))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: 6,
-        flexWrap: "wrap",
-        paddingTop: 8,
-        borderTop: "1px solid #334155"
-      }
-    }, missingFields.map(fieldKey => /*#__PURE__*/React.createElement("span", {
-      key: `missing-${fieldKey}`,
-      style: {
-        ...TEXT_STYLES.caption,
-        color: "#fbbf24",
-        background: "#3f2a12",
-        border: "1px solid #f59e0b55",
-        borderRadius: 999,
-        padding: "3px 8px"
-      }
-    }, "Missing: ", placeholderLabel(fieldKey))), (h.tags || []).map(tag => /*#__PURE__*/React.createElement("span", {
-      key: tag,
-      style: {
-        ...captionStrongTextStyle,
-        background: "#0f172a",
-        border: "1px solid #2d3748",
-        borderRadius: 999,
-        padding: "3px 8px"
-      }
-    }, tag))));
-  }));
+    )) : null, /* @__PURE__ */ React.createElement("div", { "data-fallback": "true", style: { ...NO_PHOTO_STYLE, display: showPhoto ? "none" : "flex" } }, "NO PHOTO"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { ...eyebrowTextStyle, color: emphasis ? "#a5b4fc" : eyebrowTextStyle.color } }, "#", rank ?? "\u2014", " RANKED"), /* @__PURE__ */ React.createElement("div", { style: { ...TEXT_STYLES.heroTitle, fontSize: 16, fontWeight: 800, color: "#f8fafc", lineHeight: 1.2 } }, h.short), /* @__PURE__ */ React.createElement("div", { style: { ...TEXT_STYLES.label, fontWeight: 500, color: "#94a3b8", marginTop: 2 } }, h.name)), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "right" } }, emphasis && /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { ...TEXT_STYLES.captionStrong, color: "#c7d2fe", background: "#312e81", border: "1px solid #6366f166", borderRadius: 999, padding: "4px 8px" } }, "Finalist")), /* @__PURE__ */ React.createElement("div", { style: { ...metricTextStyle, color: gradeColor(h.weightedTotal) } }, h.weightedTotal.toFixed(2)), /* @__PURE__ */ React.createElement("div", { style: { ...TEXT_STYLES.captionStrong, color: gradeColor(h.weightedTotal) } }, h.grade))), missingFields.length > 0 && /* @__PURE__ */ React.createElement("div", { style: { ...TEXT_STYLES.caption, marginBottom: 10, padding: "7px 9px", borderRadius: 8, background: "#3f2a12", border: "1px solid #f59e0b55", color: "#fbbf24" } }, "Missing data: ", missingFields.length, " field(s) (", placeholderSummary(h, 4), ")"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 } }, CARD_FIELDS(h).map(([label, value]) => /* @__PURE__ */ React.createElement(CardMetric, { key: label, label, value }))), /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 10, borderTop: "1px solid #334155", borderBottom: "1px solid #334155", padding: "8px 0" } }, /* @__PURE__ */ React.createElement("div", { style: { ...TEXT_STYLES.eyebrow, color: "#94a3b8", marginBottom: 8 } }, "Scored Factors (Raw + Score)"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gap: 6 } }, scoredFactorSpecs.map((spec) => {
+      const pair = cardFactorPairs[spec.key] ?? { raw: "", score: "", scoreNum: null };
+      return /* @__PURE__ */ React.createElement("div", { key: `${h.homeId}-${spec.key}`, style: { display: "grid", gap: 5 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { minWidth: 0 } }, /* @__PURE__ */ React.createElement("div", { style: captionStrongTextStyle }, spec.label), /* @__PURE__ */ React.createElement("div", { style: { ...captionTextStyle, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, pair.raw)), /* @__PURE__ */ React.createElement("div", { style: { ...TEXT_STYLES.label, color: Number.isFinite(pair.scoreNum) ? gradeColor(pair.scoreNum) : "#64748b", fontWeight: 800, whiteSpace: "nowrap" } }, pair.score)), /* @__PURE__ */ React.createElement(ScoreBar, { value: pair.scoreNum }));
+    }))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, flexWrap: "wrap", paddingTop: 8, borderTop: "1px solid #334155" } }, missingFields.map((fieldKey) => /* @__PURE__ */ React.createElement("span", { key: `missing-${fieldKey}`, style: { ...TEXT_STYLES.caption, color: "#fbbf24", background: "#3f2a12", border: "1px solid #f59e0b55", borderRadius: 999, padding: "3px 8px" } }, "Missing: ", placeholderLabel(fieldKey))), (h.tags || []).map((tag) => /* @__PURE__ */ React.createElement("span", { key: tag, style: { ...captionStrongTextStyle, background: "#0f172a", border: "1px solid #2d3748", borderRadius: 999, padding: "3px 8px" } }, tag))));
+  };
+  return /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gap: 18 } }, finalistHomes.length > 0 && /* @__PURE__ */ React.createElement("section", null, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap", marginBottom: 12 } }, /* @__PURE__ */ React.createElement("div", { style: { ...TEXT_STYLES.sectionTitle, color: "#f8fafc" } }, "Finalists"), /* @__PURE__ */ React.createElement("div", { style: { ...TEXT_STYLES.captionStrong, color: "#94a3b8" } }, "Pinned shortlist for side-by-side review")), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 12 } }, finalistHomes.map((h) => renderHomeCard(h, true)))), /* @__PURE__ */ React.createElement("section", null, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap", marginBottom: 12 } }, /* @__PURE__ */ React.createElement("div", { style: { ...TEXT_STYLES.sectionTitle, color: "#f8fafc" } }, "Other Homes"), /* @__PURE__ */ React.createElement("div", { style: { ...TEXT_STYLES.captionStrong, color: "#64748b" } }, nonFinalistHomes.length, " remaining visible option", nonFinalistHomes.length === 1 ? "" : "s")), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 12 } }, nonFinalistHomes.map((h) => renderHomeCard(h)))));
 }
+export {
+  CardsTab as default
+};
