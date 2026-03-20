@@ -1,11 +1,16 @@
 import { React, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from '../../shared/runtime.js';
 import { TEXT_STYLES } from '../../shared/uiTokens.js';
-import { getMissingFields, gradeColor, placeholderSummary } from '../../domain/display.js';
+import { CardMetric, ScoreBar } from '../../ui/components.js';
+import { CARD_FIELDS, getMissingFields, gradeColor, placeholderLabel, placeholderSummary } from '../../domain/display.js';
 
 export default function OverviewTab(props) {
-  const { sectionTitleStyle, overviewTableMinWidth, overviewRankColWidth, overviewColumns, isMobile, onOverviewSort, overviewSortKey, overviewSortIndicator, overviewRows, finalistHomes, rankByHomeId, overviewRowTone, setHoveredOverviewHomeId, toggleOverviewRowLock, onOverviewRowKeyDown, factorPairForHome, overviewAddress, chartXAxisTickStyle, chartYAxisTickStyle, chartTooltipLabelStyle, FONT_STACKS, COLORS, isFinalistHomeId } = props;
+  const { sectionTitleStyle, overviewTableMinWidth, overviewRankColWidth, overviewColumns, isMobile, onOverviewSort, overviewSortKey, overviewSortIndicator, overviewRows, finalistHomes, rankByHomeId, overviewRowTone, setHoveredOverviewHomeId, toggleOverviewRowLock, onOverviewRowKeyDown, factorPairForHome, cardFactorPairsByHomeId, scoredFactorSpecs, overviewAddress, chartXAxisTickStyle, chartYAxisTickStyle, chartTooltipLabelStyle, FONT_STACKS, COLORS, isFinalistHomeId } = props;
   const fmtCurrency = (value) => Number.isFinite(value) ? `$${Math.round(value).toLocaleString()}` : "—";
   const fmtInt = (value) => Number.isFinite(value) ? Math.round(value).toLocaleString() : "—";
+  const [expandedHomeIds, setExpandedHomeIds] = React.useState(() => []);
+  const toggleExpanded = (homeId) => {
+    setExpandedHomeIds((prev) => prev.includes(homeId) ? prev.filter((id) => id !== homeId) : [...prev, homeId]);
+  };
   return (
 <div>
           <div style={{ background: "linear-gradient(135deg, #182235 0%, #111827 100%)", borderRadius: 16, padding: 16, marginBottom: 16, border: "1px solid #334155", boxShadow: "0 10px 30px rgba(15,23,42,.35)" }}>
@@ -47,6 +52,63 @@ export default function OverviewTab(props) {
                       </div>
                     ))}
                   </div>
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #334155" }}>
+                    <button
+                      type="button"
+                      aria-expanded={expandedHomeIds.includes(home.homeId)}
+                      onClick={() => toggleExpanded(home.homeId)}
+                      style={{ ...TEXT_STYLES.captionStrong, width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: "#0f172a", color: "#e2e8f0", border: "1px solid #334155", borderRadius: 10, padding: "10px 12px", cursor: "pointer" }}
+                    >
+                      <span>{expandedHomeIds.includes(home.homeId) ? "Hide full details" : "Show full details"}</span>
+                      <span style={{ color: "#94a3b8" }}>{expandedHomeIds.includes(home.homeId) ? "−" : "+"}</span>
+                    </button>
+                  </div>
+                  {expandedHomeIds.includes(home.homeId) && (
+                    <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
+                      {getMissingFields(home).length > 0 && (
+                        <div style={{ ...TEXT_STYLES.caption, padding: "8px 10px", borderRadius: 10, background: "#3f2a12", border: "1px solid #f59e0b55", color: "#fbbf24" }}>
+                          Missing data: {getMissingFields(home).length} field(s) ({placeholderSummary(home, 4)})
+                        </div>
+                      )}
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 8 }}>
+                        {CARD_FIELDS(home).map(([label, value]) => <CardMetric key={`${home.homeId}-${label}`} label={label} value={value} />)}
+                      </div>
+                      <div style={{ paddingTop: 12, borderTop: "1px solid #334155" }}>
+                        <div style={{ ...TEXT_STYLES.eyebrow, color: "#94a3b8", marginBottom: 8 }}>Scored Factors (Raw + Score)</div>
+                        <div style={{ display: "grid", gap: 8 }}>
+                          {scoredFactorSpecs.map((spec) => {
+                            const pair = cardFactorPairsByHomeId.get(home.homeId)?.[spec.key] ?? { raw: "—", score: "—", scoreNum: null };
+                            return (
+                              <div key={`${home.homeId}-${spec.key}`} style={{ display: "grid", gap: 5 }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
+                                  <div style={{ minWidth: 0 }}>
+                                    <div style={{ ...TEXT_STYLES.captionStrong, color: "#e2e8f0" }}>{spec.label}</div>
+                                    <div style={{ ...TEXT_STYLES.caption, color: "#94a3b8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pair.raw}</div>
+                                  </div>
+                                  <div style={{ ...TEXT_STYLES.label, color: Number.isFinite(pair.scoreNum) ? gradeColor(pair.scoreNum) : "#64748b", fontWeight: 800, whiteSpace: "nowrap" }}>
+                                    {pair.score}
+                                  </div>
+                                </div>
+                                <ScoreBar value={pair.scoreNum} />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingTop: 12, borderTop: "1px solid #334155" }}>
+                        {getMissingFields(home).map((fieldKey) => (
+                          <span key={`${home.homeId}-missing-${fieldKey}`} style={{ ...TEXT_STYLES.caption, color: "#fbbf24", background: "#3f2a12", border: "1px solid #f59e0b55", borderRadius: 999, padding: "3px 8px" }}>
+                            Missing: {placeholderLabel(fieldKey)}
+                          </span>
+                        ))}
+                        {(home.tags || []).map((tag) => (
+                          <span key={`${home.homeId}-${tag}`} style={{ ...TEXT_STYLES.captionStrong, color: "#cbd5e1", background: "#0f172a", border: "1px solid #2d3748", borderRadius: 999, padding: "3px 8px" }}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
